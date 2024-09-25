@@ -1,0 +1,316 @@
+</html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Chrono Heaven</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lavishly+Yours&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f9f9f9;
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .card {
+            width: 400px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #a69259;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background-color: #a69259;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #8b764d;
+        }
+
+        .error {
+            color: #CA1515;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+
+        .forgot-password a {
+            font-size: 12px;
+            color: #a69259;
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            color: #8b764d;
+        }
+
+        .social-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .social-btn {
+            width: 48%;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .social-btn.google {
+            background-color: #db4437;
+        }
+
+        .social-btn.google:hover {
+            background-color: #b33629;
+        }
+
+        .social-btn.facebook {
+            background-color: #3b5998;
+        }
+
+        .social-btn.facebook:hover {
+            background-color: #2d4373;
+        }
+
+        .create-account {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .create-account a {
+            color: #a69259;
+            text-decoration: none;
+        }
+
+        .create-account a:hover {
+            color: #8b764d;
+        }
+
+        /* Responsive Styling */
+        @media (max-width: 1024px) {
+            .card {
+                width: 70%;
+                padding: 15px;
+                box-shadow: none;
+                /* Remove card effect */
+                border-radius: 0;
+                /* Remove border radius */
+            }
+
+            .btn-primary {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .social-btn {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 10px;
+            }
+
+            .form-control {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .btn-primary,
+            .social-btn {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .icon {
+            width: 20rem;
+            /* Increase the width of the logo */
+            height: auto;
+            /* Maintain aspect ratio */
+            display: inline-block;
+        }
+
+        .login-options {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .login-options a {
+            color: #a69259;
+            text-decoration: none;
+        }
+
+        .login-options a:hover {
+            color: #8b764d;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <div class="card">
+            <div class="logo">
+                <img src="/userAssets/images/icons/logo-01.png" alt="Chrono Heaven Icon" class="icon">
+            </div>
+            <h2>Admin Login</h2>
+            <% if (messages.success) { %>
+                <div class="alert alert-success" role="alert" style="color: green;">
+                    <%= messages.success %>
+                </div>
+                <% } %>
+
+                    <% if (messages.error) { %>
+                        <div class="alert alert-danger" role="alert" style="color: red;">
+                            <%= messages.error %>
+                        </div>
+                        <% } %>
+                            <br>
+                            <form id="login-form" method="post" action="/admin/login">
+                                <div class="form-group">
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="Email"
+                                        required>
+                                    <div class="error" id="email-error"></div>
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control" id="password" name="password"
+                                        placeholder="Password" required>
+                                    <div class="error" id="password-error"></div>
+                                </div>
+
+                                <button type="submit" class="btn-primary">LOGIN</button>
+                            </form>
+
+                            <p class="login-options">
+                                User? <a href="/login" class="user-login">User login</a>
+                            </p>
+
+        </div>
+    </div>
+
+    <script>
+        // Simple form validation
+        document.getElementById('login-form').addEventListener('submit', function (event) {
+            var email = document.getElementById('email').value.trim();
+            var password = document.getElementById('password').value.trim();
+            var emailError = document.getElementById('email-error');
+            var passwordError = document.getElementById('password-error');
+
+            // Reset previous errors
+            emailError.innerText = '';
+            passwordError.innerText = '';
+
+            // Email validation regex
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            var valid = true;
+
+            if (email === '') {
+                emailError.innerText = 'Email cannot be empty';
+                valid = false;
+            } else if (!emailRegex.test(email)) {
+                emailError.innerText = 'Invalid email format';
+                valid = false;
+            }
+
+            if (password === '') {
+                passwordError.innerText = 'Password cannot be empty';
+                valid = false;
+            } else if (password.length < 6) {
+                passwordError.innerText = 'Password must be at least 6 characters long';
+                valid = false;
+            }
+
+            if (!valid) {
+                event.preventDefault(); // Prevent form submission if validation fails
+            }
+        });
+    </script>
+
+</body>
+
+</html>

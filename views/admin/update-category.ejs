@@ -1,0 +1,49 @@
+<%- include("../layouts/admin/header") -%>
+
+    <section class="content-main">
+        <div class="content-header">
+            <h2 class="content-title">Update Category</h2>
+            <p>Modify the form below to update the product category.</p>
+            <% if (messages.success) { %>
+                <div class="alert alert-success" role="alert" style="color: green;">
+                    <%= messages.success %>
+                </div>
+                <% } %>
+
+                    <% if (messages.error) { %>
+                        <div class="alert alert-danger" role="alert" style="color: red;">
+                            <%= messages.error %>
+                        </div>
+                        <% } %>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <!-- Pre-fill existing category data -->
+                <form action="/admin/categories/update-category/<%= category._id %>" method="POST">
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">Category Name</label>
+                        <input type="text" name="name" class="form-control" id="categoryName"
+                            value="<%= category.name %>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="categoryDescription" class="form-label">Description</label>
+                        <input type="text" name="description" class="form-control" id="categoryDescription"
+                            value="<%= category.description %>" required>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Update Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/adminAssets/js/main.js"></script>
+    </body>
+
+    </html>

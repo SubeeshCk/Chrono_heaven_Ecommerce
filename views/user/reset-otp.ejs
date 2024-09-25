@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify OTP - Chrono Heaven</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Lavishly+Yours&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            width: 350px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            text-align: center;
+        }
+
+        .otp-input {
+            width: 50px;
+            text-align: center;
+            margin: 0 5px;
+            font-size: 1.5rem;
+            padding: 5px;
+        }
+
+        .btn-primary {
+            background-color: #b79f5b;
+            border-color: #b79f5b;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: #8b764d;
+            border-color: #8b764d;
+        }
+
+        .error {
+            color: #ca1515;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .resend-otp {
+            text-decoration: none;
+            color: #ca1515;
+            font-size: 0.8rem;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .icon {
+            width: 20rem;
+            height: auto;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6 form-container">
+                <div class="card">
+                    <!-- Logo Section -->
+                    <div class="logo">
+                        <img src="/userAssets/images/icons/logo-01.png" alt="Chrono Heaven Icon" class="icon" />
+                    </div>
+                    <h3 class="text-center">Verify Your Email</h3>
+                    <p class="text-center">
+                        An OTP has been sent to your email. Please enter the OTP to verify
+                        your account.
+                    </p>
+
+                    <% if (messages.success) { %>
+                        <div class="alert alert-success" role="alert" style="color: green">
+                            <%= messages.success %>
+                        </div>
+                        <% } %>
+                            <% if (messages.error) { %>
+                                <div class="alert alert-danger" role="alert" style="color: red">
+                                    <%= messages.error %>
+                                </div>
+                                <% } %>
+
+                                    <form id="otp-form" method="post" action="/verifyResetOtp">
+                                        <div class="form-group d-flex justify-content-center">
+                                            <input type="hidden" id="otpInput" name="otp" value="" />
+                                            <input type="text" class="form-control otp-input" id="otp1" maxlength="1"
+                                                required />
+                                            <input type="text" class="form-control otp-input" id="otp2" maxlength="1"
+                                                required />
+                                            <input type="text" class="form-control otp-input" id="otp3" maxlength="1"
+                                                required />
+                                            <input type="text" class="form-control otp-input" id="otp4" maxlength="1"
+                                                required />
+                                        </div>
+                                        <div class="error text-center" id="otp-error"></div>
+                                        <button type="submit" class="btn btn-primary btn-block">
+                                            Verify OTP
+                                        </button>
+                                    </form>
+
+                                    <p class="text-center mb-0" id="otp-timer"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script>
+        function startOTPTimer() {
+            var startTime = sessionStorage.getItem("otpTimerStart");
+            var currentTime = Math.floor(Date.now() / 1000);
+
+            if (!startTime || currentTime - startTime >= 60) {
+                startTime = currentTime;
+                sessionStorage.setItem("otpTimerStart", startTime);
+                var remainingTime = 60;
+            } else {
+                var elapsedTime = currentTime - startTime;
+                var remainingTime = 60 - elapsedTime;
+                remainingTime = Math.max(remainingTime, 0);
+            }
+
+            var timerElement = document.getElementById("otp-timer");
+            var resendLink = document.querySelector(".resend-otp");
+
+            if (!timerElement.dataset.timerRunning && !resendLink) {
+                timerElement.dataset.timerRunning = true;
+                var timer = setInterval(function () {
+                    if (remainingTime > 0) {
+                        timerElement.innerText =
+                            "Resend OTP in " + remainingTime + " seconds";
+                        remainingTime -= 1;
+                    } else {
+                        timerElement.dataset.timerRunning = false;
+                        clearInterval(timer);
+                        timerElement.innerHTML =
+                            '<a href="/resendResetOtp" class="resend-otp">Resend OTP</a>';
+                    }
+                }, 1000);
+            } else if (remainingTime <= 0 || resendLink) {
+                timerElement.innerHTML =
+                    '<a href="/resendResetOtp" class="resend-otp">Resend OTP</a>';
+            }
+        }
+
+        window.onload = function () {
+            startOTPTimer();
+        };
+
+        document
+            .getElementById("otp-form")
+            .addEventListener("submit", function (event) {
+                var otp1 = document.getElementById("otp1").value.trim();
+                var otp2 = document.getElementById("otp2").value.trim();
+                var otp3 = document.getElementById("otp3").value.trim();
+                var otp4 = document.getElementById("otp4").value.trim();
+
+                var otpValue = otp1 + otp2 + otp3 + otp4;
+                if (otp1 === "" || otp2 === "" || otp3 === "" || otp4 === "") {
+                    event.preventDefault();
+                    document.getElementById("otp-error").innerText =
+                        "Please enter the complete OTP.";
+                } else {
+                    document.getElementById("otp-error").innerText = "";
+                    document.getElementById("otpInput").value = otpValue;
+                }
+            });
+
+        document
+            .querySelectorAll(".otp-input")
+            .forEach(function (input, index, array) {
+                input.addEventListener("input", function () {
+                    if (this.value.length >= this.getAttribute("maxlength")) {
+                        var nextIndex = index + 1;
+                        if (nextIndex < array.length) {
+                            array[nextIndex].focus();
+                        }
+                    }
+                });
+            });
+    </script>
+</body>
+
+</html>

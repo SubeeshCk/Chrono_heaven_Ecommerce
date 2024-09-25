@@ -1,0 +1,57 @@
+<%- include("../layouts/admin/header") -%>
+
+    <section class="content-main">
+        <div class="content-header">
+            <h2 class="content-title">Add Category</h2>
+            <p>Fill in the form below to create a new product category.</p>
+            <% if (messages.success) { %>
+                <div class="alert alert-success" role="alert" style="color: green;">
+                    <%= messages.success %>
+                </div>
+                <% } %>
+
+                    <% if (messages.error) { %>
+                        <div class="alert alert-danger" role="alert" style="color: red;">
+                            <%= messages.error %>
+                        </div>
+                        <% } %>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <form action="/admin/categories/add-category" method="POST">
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">Category Name</label>
+                        <input type="text" name="name" class="form-control" id="categoryName"
+                            placeholder="Enter category name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryDescription" class="form-label">Description</label>
+                        <input type="text" name="description" class="form-control" id="categoryName"
+                            placeholder="Enter category description" required>
+                    </div>
+
+                    <!-- <div class="mb-3">
+                    <label for="categoryImage" class="form-label">Category Image</label>
+                    <input type="file" name="categoryImage" class="form-control" id="categoryImage">
+                </div> -->
+
+                    <!-- <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="is_listed" id="isListed" checked>
+                    <label class="form-check-label" for="isListed">Listed (Visible to users)</label>
+                </div> -->
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Create Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/adminAssets/js/main.js"></script>
+    </body>
+
+    </html>

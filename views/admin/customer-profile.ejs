@@ -1,0 +1,182 @@
+<%- include("../layouts/admin/header") -%>
+
+  <section class="content-main">
+    <div class="content-header">
+      <a href="/admin/customers"><i class="material-icons md-arrow_back"></i> Go back </a>
+    </div>
+    <div class="card mb-4">
+      <div class="card-header bg-brand-2" style="height: 150px"></div>
+      <div class="card-body">
+        <div class="row">
+          <!-- <div class="col-xl col-lg flex-grow-0" style="flex-basis: 230px">
+                    <div class="img-thumbnail shadow w-100 bg-white position-relative text-center" style="height: 190px; width: 200px; margin-top: -120px">
+                        <img src="<%= customer.image %>" class="center-xy img-fluid" alt="Customer Avatar" />
+                    </div>
+                </div> -->
+          <div class="col-xl col-lg">
+            <h3>
+              <%= customer.name %>
+            </h3>
+            <p>Email: <%= customer.email %>
+            </p>
+            <p>Mobile: <%= customer.mobile %>
+            </p>
+          </div>
+          <div class="col-xl-4 text-md-end">
+            <select class="form-select w-auto d-inline-block"
+              onchange="handleActionChange(this, '<%= customer._id %>', '<%= customer.block %>')">
+              <option value="">Actions</option>
+              <% if (customer.block) { %>
+                <option value="unblock">Unblock User</option>
+                <% } else { %>
+                  <option value="block">Block User</option>
+                  <% } %>
+                    <option value="message">Send Message</option>
+            </select>
+            <a href="#" class="btn btn-primary"> View Orders <i class="material-icons md-launch"></i> </a>
+          </div>
+        </div>
+        <hr class="my-4" />
+        <div class="row g-4">
+          <div class="col-md-12 col-lg-4 col-xl-2">
+            <article class="box">
+              <p class="mb-0 text-muted">Total Purchases:</p>
+              <h5 class="text-success">
+                <%= customer.totalPurchases %>
+              </h5>
+              <p class="mb-0 text-muted">Spent:</p>
+              <h5 class="text-success mb-0">$<%= customer.totalSpent %>
+              </h5>
+            </article>
+          </div>
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <h6>Contacts</h6>
+            <p>
+              Name: <%= customer.name %> <br />
+                Email: <%= customer.email %> <br />
+                  Phone: <%= customer.mobile %>
+            </p>
+          </div>
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <h6>Address</h6>
+            <p>
+              Country: California <br />
+              Postal code: 62639
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+  <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+  <script src="/adminAssets/js/vendors/select2.min.js"></script>
+  <script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
+  <script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
+  <script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
+
+  <script>
+    function setLoading(isLoading) {
+      const actionSelect = document.querySelector('select.form-select');
+      actionSelect.disabled = isLoading;
+    }
+
+    function handleActionChange(selectElement, userId, isBlocked) {
+      const action = selectElement.value;
+      const isBlockedBool = isBlocked === "true";
+
+      console.log(`Action selected: ${action}, UserID: ${userId}, IsBlocked: ${isBlockedBool}`);
+
+      if (action === "block" && !isBlockedBool) {
+        handleBlock(userId);
+      } else if (action === "unblock" && isBlockedBool) {
+        handleUnblock(userId);
+      } else if (action === "message") {
+        swal("Message", "This feature is not yet implemented", "info");
+      } else {
+        console.log("No action taken: current state doesn't match the selected action");
+      }
+
+      selectElement.value = "";
+    }
+
+    async function handleBlock(userId) {
+      const confirmation = await confirmAction("block");
+      if (confirmation) {
+        setLoading(true);
+        console.log(`Initiating block request for user: ${userId}`);
+        try {
+          const response = await fetch("/admin/customers/block", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId }),
+          });
+
+          const data = await response.json();
+          console.log(`Server response for blocking user ${userId}:`, data);
+
+          if (response.ok) {
+            swal("Success", data.message || "User blocked successfully", "success")
+              .then(() => {
+                location.reload();
+              });
+          } else {
+            swal("Error", data.message || "Failed to block user", "error");
+          }
+        } catch (error) {
+          console.error(`Error in block request for user ${userId}:`, error);
+          swal("Error", "An error occurred while blocking the user", "error");
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+
+    async function handleUnblock(userId) {
+      const confirmation = await confirmAction("unblock");
+      if (confirmation) {
+        setLoading(true);
+        console.log(`Initiating unblock request for user: ${userId}`);
+        try {
+          const response = await fetch("/admin/customers/unblock", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId }),
+          });
+
+          const data = await response.json();
+          console.log(`Server response for unblocking user ${userId}:`, data);
+
+          if (response.ok) {
+            swal("Success", data.message || "User unblocked successfully", "success")
+              .then(() => {
+                location.reload();
+              });
+          } else {
+            swal("Error", data.message || "Failed to unblock user", "error");
+          }
+        } catch (error) {
+          console.error(`Error in unblock request for user ${userId}:`, error);
+          swal("Error", "An error occurred while unblocking the user", "error");
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+
+    async function confirmAction(action) {
+      const result = await swal({
+        title: `Are you sure you want to ${action} this user?`,
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      });
+      return result;
+    }
+  </script>
+
+  </body>
+
+  </html>

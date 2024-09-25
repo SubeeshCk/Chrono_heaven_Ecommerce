@@ -1,0 +1,132 @@
+<%- include("../layouts/admin/header") -%>
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Products</h2>
+                <p>Product listing</p>
+            </div>
+            <div>
+                <a href="/admin/products/add-products" class="btn btn-primary btn-sm rounded">Add new products</a>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <header class="card-header">
+                <div class="row align-items-center">
+                    <div class="col col-check flex-grow-0">
+                        <div class="form-check ms-2">
+                            <input class="form-check-input" type="checkbox" value="" />
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                        <select class="form-select">
+                            <option selected>All products</option>
+                            <option>Electronics</option>
+                            <option>Clothes</option>
+                            <option>Automobile</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <div class="card-body">
+                <% if (messages.success) { %>
+                    <div class="alert alert-success" role="alert" style="color: green;">
+                        <%= messages.success %>
+                    </div>
+                    <% } %>
+
+                        <% if (messages.error) { %>
+                            <div class="alert alert-danger" role="alert" style="color: red;">
+                                <%= messages.error %>
+                            </div>
+                            <% } %>
+
+                                <!-- Table for Product Listing -->
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Image</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Stock</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% products.forEach(product=> { %>
+                                            <tr>
+                                                <!-- Product Image -->
+                                                <td>
+                                                    <% if (product.images && product.images.length> 0) { %>
+                                                        <img src="/adminAssets/uploads/product_images/<%= product.images[0] %>"
+                                                            alt="<%= product.product_name %>"
+                                                            style="max-width: 100px; max-height: 100px;" />
+                                                        <% } else { %>
+                                                            <p>No image available</p>
+                                                            <% } %>
+                                                </td>
+
+                                                <!-- Product Name -->
+                                                <td>
+                                                    <%= product.product_name %>
+                                                </td>
+
+                                                <!-- Product Stock -->
+                                                <td>
+                                                    <%= product.quantity %>
+                                                </td>
+
+                                                <!-- Product Status -->
+                                                <td>
+                                                    <span
+                                                        class="badge rounded-pill <%= product.is_listed ? 'alert-success' : 'alert-danger' %>">
+                                                        <%= product.is_listed ? 'Active' : 'Unlisted' %>
+                                                    </span>
+                                                </td>
+
+                                                <!-- Action Buttons -->
+                                                <td>
+                                                    <a href="/admin/products/update-products/<%=product._id%>"
+                                                        class="btn btn-sm btn-brand">
+                                                        <i class="material-icons md-edit"></i> Edit
+                                                    </a>
+                                                    <a href="/admin/products/<%= product.is_listed ? 'unlist' : 'list' %>-products/<%=product._id%>"
+                                                        class="btn btn-sm btn-light">
+                                                        <i class="material-icons md-delete_forever"></i>
+                                                        <%= product.is_listed ? 'Unlist' : 'List' %>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                    </tbody>
+                                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-area mt-30 mb-50">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-start">
+                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
+                    <li class="page-item"><a class="page-link" href="#">02</a></li>
+                    <li class="page-item"><a class="page-link" href="#">03</a></li>
+                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                    <li class="page-item"><a class="page-link" href="#">16</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
+
+    <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/adminAssets/js/vendors/select2.min.js"></script>
+    <script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/adminAssets/js/main.js" type="text/javascript"></script>
+    </body>
+
+    </html>
