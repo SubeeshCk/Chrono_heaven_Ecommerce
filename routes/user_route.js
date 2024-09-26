@@ -20,7 +20,7 @@ userRoute.set('views','./views/user');
 
 
 
-/***************************************************** USER SIGNUP,SIGN IN,LOGOUT ,OTP ***************************************************************************************/
+/******************************* USER SIGNUP,SIGN IN,LOGOUT ,OTP ************************************/
 userRoute.get('/signUp',userAuth.is_logout,userVerificationController.renderSignUp);
 userRoute.post('/signUp',userAuth.is_logout, userVerificationController.insertUser);
 userRoute.get('/login',userAuth.is_logout,userVerificationController.renderLogin);
@@ -45,9 +45,16 @@ userRoute.get('/products/womens',setUserData ,userController.renderWomens);
 userRoute.get('/products/mens',setUserData ,userController.renderMens);
 
 
-
-userRoute.get('/user-profile',profileController.renderProfile);
-userRoute.get('/edit-profile',profileController.editProfile);
+//********************************User profile management************************************//
+userRoute.get('/user-profile',setUserData,profileController.renderProfile);
+userRoute.get('/user-profile/edit-profile',setUserData,profileController.renderEditProfile);
+userRoute.post('/user-profile/edit-profile', profileController.updateProfile);
+userRoute.get('/user-profile/address',profileController.renderAddress);
+userRoute.get('/user-profile/address/add-address',setUserData,profileController.renderAddNewAddress);
+userRoute.post('/user-profile/address/add-address',setUserData,profileController.insertNewAddress);
+userRoute.get('/user-profile/address/edit-address',profileController.renderEditAddress);
+userRoute.post('/user-profile/address/update-address',profileController.updateAddress);
+userRoute.delete('/user-profile/address/delete-address/:id?',profileController.deleteAddress);
 
 
 //************************** Google authentication ********************************//

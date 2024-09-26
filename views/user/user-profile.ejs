@@ -1,10 +1,7 @@
-<%- include("../layouts/user/header")-%>
+<%- include("../layouts/user/product-header")-%>
 
 <style>
 
-.checkout {
-    margin-top: 100px; /* Adjust this value based on the height of your header */
-}
   .path a {
       margin-bottom: 5px;
       color: #000;
@@ -37,9 +34,30 @@
   .align-right-btn {
       float: right;
   }
+
+  .d-flex h5 {
+    margin-bottom: 30px;
+  }
 </style>
 </head>
 <body>
+
+<!-- Breadcrumb Begin -->
+<div class="container">
+  <div class="bread-crumb flex-w  p-r-15 p-t-30 p-lr-0-lg">
+    <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+      Home
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+
+    <a href="/user-profile" class="stext-109 cl8 hov-cl1 trans-04">
+      User profile
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    
+  </div>
+</div>
+<!-- Breadcrumb End -->
 
 <!-- Change Password Modal -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
@@ -82,7 +100,7 @@
       <div class="row d-flex justify-content-end">
         <div class="path">
           <div class="l">
-            <a href="/profile" style="color: red;">Personal Information</a>
+            <a href="/user-profile" style="color: red;">Personal Information</a>
           </div>
           <p class="text-secondary text-muted">____________________________</p>
           <div>
@@ -90,7 +108,7 @@
           </div>
           <p class="text-secondary text-muted">____________________________</p>
           <div>
-            <a href="/address">Address</a>
+            <a href="/user-profile/address">Address</a>
           </div>
           <p class="text-secondary text-muted">____________________________</p>
           <div>
@@ -112,7 +130,7 @@
         </div>
         <div class="col-lg-8">
           <br>
-          <h5 class="d-flex justify-content-center font-weight:bold">Personal Information</h5>
+          <h5 class="d-flex justify-content-start font-weight:bold">Personal Information</h5> 
           <div class="row">
             <div class="col-lg-12">
               <div class="checkout_form_input d-flex">
@@ -138,7 +156,7 @@
             <br><br>
           </div>
           <div class="d-flex justify-content-between mt-3">
-            <a href="/edit-profile" class="btn text-white" style="background-color: red;">Edit Profile</a>
+            <a href="/user-profile/edit-profile" class="btn text-white" style="background-color: red;">Edit Profile</a>
             <!-- <button class="btn text-white" style="background-color: red;" id="changePasswordBtn">Change Password</button> -->
           </div>
         </div>

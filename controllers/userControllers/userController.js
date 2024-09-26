@@ -79,7 +79,7 @@ const renderWomens = async (req, res) => {
     const womenCategory = await Category.findOne({ name: "women" });
 
     if (!womenCategory) {
-      return res.status(404).send("Women category not found");
+      return res.status(statusCode.NOT_FOUND).send("Women category not found");
     }
 
     const productData = await Products.find({
@@ -102,7 +102,7 @@ const renderMens = async (req, res) => {
     const mensCategory = await Category.findOne({ name: "men" });
 
     if (!mensCategory) {
-      return res.status(404).send("Men category not found");
+      return res.status(statusCode.NOT_FOUND).send("Men category not found");
     }
 
     const productData = await Products.find({
