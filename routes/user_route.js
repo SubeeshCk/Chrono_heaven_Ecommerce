@@ -5,8 +5,9 @@ const passport = require('passport')
 userRoute.use(express.json());
 userRoute.use(express.urlencoded({ extended: true }));
 
-const userVerificationController = require("../controllers/userControllers/userVerificationController")
-const userController = require("../controllers/userControllers/userController")
+const userVerificationController = require("../controllers/userControllers/userVerificationController");
+const userController = require("../controllers/userControllers/userController");
+const profileController = require("../controllers/userControllers/profileController");
 const userAuth = require("../middlewares/userAuth");
 const { setUserData } = require("../middlewares/setUserData");
 
@@ -43,6 +44,10 @@ userRoute.get('/product-details/:id?',setUserData,userController.productDetails)
 userRoute.get('/products/womens',setUserData ,userController.renderWomens);
 userRoute.get('/products/mens',setUserData ,userController.renderMens);
 
+
+
+userRoute.get('/user-profile',profileController.renderProfile);
+userRoute.get('/edit-profile',profileController.editProfile);
 
 
 //************************** Google authentication ********************************//
