@@ -35,6 +35,7 @@
 	<link rel="stylesheet" type="text/css" href="/userAssets/css/util.css">
 	<link rel="stylesheet" type="text/css" href="/userAssets/css/main.css">
 	<!--===============================================================================================-->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body class="animsition">
@@ -60,15 +61,15 @@
 							</li>
 
 							<li>
-								<a href="products">Shop</a>
+								<a href="/products">Shop</a>
 							</li>
 
 							<li>
 								<a href="shoping-cart.html">Categories</a>
 								<ul class="sub-menu">
-									<li><a href="/men">Men</a></li>
-									<li><a href="/women">Women</a></li>
-									<li><a href="/kids">Kids</a></li>
+									<li><a href="/products/mens">Mens</a></li>
+									<li><a href="/products/womens">Womens</a></li>
+									<li><a href="/products/kids">Kids</a></li>
 								</ul>
 							</li>
 
@@ -86,36 +87,40 @@
 
 							<li>
 								<% if(userData){ %>
-									<a href="/userDashboard">
+									<a href="/user-profile">
 										<%= userData.name %>
 									</a>
 									<ul class="sub-menu">
 										<li><a href="/logOut">Log out</a></li>
+										<li><a href="/user-profile">Your account</a></li>
 									</ul>
 									<% }else{ %>
-										<a href="/signUp">Sign up</a>
+										<a href="/login">Sign in</a>
 										<ul class="sub-menu">
 											<li><a href="/login">sign in</a></li>
 											<li><a href="/signUp">sign up</a></li>
 											<li><a href="/admin/logIn">Admin login</a></li>
 										</ul>
-										<% } %>
+									<% } %>
 							</li>
 						</ul>
 					</div>
 
 					<!-- Icon header -->
 					<div class="wrap-icon-header flex-w flex-r-m">
-						<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-modal-search">
+						<a href="#"
+						 class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-modal-search">
 							<i class="zmdi zmdi-search"></i>
-						</div>
+					    </a>
 
-						<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart"
+						<a href="/cart"
+						 class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart"
 							data-notify="2">
 							<i class="zmdi zmdi-shopping-cart"></i>
-						</div>
+					    </a>
 
-						<a href="#" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti"
+						<a href="#"
+							class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti"
 							data-notify="0">
 							<i class="zmdi zmdi-favorite-outline"></i>
 						</a>
@@ -133,14 +138,14 @@
 
 			<!-- Icon header -->
 			<div class="wrap-icon-header flex-w flex-r-m m-r-15">
-				<div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 js-show-modal-search">
+				<a href="#" class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 js-show-modal-search">
 					<i class="zmdi zmdi-search"></i>
-				</div>
+				</a>
 
-				<div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti js-show-cart"
+				<a href="#" class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti js-show-cart"
 					data-notify="2">
 					<i class="zmdi zmdi-shopping-cart"></i>
-				</div>
+			    </a>
 
 				<a href="#" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti"
 					data-notify="0">
@@ -165,15 +170,15 @@
 				</li>
 
 				<li>
-					<a href="products">Shop</a>
+					<a href="/products">Shop</a>
 				</li>
 
 				<li>
-					<a href="shoping-cart.html">Categories</a>
+					<a href="#">Categories</a>
 					<ul class="sub-menu-m">
-						<li><a href="/men">Men</a></li>
-						<li><a href="/women">Women</a></li>
-						<li><a href="/kids">Kids</a></li>
+						<li><a href="/products/mens">Mens</a></li>
+						<li><a href="/products/womens">Womens</a></li>
+						<li><a href="/products/kids">Kids</a></li>
 					</ul>
 					<span class="arrow-main-menu-m">
 						<i class="fa fa-angle-right" aria-hidden="true"></i>
@@ -194,11 +199,12 @@
 
 				<li>
 					<% if(userData){ %>
-						<a href="/dashboard">
+						<a href="/user-profile">
 							<%= userData.name %>
 						</a>
 						<ul class="sub-menu-m">
 							<li><a href="/logOut">Log out</a></li>
+							<li><a href="/user-profile">Your account</a></li>
 						</ul>
 						<span class="arrow-main-menu-m">
 							<i class="fa fa-angle-right" aria-hidden="true"></i>

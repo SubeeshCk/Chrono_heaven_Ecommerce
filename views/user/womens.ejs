@@ -37,33 +37,29 @@
 						<div class="container">
 							<div class="flex-w flex-sb-m p-b-52">
 								<div class="flex-w flex-l-m filter-tope-group m-tb-10">
-									<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1"
-										data-filter="*">
-										Womens collection
-									</button>
-
 									<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">
-										All products
+										<a href="/products">All products</a>
+									  </button>
+					
+									  <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".men">
+										<a href="/products/mens">Mens collection</a>
+									  </button>
+					
+									  <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".bag">
+										<a href="/products/kids">Kids collection</a>
+									  </button>
+									<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 dropdown-toggle" type="button"
+									  id="brandDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									  Shop by Brand
 									</button>
-
-									<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".men">
-										Men
-									</button>
-
-									<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".bag">
-										Bag
-									</button>
-
-									<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".shoes">
-										Shoes
-									</button>
-
-									<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5"
-										data-filter=".watches">
-										Watches
-									</button>
-								</div>
-
+									<div class="dropdown-menu" aria-labelledby="brandDropdown">
+									  <a class="dropdown-item" href="/products/?brand=cartier">Cartier</a>
+									  <a class="dropdown-item" href="/products/?brand=rolex">Rolex</a>
+									  <a class="dropdown-item" href="/products/?brand=omega">Omega</a>
+									  <a class="dropdown-item" href="/products/?brand=patek-philippe">Patek Philippe</a>
+									  <a class="dropdown-item" href="/products/?brand=tag-heuer">Tag Heuer</a>
+									</div>
+								  </div>
 								<div class="flex-w flex-c-m m-tb-10">
 									<div
 										class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
@@ -307,34 +303,42 @@
 													</a>
 												</div>
 												<div class="block2-txt flex-w flex-t p-t-14">
-													<div class="block2-txt-child1 flex-col-l ">
+													<div class="block2-txt-child1 flex-col-l">
 														<a href="/product-details/<%= product._id %>"
-															class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+															class="product-name stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
 															<%= product.product_name %>
 														</a>
-														<span class="stext-105 cl3">
-															RS <%= product.price %>
-														</span>
+														<% function formatPriceWithCommas(price) {
+															price=price.toString(); let
+															lastThree=price.substring(price.length-3); let
+															otherNumbers=price.substring(0, price.length-3); if
+															(otherNumbers !='' ) lastThree=',' + lastThree; let
+															formattedPrice=otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ","
+															) + lastThree; return formattedPrice; } %>
+															<br>
+															<span class="mtext-110 cl2">
+																₹<%= formatPriceWithCommas(product.price) %>
+															</span>
 													</div>
 													<div class="block2-txt-child2 flex-r p-t-3">
 														<a href="#"
 															class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
 															<img class="icon-heart1 dis-block trans-04"
-																src="/public/userAssets/images/icons/icon-heart-01.png"
+																src="/userAssets/images/icons/icon-heart-01.png"
 																alt="ICON">
 															<img class="icon-heart2 dis-block trans-04 ab-t-l"
-																src="/public/userAssets/images/icons/icon-heart-02.png"
+																src="/userAssets/images/icons/icon-heart-02.png"
 																alt="ICON">
 														</a>
 													</div>
 												</div>
 											</div>
 										</div>
-										<% }); %>
-											<% } else { %>
-												<p>No products available.</p>
-												<% } %>
-							</div>
+									<% }); %>
+										 <% } else { %>
+											<p>No products available.</p>
+										<% } %>
+							    </div>
 
 							<!-- Load more -->
 							<div class="flex-c-m flex-w w-full p-t-45">

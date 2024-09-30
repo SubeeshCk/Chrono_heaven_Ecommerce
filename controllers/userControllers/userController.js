@@ -1,7 +1,8 @@
 const User = require("../../models/userModel");
 const Category = require("../../models/category");
 const Products = require("../../models/product");
-const { statusCode } = require("../../config/statusCode");
+const { StatusCode } = require("../../config/StatusCode");
+
 
 const renderHome = async (req, res) => {
   try {
@@ -22,7 +23,6 @@ const renderHome = async (req, res) => {
             console.log("Error destroying session:", err.message);
           }
         });
-        req.flash("error", "Your account is blocked");
         userData = null;
       }
     }
@@ -30,7 +30,7 @@ const renderHome = async (req, res) => {
 
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send("An error occurred");
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).send("An error occurred");
   }
 };
 
@@ -52,7 +52,7 @@ const renderProducts = async (req, res) => {
     res.render("products", { productData });
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send('An error occurred');
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).send('An error occurred');
   }
 };
 
@@ -65,12 +65,12 @@ const productDetails = async (req, res) => {
       req.flash("error", "Something went wrong");
       return res.redirect("/products");
     }
-
+    
     res.render("product-details", { product });
 
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send('An error occurred');  
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).send('An error occurred');  
   }
 };
 
@@ -79,7 +79,7 @@ const renderWomens = async (req, res) => {
     const womenCategory = await Category.findOne({ name: "women" });
 
     if (!womenCategory) {
-      return res.status(statusCode.NOT_FOUND).send("Women category not found");
+      return res.status(StatusCode.NOT_FOUND).send("Women category not found");
     }
 
     const productData = await Products.find({
@@ -93,7 +93,7 @@ const renderWomens = async (req, res) => {
 
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -102,7 +102,7 @@ const renderMens = async (req, res) => {
     const mensCategory = await Category.findOne({ name: "men" });
 
     if (!mensCategory) {
-      return res.status(statusCode.NOT_FOUND).send("Men category not found");
+      return res.status(StatusCode.NOT_FOUND).send("Men category not found");
     }
 
     const productData = await Products.find({
@@ -115,7 +115,7 @@ const renderMens = async (req, res) => {
     res.render("mens", { productData, categories });
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 

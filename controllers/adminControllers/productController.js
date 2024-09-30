@@ -1,7 +1,7 @@
 const API_ROUTES = require("../../config/apiRoutes");
 const Category = require("../../models/category");
 const Products = require("../../models/product");
-const { statusCode } = require("../../config/statusCode");
+const { StatusCode } = require("../../config/StatusCode");
 
 
 const fs = require('fs').promises;
@@ -15,7 +15,7 @@ const renderProduct = async (req, res) => {
     res.render("products", { products });
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
   }
 };
 
@@ -25,7 +25,7 @@ const renderAddProducts = async (req, res) => {
     return res.render("add-products", { categoryData });
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
   }
 };
 
@@ -268,7 +268,7 @@ const unlistProduct = async (req, res) => {
     res.redirect(API_ROUTES.PRODUCT.LIST);
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
   }
 };
 
@@ -295,7 +295,7 @@ const listProduct = async (req, res) => {
     res.redirect(API_ROUTES.PRODUCT.LIST);
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
   }
 };
 

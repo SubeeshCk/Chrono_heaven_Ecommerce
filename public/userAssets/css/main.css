@@ -3017,6 +3017,19 @@ input.num-product::-webkit-inner-spin-button {
   left: -21px;
 }
 
+
+  .product-name {
+  display: block;
+  height: 2.6em; /* Enough height for two lines */
+  line-height: 1.3em; /* Adjust line height */
+  overflow: hidden; /* Hide overflow */
+  white-space: normal; /* Allow line breaks */
+  text-overflow: ellipsis; /* Optional: Add "..." if text overflows */
+  font-size: 1.1rem;
+  color: #000;
+}
+
+
 @media (max-width: 767px) {
   .how-bor1::before {
     bottom: -21px;

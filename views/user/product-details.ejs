@@ -86,7 +86,7 @@
 										</h4>
 
 										<span class="mtext-106 cl2 d-block mb-4">
-											RS <%= product.price.toFixed(2) %>
+											₹ <%= product.price.toFixed(2) %>
 										</span>
 
 										<div class="product-details">
@@ -174,11 +174,17 @@
 													<i class="fs-16 zmdi zmdi-plus"></i>
 												</div>
 											</div>
-
-											<button
-												class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
-												Add to cart
-											</button>
+											
+											<% if (product.quantity == 0) { %>
+												<button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
+												  <a href="#" class="cart-btn" style="color: white;"><span class="icon_bag_alt"></span> Out of stock</a>
+												</button>
+											  <% } else { %>
+												<button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
+												  <a href="/addToCart/<%= product._id %>" class="cart-btn" style="color: white;"><span class="icon_bag_alt"></span> Add to cart</a>
+												  <a href="/addToCart/<%= product._id %>" class="cart-btn"><span class="icon_heart_alt"></span></a>
+												</button>
+											  <% } %>
 										</div>
 									</div>
 								</div>
@@ -349,9 +355,9 @@
 											</div>
 										</div>
 									</div>
-
-									<%- include("../layouts/user/footer")-%>
 								</div>
 							</div>
 						</div>
 					</section>
+
+<%- include("../layouts/user/footer")-%>

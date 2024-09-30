@@ -38,6 +38,7 @@
   .d-flex h5 {
     margin-bottom: 30px;
   }
+
 </style>
 </head>
 <body>
@@ -60,7 +61,8 @@
 <!-- Breadcrumb End -->
 
 <!-- Change Password Modal -->
-<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -69,7 +71,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="/change-password" method="post">
+      <form action="/user-profile/change-password" method="post" id="changePasswordForm">
         <div class="modal-body">
           <div class="form-group">
             <label for="currentPassword">Current Password</label>
@@ -78,10 +80,17 @@
           <div class="form-group">
             <label for="newPassword">New Password</label>
             <input type="password" class="form-control" id="newPassword" name="new_password" required>
+            <small id="passwordHelp" class="form-text text-muted">
+              Your password must be minimum 8 characters long, contain uppercase and lowercase letters, a number, and a
+              special character.
+            </small>
           </div>
           <div class="form-group">
             <label for="confirmPassword">Confirm New Password</label>
             <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+            <small id="passwordMatchError" class="form-text text-danger" style="display: none;">
+              Passwords do not match!
+            </small>
           </div>
         </div>
         <div class="modal-footer">
@@ -130,6 +139,17 @@
         </div>
         <div class="col-lg-8">
           <br>
+          <% if (messages.success) { %>
+            <div class="alert alert-success flash-message" role="alert" style="color: green;" data-timeout="5">
+              <%= messages.success %>
+            </div>
+          <% } %>
+
+          <% if (messages.error) { %>
+            <div class="alert alert-danger flash-message" role="alert" style="color: red;" data-timeout="5">
+              <%= messages.error %>
+            </div>
+          <% } %>
           <h5 class="d-flex justify-content-start font-weight:bold">Personal Information</h5> 
           <div class="row">
             <div class="col-lg-12">
@@ -179,4 +199,39 @@ $(document).ready(function () {
     $('#changePasswordModal').modal('show');
   });
 });
+$(document).ready(function () {
+  // Show modal when the "Change Password" button is clicked
+  $('#changePasswordBtn').click(function () {
+    $('#changePasswordModal').modal('show');
+  });
+
+  // Form submission validation
+  $('#changePasswordForm').on('submit', function (e) {
+    var newPassword = $('#newPassword').val();
+    var confirmPassword = $('#confirmPassword').val();
+    var passwordMatchError = $('#passwordMatchError');
+    var passwordHelp = $('#passwordHelp');
+
+    // Regular expression for a strong password: 
+    // at least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
+    var strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    // Check if passwords match
+    if (newPassword !== confirmPassword) {
+      e.preventDefault(); // Stop form submission
+      passwordMatchError.show(); // Show the error message
+    } else {
+      passwordMatchError.hide(); // Hide the error message
+    }
+
+    // Check if the password is strong enough
+    if (!strongPasswordRegex.test(newPassword)) {
+      e.preventDefault(); // Stop form submission
+      passwordHelp.text('Password is not strong enough!').addClass('text-danger');
+    } else {
+      passwordHelp.text('Your password must be 8-20 characters long, contain uppercase and lowercase letters, a number, and a special character.').removeClass('text-danger');
+    }
+  });
+});
+
 </script>

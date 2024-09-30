@@ -1,7 +1,7 @@
 const User = require("../../models/userModel");
 const moment = require("moment");
 const API_ROUTES = require("../../config/apiRoutes");
-const { statusCode } = require("../../config/statusCode");
+const { StatusCode } = require("../../config/StatusCode");
 
 
 
@@ -15,7 +15,7 @@ const renderCustomer = async (req, res) => {
     return res.render("customers", { userData: formattedUserData });
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
   }
 };
 
@@ -27,14 +27,15 @@ const blockUser = async (req, res) => {
       { $set: { block: true } },
       { new: true }
     );
-    console.log(updatedUser);
+    
+    delete req.session.userId;
     return res.status(200).send({
       message: "User blocked successfully",
       redirect: API_ROUTES.CUSTOMER.LIST,
     });
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send({ message: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ message: "Internal server error" });
   }
 };
 
@@ -52,7 +53,7 @@ const unblockUser = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send({ message: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ message: "Internal server error" });
   }
 };
 
@@ -67,7 +68,7 @@ const renderCustomerProfile = async (req, res) => {
     res.render("customer-profile", { customer });
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send({ message: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ message: "Internal server error" });
   }
 };
 

@@ -8,9 +8,13 @@ userRoute.use(express.urlencoded({ extended: true }));
 const userVerificationController = require("../controllers/userControllers/userVerificationController");
 const userController = require("../controllers/userControllers/userController");
 const profileController = require("../controllers/userControllers/profileController");
+const cartController = require("../controllers/userControllers/cartController");
+
+//middlewares
 const userAuth = require("../middlewares/userAuth");
 const { setUserData } = require("../middlewares/setUserData");
 
+//setting /userAssets as static
 userRoute.use('/userAssets', express.static('public/userAssets'));
 
 
@@ -38,6 +42,7 @@ userRoute.get('/resendResetOtp',userAuth.is_logout,userVerificationController.re
 userRoute.get('/logOut',userAuth.is_login,userVerificationController.logOut);
 
 
+//************************* HOME,SHOP,PRODUCT_DETAILS,WOMEN,MEN********************************//
 userRoute.get('/',setUserData ,userController.renderHome);
 userRoute.get('/products',setUserData ,userController.renderProducts);
 userRoute.get('/product-details/:id?',setUserData,userController.productDetails);
@@ -46,15 +51,21 @@ userRoute.get('/products/mens',setUserData ,userController.renderMens);
 
 
 //********************************User profile management************************************//
-userRoute.get('/user-profile',setUserData,profileController.renderProfile);
-userRoute.get('/user-profile/edit-profile',setUserData,profileController.renderEditProfile);
-userRoute.post('/user-profile/edit-profile', profileController.updateProfile);
-userRoute.get('/user-profile/address',profileController.renderAddress);
-userRoute.get('/user-profile/address/add-address',setUserData,profileController.renderAddNewAddress);
-userRoute.post('/user-profile/address/add-address',setUserData,profileController.insertNewAddress);
-userRoute.get('/user-profile/address/edit-address',profileController.renderEditAddress);
-userRoute.post('/user-profile/address/update-address',profileController.updateAddress);
-userRoute.delete('/user-profile/address/delete-address/:id?',profileController.deleteAddress);
+userRoute.get('/user-profile',userAuth.is_login, setUserData,profileController.renderProfile);
+userRoute.get('/user-profile/edit-profile',userAuth.is_login, setUserData,profileController.renderEditProfile);
+userRoute.post('/user-profile/edit-profile',userAuth.is_login, profileController.updateProfile);
+userRoute.get('/user-profile/address',userAuth.is_login, profileController.renderAddress);
+userRoute.get('/user-profile/address/add-address',userAuth.is_login, setUserData,profileController.renderAddNewAddress);
+userRoute.post('/user-profile/address/add-address',userAuth.is_login, setUserData,profileController.insertNewAddress);
+userRoute.get('/user-profile/address/edit-address',userAuth.is_login,profileController.renderEditAddress);
+userRoute.post('/user-profile/address/update-address',userAuth.is_login, profileController.updateAddress);
+userRoute.delete('/user-profile/address/delete-address/:id?',userAuth.is_login, profileController.deleteAddress);
+userRoute.post('/user-profile/change-password',setUserData,userAuth.is_login, profileController.resetPassword);
+
+
+//*************************************Cart management***********************************************/
+userRoute.get('/cart', userAuth.is_login, setUserData,cartController.renderCart);
+userRoute.get('/addToCart/:productId',userAuth.is_login, cartController.addToCart);
 
 
 //************************** Google authentication ********************************//

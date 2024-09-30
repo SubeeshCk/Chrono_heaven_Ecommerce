@@ -156,15 +156,15 @@
             </button>
 
             <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5">
-              <a href="/products/womens">Women</a>
+              <a href="/products/womens">Womens collections</a>
             </button>
 
             <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5">
-              <a href="/products/mens">Men</a>
+              <a href="/products/mens">Mens collections</a>
             </button>
 
             <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5">
-              <a href="/products/kids">kids</a>
+              <a href="/products/kids">kids collections</a>
             </button>
 
             <div class="dropdown ">
@@ -392,18 +392,25 @@
                   </div>
                   <div class="block2-txt flex-w flex-t p-t-14">
                     <div class="block2-txt-child1 flex-col-l">
-                      <a href="/product-details/<%= product._id %>"
-                        class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                      <a href="/product-details/<%= product._id %>" class="product-name stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                         <%= product.product_name %>
-                      </a>
-                      <span class="stext-105 cl3"> RS <%= product.price %> </span>
+                      </a>                  
+                      <% function formatPriceWithCommas(price) { price=price.toString(); let
+                        lastThree=price.substring(price.length-3); let otherNumbers=price.substring(0, price.length-3); if
+                        (otherNumbers !='' ) lastThree=',' + lastThree; let
+                        formattedPrice=otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, "," ) + lastThree; return formattedPrice; }
+                        %>
+                         <br>
+                        <span class="mtext-110 cl2">
+                          ₹<%= formatPriceWithCommas(product.price) %>
+                        </span>
                     </div>
                     <div class="block2-txt-child2 flex-r p-t-3">
                       <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
                         <img class="icon-heart1 dis-block trans-04"
-                          src="/public/userAssets/images/icons/icon-heart-01.png" alt="ICON" />
+                          src="/userAssets/images/icons/icon-heart-01.png" alt="ICON" />
                         <img class="icon-heart2 dis-block trans-04 ab-t-l"
-                          src="/public/userAssets/images/icons/icon-heart-02.png" alt="ICON" />
+                          src="/userAssets/images/icons/icon-heart-02.png" alt="ICON" />
                       </a>
                     </div>
                   </div>

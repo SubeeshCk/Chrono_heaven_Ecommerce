@@ -1,13 +1,13 @@
 const User = require("../../models/userModel");
 const bcrypt = require("bcrypt");
-const { statusCode } = require("../../config/statusCode");
+const { StatusCode } = require("../../config/StatusCode");
 
 const renderLogin = async (req, res) => {
   try {
     return res.render("login");
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
   }
 };
 
@@ -16,13 +16,13 @@ const loadLogout = async (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         console.log("Logout error:", err.message);
-        return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Failed to log out" });
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Failed to log out" });
       }
       res.redirect("/admin");
     });
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
   }
 };
 
@@ -35,7 +35,7 @@ const loadLogin = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
   }
 };
 
@@ -65,7 +65,7 @@ const verifyLogin = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
   }
 };
 
@@ -74,7 +74,7 @@ const renderDashboard = async (req, res) => {
     res.render("dashboard");
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Failed to load dashboard" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Failed to load dashboard" });
   }
 };
 
@@ -83,14 +83,14 @@ const logOut = async (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         console.log("Logout error:", err.message);
-        return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Failed to log out" });
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Failed to log out" });
       }
       res.clearCookie('connect.sid');
       res.redirect("/admin/login");
     });
   } catch (error) {
     console.log(error.message);
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
   }
 };
 

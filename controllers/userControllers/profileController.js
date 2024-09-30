@@ -1,7 +1,18 @@
 const User = require("../../models/userModel");
 const product = require("../../models/product");
-const { statusCode } = require("../../config/statusCode");
+const { StatusCode } = require("../../config/StatusCode");
 const Address = require("../../models/userAddress");
+const bcrypt = require("bcrypt");
+
+//For bcrypting the password
+const securePassword = async (password) => {
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    return passwordHash;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 
 const renderProfile = (req, res) => {
   try {
@@ -13,7 +24,7 @@ const renderProfile = (req, res) => {
     res.render("user-profile");
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
@@ -23,12 +34,12 @@ const renderEditProfile = async (req, res) => {
 
     if (!userData) {
       console.log("User not found");
-      return res.status(statusCode.NOT_FOUND).send("User not found");
+      return res.status(StatusCode.NOT_FOUND).send("User not found");
     }
     res.render("edit-profile");
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
@@ -72,7 +83,7 @@ const updateProfile = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
@@ -88,7 +99,7 @@ const renderAddress = async (req, res) => {
 
     if (!user) {
       console.log("User not found");
-      return res.status(statusCode.NOT_FOUND).send("User not found");
+      return res.status(StatusCode.NOT_FOUND).send("User not found");
     }
 
     const addresses = await Address.find({ userId });
@@ -96,7 +107,7 @@ const renderAddress = async (req, res) => {
     res.render("address", { userData: user, addresses });
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
@@ -105,14 +116,16 @@ const renderAddNewAddress = async (req, res) => {
     res.render("add-address");
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
 const insertNewAddress = async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { pincode, locality, address, city, state, addresstype } = req.body;
+    const { name,pincode, locality, address, city, state, addresstype } = req.body;
+
+    const trimmedName = name.trim();
     const trimmedPincode = pincode.trim();
     const trimmedLocality = locality.trim();
     const trimmedAddress = address.trim();
@@ -124,6 +137,7 @@ const insertNewAddress = async (req, res) => {
       return res.redirect("/login");
     }
     if (
+      !trimmedName ||
       !trimmedPincode ||
       !trimmedLocality ||
       !trimmedAddress ||
@@ -158,6 +172,7 @@ const insertNewAddress = async (req, res) => {
     }
 
     const newAddress = new Address({
+      name,
       userId,
       pincode,
       locality,
@@ -179,7 +194,7 @@ const insertNewAddress = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
@@ -196,13 +211,13 @@ const renderEditAddress = async (req, res) => {
     console.log(address);
 
     if (!address || address.userId !== userId) {
-      return res.status(statusCode.NOT_FOUND).send("Address not found");
+      return res.status(StatusCode.NOT_FOUND).send("Address not found");
     }
 
     res.render("edit-address", { userData: [address] });
   } catch (error) {
     console.error("Error rendering edit address:", error);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
@@ -228,7 +243,7 @@ const updateAddress = async (req, res) => {
     if (!existingAddress) {
       req.flash("error", "Address not found or does not belong to the user");
       return res
-        .status(statusCode.NOT_FOUND)
+        .status(StatusCode.NOT_FOUND)
         .send("Address not found or does not belong to the user");
     }
 
@@ -243,7 +258,7 @@ const updateAddress = async (req, res) => {
       return res.redirect("/user-profile/address");
     } else {
       req.flash("error", "Failed to update address");
-      return res.status(statusCode.INTERNAL_SERVER_ERROR).send("Failed to update address");
+      return res.status(StatusCode.INTERNAL_SERVER_ERROR).send("Failed to update address");
     }
   } catch (error) {
     console.log(error.message);
@@ -266,7 +281,7 @@ const deleteAddress = async (req, res) => {
     if (!address) {
       console.log("Address not found or does not belong to the user");
       return res
-        .status(statusCode.NOT_FOUND)
+        .status(StatusCode.NOT_FOUND)
         .json({ error: "Address not found or does not belong to the user" });
     }
 
@@ -275,9 +290,50 @@ const deleteAddress = async (req, res) => {
     res.status(200).json({ message: "Address deleted successfully" });
   } catch (error) {
     console.log(error.message);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
+
+const resetPassword = async ( req,res ) => {
+  try {    
+    const { current_password, new_password, confirm_password } = req.body;
+    const userData = res.locals.userData;
+    console.log(userData);
+    
+    if(!userData){
+      return res.redirect("/login");
+    }
+      
+    const passwordMatch = await bcrypt.compare(current_password, userData.password);
+      
+    if(!passwordMatch){
+         req.flash("error","You entered a wrong password");
+         return res.redirect("/user-profile");
+      }
+
+      if (new_password !== confirm_password) {
+        req.flash("error", "Passwords do not match");
+        return res.redirect("/user-profile");
+      }
+
+      const hashedPassword = await securePassword(new_password);
+      
+      const updateResult = await User.findOneAndUpdate(
+        { email: userData.email },
+        { $set: { password: hashedPassword } },
+        { new: true }
+      );
+
+      if(updateResult){
+        req.flash("success","Your password updated successfully");
+        return res.redirect("/user-profile");
+      }
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+  }
+}
 
 module.exports = {
   renderProfile,
@@ -289,4 +345,5 @@ module.exports = {
   renderEditAddress,
   updateAddress,
   deleteAddress,
+  resetPassword
 };
