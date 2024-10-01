@@ -69,6 +69,9 @@ const productSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
+    discount: {
+      type: Number
+    },
   },
   { timestamps: true }
 );

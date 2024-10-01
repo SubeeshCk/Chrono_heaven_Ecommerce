@@ -1905,14 +1905,14 @@ input.num-product::-webkit-inner-spin-button {
 [ Table Shopping Cart ]*/
 
 .wrap-table-shopping-cart {
-  overflow: auto;
+  overflow:auto;
   border-left: 1px solid #e6e6e6;
   border-right: 1px solid #e6e6e6;
 }
 
 .table-shopping-cart {
   border-collapse: collapse;
-  width: 100%;
+  width: 120%;
   min-width: 680px;
 }
 
@@ -1934,18 +1934,25 @@ input.num-product::-webkit-inner-spin-button {
 .table-shopping-cart .column-3 {
   width: 120px;
   font-size: 16px;
+  padding-left: 20px;
 }
 
 .table-shopping-cart .column-4 {
   width: 145px;
-  text-align: right;
+  text-align: center;
+  padding-left: 20px;
+
 }
 
 .table-shopping-cart .column-5 {
   width: 172px;
-  padding-right: 50px;
-  text-align: right;
+  padding-left: 20px;
+  text-align: left;
   font-size: 16px;
+}
+
+.table-shopping-cart .column-6 {
+  padding-right: 50px;
 }
 
 .table-shopping-cart .table_row {
@@ -1976,6 +1983,11 @@ input.num-product::-webkit-inner-spin-button {
   line-height: 1.6;
 }
 
+.quantity-wrapper {
+  display: flex;
+  justify-content: center;
+  text-align: right;
+}
 
 /*//////////////////////////////////////////////////////////////////
 [ Block1 ]*/
