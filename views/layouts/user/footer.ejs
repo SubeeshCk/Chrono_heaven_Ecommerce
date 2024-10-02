@@ -260,27 +260,6 @@
 <!--===============================================================================================-->
 <script src="/userAssets/js/main.js"></script>
 
-
-
-<script src="https://unpkg.com/js-image-zoom@0.7.0/js-image-zoom.js" type="application/javascript"></script>
-<script>
-	document.addEventListener('DOMContentLoaded', function () {
-		var options = {
-			width: 400,
-			zoomWidth: 500,
-			offset: { vertical: 0, horizontal: 10 },
-			zoomPosition: 'top',
-			zoomContainer: null
-		};
-
-		// Apply zoom to all product images
-		var imageContainers = document.querySelectorAll('[id^="img-container-"]');
-		imageContainers.forEach(function (container) {
-			new ImageZoom(container, options);
-		});
-	});
-</script>
-
 </body>
 
 </html>

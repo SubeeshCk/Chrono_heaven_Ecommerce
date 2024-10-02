@@ -16,7 +16,7 @@
   </div>
 
   <!-- Shoping Cart -->
-  <form class="bg0 p-t-75 p-b-85" action="/update-cart" method="POST">
+  <form class="bg0 p-t-75 p-b-85" action="/update-cart" method="get">
     <div class="container">
       <div class="row">
         <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
@@ -141,7 +141,8 @@
 
               <div class="size-209 p-t-1">
                 <span class="mtext-110 cl2">
-                  ₹ <%= formatPriceWithCommas(cartItems.reduce((acc, item)=> acc + (item.product[0].offerTotalPrice),
+                  ₹ <%= formatPriceWithCommas(cartItems.reduce((acc, item)=> acc +
+                    (item.product[0].totalPriceWithOffer),
                     0)) %>
                 </span>
               </div>
@@ -153,7 +154,7 @@
               %>
 
               <button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer" type="submit"
-                formaction="/checkout">
+                formaction="/cart/checkout">
                 Proceed to Checkout
               </button>
           </div>
@@ -253,12 +254,18 @@
                 totalElement.textContent = '₹ ' + formatPriceWithCommas(newTotal);
 
                 updateSubtotalAndTotal(response.cartItems);
+
+                toastr.success('Cart updated successfully', 'Success');
               }
             },
-            error: function (error) {
+            error: function (xhr, status, error) {
               console.error('Error updating cart quantity:', error);
               toastr.clear();
-              toastr.error('Failed to update cart', 'Error');
+              if (xhr.responseJSON && xhr.responseJSON.message) {
+                toastr.error(xhr.responseJSON.message, 'Error');
+              } else {
+                toastr.error('Failed to update cart', 'Error');
+              }
             }
           });
         }
@@ -283,29 +290,79 @@
               } else {
                 Swal.fire({
                   title: 'Error!',
-                  text: 'Failed to remove item from cart.',
+                  text: response.message || 'Failed to remove item from cart.',
                   icon: 'error'
                 });
               }
             },
-            error: function (error) {
+            error: function (xhr, status, error) {
               console.error('Error removing product from cart:', error);
-              Swal.fire({
-                title: 'Error!',
-                text: 'Failed to remove item from cart.',
-                icon: 'error'
-              });
+              if (xhr.responseJSON && xhr.responseJSON.message) {
+                Swal.fire({
+                  title: 'Error!',
+                  text: xhr.responseJSON.message,
+                  icon: 'error'
+                });
+              } else {
+                Swal.fire({
+                  title: 'Error!',
+                  text: 'Failed to remove item from cart.',
+                  icon: 'error'
+                });
+              }
             }
           });
         }
 
+        // Add event listener for the checkout button
+        const checkoutButton = document.querySelector('button[formaction="/cart/checkout"]');
+        if (checkoutButton) {
+          checkoutButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            $.ajax({
+              type: 'GET',
+              url: '/check-stock',
+              success: function (response) {
+                if (response.outOfStock) {
+                  Swal.fire({
+                    title: 'Out of Stock',
+                    text: 'Some items in your cart are out of stock. Please remove them before proceeding to checkout.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                  });
+                } else {
+                  // Proceed with checkout
+                  window.location.href = '/cart/checkout';
+                }
+              },
+              error: function (xhr, status, error) {
+                console.error('Error checking stock:', error);
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                  Swal.fire({
+                    title: 'Error',
+                    text: xhr.responseJSON.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                  });
+                } else {
+                  Swal.fire({
+                    title: 'Error',
+                    text: 'An error occurred while checking stock. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                  });
+                }
+              }
+            });
+          });
+        }
         function updateSubtotalAndTotal(cartItems) {
           let subtotal = 0;
           let total = 0;
 
           cartItems.forEach(item => {
             subtotal += item.product[0].totalPrice;
-            total += item.product[0].offerTotalPrice;
+            total += item.product[0].totalPriceWithOffer;
           });
 
           document.querySelector('.flex-w.flex-t.bor12.p-b-13 .size-209 .mtext-110.cl2').textContent = '₹ ' + formatPriceWithCommas(subtotal);

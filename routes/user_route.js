@@ -66,9 +66,14 @@ userRoute.post('/user-profile/change-password',setUserData,userAuth.is_login, pr
 //*************************************Cart management***********************************************/
 userRoute.get('/cart', userAuth.is_login, setUserData,cartController.renderCart);
 userRoute.get('/addToCart/:id',userAuth.is_login, cartController.addToCart);
-
 userRoute.post('/updateCartItem',userAuth.is_login,cartController.updateCartItem);
+userRoute.get('/check-stock',userAuth.is_login, cartController.checkStock);
 userRoute.post('/removeCartItem',userAuth.is_login,cartController.removeCartItem);
+
+userRoute.get('/cart/checkout',userAuth.is_login,cartController.loadCheckout);
+userRoute.get('/cart/checkout/addNewAddress',userAuth.is_login,cartController.addNewAddress)
+userRoute.post('/cart/checkout/addCheckoutAddress',userAuth.is_login, cartController.insertCheckoutAddress);
+userRoute.delete('/cart/checkout/deleteAddress/:id?', userAuth.is_login, cartController.removeAddress);
 
 
 //************************** Google authentication ********************************//

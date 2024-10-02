@@ -1,0 +1,366 @@
+<%- include('../layouts/user/product-header') %>
+
+  <style>
+    /* General page styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+    }
+
+    .breadcrumb-option {
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    /* Responsive grid system */
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -15px;
+    }
+
+    .col-lg-8,
+    .col-lg-4 {
+      padding: 0 15px;
+    }
+
+    .col-lg-8 {
+      flex: 0 0 66.66%;
+      max-width: 66.66%;
+    }
+
+    .col-lg-4 {
+      flex: 0 0 33.33%;
+      max-width: 33.33%;
+    }
+
+    /* Form styles */
+    form {
+      width: 100%;
+    }
+
+    .checkout__form {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Coupon section */
+    .checkout__coupon {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+
+    .checkout__coupon input {
+      width: 70%;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .checkout__coupon button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .site-btn1 {
+      background-color: #d9534f;
+      color: #fff;
+      border-radius: 10px;
+    }
+
+    .site-btn1:hover {
+      background-color: #c9302c;
+    }
+
+    /* Address selection */
+    .checkout__address__details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      background-color: #f5f5f5;
+      cursor: pointer;
+    }
+
+    /* Order summary */
+    .checkout__order__product__list {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .checkout__order__product__list th,
+    .checkout__order__product__list td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .checkout__order__product__list th:last-child,
+    .checkout__order__product__list td:last-child {
+      text-align: right;
+    }
+
+    .checkout__order__total ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin-bottom: 0;
+    }
+
+    .checkout__order__total ul li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .checkout__order__total ul li:last-child {
+      border-bottom: none;
+      font-weight: bold;
+    }
+
+    .checkout__order__total .label {
+      display: flex;
+      align-items: center;
+    }
+
+    .checkout__order__total .icon {
+      margin-right: 10px;
+      font-size: 18px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .checkout__order__total .price {
+      text-align: right;
+      min-width: 80px;
+    }
+
+    /* Additional styles for better layout */
+    .checkout__order {
+      background-color: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      padding: 20px;
+    }
+
+    .checkout__order h5 {
+      margin-bottom: 15px;
+      border-bottom: 2px solid #a69259;
+      padding-bottom: 10px;
+    }
+
+    /* Payment section */
+    .checkout__payment-method {
+      margin-top: 20px;
+    }
+
+    .checkout__payment-method input {
+      margin-right: 10px;
+    }
+
+    .site-btn1 {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+
+      .col-lg-8,
+      .col-lg-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+
+      .checkout__coupon {
+        flex-direction: column;
+      }
+
+      .checkout__coupon input {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+
+      .checkout__coupon button {
+        width: 100%;
+        margin: 0;
+      }
+    }
+
+    /* Custom colors and buttons */
+    .site-btn {
+      background-color: #a69259;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .site-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Fixing the header issue */
+    header {
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Icon styles */
+    .icon {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+  </style>
+
+<!-- Breadcrumb Begin -->
+<div class="container">
+  <div class="bread-crumb flex-w p-b-15 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+      Home
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+
+    <a href="/cart" class="stext-109 cl8 hov-cl1 trans-04">
+      Cart
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+
+    <a href="/cart/checkout" class="stext-109 cl8 hov-cl1 trans-04">
+      Check out
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+
+    <a href="/cart/checkout/addNewAddress" class="stext-109 cl8 hov-cl1 trans-04">
+      Add new address
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+  </div>
+</div>
+<!-- Breadcrumb End -->
+  <!-- Checkout Form -->
+  <section class="checkout spad">
+    <div class="container p-b-60">
+      <div class="row">
+        <!-- Left column: Address and Coupon -->
+        <div class="col-lg-4">
+          <h5><i class="fa fa-map-marker icon"></i>Address</h5>
+          <br>
+          <div class="checkout__address">
+            <% if (addressData.length> 0) { %>
+              <% addressData.forEach((address, index)=> { %>
+                <div class="checkout__address__details">
+                  <input type="radio" name="selectedAddress" value="<%= address._id %>" id="address<%= address._id %>">
+                  <label for="address<%= address._id %>">
+                    <%= userData.name %>, <%= address.address %>, <%= address.city %>, <%= address.pincode %>
+                  </label>
+                  <button type="button" class="btn btn-danger btn-sm"
+                    onclick="removeAddress('<%= address._id %>')">Remove</button>
+                </div>
+                <% }); %>
+                  <% } else { %>
+                    <p>No address available. Please add one.</p>
+                    <% } %>
+                      <button type="button" class="site-btn" onclick="navigateToAddAddress()">Add Address</button>
+          </div>
+
+          <!-- Coupon Code -->
+          <div class="checkout__coupon">
+            <input type="text" id="couponCode" placeholder="Enter your coupon code">
+            <button type="button" class="site-btn1" onclick="applyCoupon()">Apply</button>
+            <button type="button" class="site-btn1" style="background-color: grey;"
+              onclick="removeCoupon()">Remove</button>
+          </div>
+        </div>
+
+        <!-- Right column: Order Summary -->
+        <div class="col-lg-8">
+          <h5 style="text-align: left; font-weight: bold; ">Add New Address</h5>
+          <hr>
+          <form id="addAddressForm" action="/cart/checkout/addCheckoutAddress" method="POST">
+
+            <% if (messages.success) { %>
+              <div class="alert alert-success flash-message" role="alert" style="color: green;" data-timeout="5">
+                <%= messages.success %>
+              </div>
+              <% } %>
+
+                <% if (messages.error) { %>
+                  <div class="alert alert-danger flash-message" role="alert" style="color: red;" data-timeout="5">
+                    <%= messages.error %>
+                  </div>
+                  <% } %>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="name" name="name" placeholder="name">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="locality" name="locality" placeholder="Locality">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="address" name="address"
+                        placeholder="Address (Area/Street)">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="city" name="city" placeholder="City/District/Town">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="state" name="state" placeholder="State">
+                    </div>
+                    <div class="form-group">
+                      <label for="addresstype">Address Type</label><br>
+                      <label class="radio-inline">
+                        <input type="radio" name="addresstype" value="home" checked> Home
+                      </label>
+                      <label class="radio-inline">
+                        <input type="radio" name="addresstype" value="work"> Work
+                      </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+          </form>
+        </div>
+      </div>
+  </section>
+
+  <%- include('../layouts/user/footer') %>
+
+    <!-- JS Script for Coupon and Address Handling -->
+    <script>
+      function navigateToAddAddress() {
+        window.location.href = "/cart/checkout/addNewAddress";
+      }
+
+      function removeAddress(id) {
+        window.location.href = "/user-profile/address/delete-address";
+      }
+
+      function applyCoupon() {
+        const couponCode = document.getElementById('couponCode').value;
+        // Fetch API to apply the coupon
+      }
+
+      function removeCoupon() {
+        // Logic to remove coupon
+      }
+    </script>
