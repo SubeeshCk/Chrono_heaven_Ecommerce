@@ -3,6 +3,7 @@ const product = require("../../models/product");
 const { StatusCode } = require("../../config/StatusCode");
 const Address = require("../../models/userAddress");
 const bcrypt = require("bcrypt");
+const Order = require("../../models/orderModel");
 
 //For bcrypting the password
 const securePassword = async (password) => {
@@ -335,6 +336,61 @@ const resetPassword = async ( req,res ) => {
   }
 }
 
+const renderMyOrder = async (req, res) => {
+  try {
+    if (req.session.userId) {
+      const userId = req.session.userId;
+      const orderData = await Order.find({ userId })
+        .sort({createdAt:-1})
+        .populate('orderedItem.productId')
+        .populate('deliveryAddress');
+
+        console.log("ooooooooooooooooooooooorderdata",orderData);
+        
+      
+      res.render('myorders', { orderData });
+    } else {
+      res.redirect('/login');
+    }
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+
+const renderOrderDetails = async (req, res) => {
+  try {
+      const userId = req.session.userId;
+      const { productId, orderItemId } = req.query;
+
+      const orderData = await Order.findOne({
+          userId: userId,
+          'orderedItem.productId': productId,
+          'orderedItem._id': orderItemId
+      })
+      .populate('orderedItem.productId')
+      .populate('userId')
+      .populate('deliveryAddress');
+
+
+      if (!orderData) {
+          return res.render("orderdetails", { message: "Order details not found." });
+      }
+      const specificProduct = orderData.orderedItem.find(item => item._id.toString() === orderItemId);
+      console.log("produuuuuuctspecificproduct",specificProduct);
+      console.log("ooooooooooooooooooorderData",orderData);
+      
+      
+
+      res.render("orderdetails", { orderData, specificProduct });
+  } catch (error) {
+      console.log(error.message);
+      res.status(500).render("error", { message: "Internal Server Error" });
+  }
+};
+
+
 module.exports = {
   renderProfile,
   renderEditProfile,
@@ -345,5 +401,7 @@ module.exports = {
   renderEditAddress,
   updateAddress,
   deleteAddress,
-  resetPassword
+  resetPassword,
+  renderMyOrder,
+  renderOrderDetails
 };

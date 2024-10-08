@@ -1,0 +1,264 @@
+<%- include('../layouts/user/product-header') %>
+
+<style>
+  .path a {
+    margin-bottom: 5px;
+    color: #000;
+    text-decoration: none;
+  }
+
+  .path a:hover {
+    color: red;
+    transition-duration: 0.6s;
+  }
+
+  .path {
+    font-family: Montserrat, sans-serif;
+    font-size: 19px;
+    text-align: left;
+    margin-right: auto;
+    margin-top: 10px;
+  }
+
+  .checkout_form_input input[type="date"] {
+    cursor: pointer;
+  }
+
+  .gender-inputs input[type="radio"] {
+    cursor: pointer;
+  }
+
+  .align-right-btn {
+    float: right;
+  }
+
+  .breadcrumb__links a {
+    margin-right: 5px;
+    text-decoration: none;
+    color: #000;
+  }
+
+  .breadcrumb__links a:hover {
+    color: red;
+  }
+
+  .order-item img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .status-label {
+    color: #fff;
+    padding: 5px;
+    border-radius: 3px;
+    font-weight: bold;
+    display: inline-block;
+  }
+
+  .status-label.pending {
+    background-color: #ffc107;
+    color: #333;
+  }
+
+  .status-label.confirmed {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+
+  .status-label.shipped,
+  .status-label.delivered {
+    background-color: #198754;
+    color: #fff;
+  }
+
+  .status-label.cancelled,
+  .status-label.returned {
+    background-color: #dc3545;
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<!-- Breadcrumb Begin -->
+<div class="container">
+  <div class="bread-crumb flex-w  p-r-15 p-t-30 p-lr-0-lg">
+    <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+      Home
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+
+    <a href="/user-profile" class="stext-109 cl8 hov-cl1 trans-04">
+      User profile
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+
+    <a href="/user-profile/myorders" class="stext-109 cl8 hov-cl1 trans-04">
+      My orders
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    
+  </div>
+</div>
+<!-- Breadcrumb End -->
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/user-profile/change-password" method="post" id="changePasswordForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" class="form-control" id="currentPassword" name="current_password" required>
+          </div>
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" class="form-control" id="newPassword" name="new_password" required>
+            <small id="passwordHelp" class="form-text text-muted">
+              Your password must be minimum 8 characters long, contain uppercase and lowercase letters, a number, and a
+              special character.
+            </small>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+            <small id="passwordMatchError" class="form-text text-danger" style="display: none;">
+              Passwords do not match!
+            </small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Personal info Section Begin -->
+<section class="checkout spad">
+  <div class="container">
+    <form action="#" class="checkout__form">
+      <div class="row d-flex justify-content-end">
+        <div class="path p-b-50">
+          <div class="l">
+            <a href="/user-profile" style="color: red;">Personal Information</a>
+          </div>
+          <p class="text-secondary text-muted">____________________________</p>
+          <div>
+            <a href="/user-profile/myorders">My Orders</a>
+          </div>
+          <p class="text-secondary text-muted">____________________________</p>
+          <div>
+            <a href="/user-profile/address">Address</a>
+          </div>
+          <p class="text-secondary text-muted">____________________________</p>
+          <div>
+            <a href="/Wallet">Wallet</a>
+          </div>
+          <p class="text-secondary text-muted">____________________________</p>
+          <div>
+            <a href="/coupons" >My Coupons</a>
+          </div>
+          <p class="text-secondary text-muted">____________________________</p>
+          <div>
+            <a href="#" id="changePasswordBtn">Change Password</a>
+          </div>
+          <p class="text-secondary text-muted">____________________________</p>
+          <div>
+            <a href="/refferal">Referral</a>
+          </div>
+          <p class="text-secondary text-muted">____________________________</p>
+        </div>
+
+      <!-- Personal Information and Orders Content -->
+      <div class="col-lg-8 p-b-50">
+        <h5 class="d-flex justify-content-center" style="font-weight: bold;">Your Orders</h5>
+        <br>
+        <hr>
+        <br>
+        <div class="orders">
+          <% if (orderData && orderData.length > 0) { %>
+            <% orderData.forEach(order => { %>
+              <% order.orderedItem.forEach(item => { %>
+                <div class="order-item border rounded p-3 mb-3">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <img src="<%= '/adminAssets/uploads/product_images/' + item.productId.images[0] %>" alt="<%= item.productId.name %>" class="img-fluid">
+                    </div>
+                    <div class="col-md-9">
+                      <h4><%= item.productId.product_name %></h4>
+                      <p>Price: ₹
+                        <% 
+                        
+                        let finalPrice = item.productId.price*item.quantity;
+
+                        if (item.productId.discount){
+                          finalPrice -= finalPrice * item.productId.discount/100;
+                        }
+
+                        if(order.deliveryCharge){
+                          finalPrice += order.deliveryCharge;
+                        }
+
+                      %>
+                      <%= finalPrice %>
+                      </p>
+                      <p>
+                        <span class="badge status-label <%= order.paymentStatus ? item.status.toLowerCase() : 'pending' %>">
+                          <%= order.paymentStatus ? item.status : 'Payment Pending' %>
+                        </span>
+                      </p>
+                      <p>
+                        <strong>Order Date:</strong> <%= order.orderDate.toLocaleDateString() %>
+                      </p>
+                      <% if (order.deliveryAddress) { %>
+                        <p>
+                          <strong>Delivery Address:</strong> <%= order.deliveryAddress.address %>, <%= order.deliveryAddress.locality %>, <%= order.deliveryAddress.city %> - <%= order.deliveryAddress.pincode %>
+                        </p>
+                      <% } else { %>
+                        <p>
+                          <strong>Delivery Address:</strong> Not provided
+                        </p>
+                      <% } %>
+                      <a href="/user-profile/myorders/orderDetails/?productId=<%= item.productId._id %>&orderItemId=<%= item._id %>" class="btn btn-primary">View Details</a>
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            <% }); %>
+          <% } else { %>
+            <div class="alert alert-warning" role="alert">
+              No orders yet.
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Personal Info and Orders Section End -->
+
+<%- include('../layouts/user/footer') %>
+
+<!-- Include jQuery and Bootstrap JavaScript at the end of the body to ensure they are loaded after the DOM is ready -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JavaScript to handle the modal trigger -->
+<script>
+  $(document).ready(function () {
+    $('#changePasswordBtn').click(function () {
+      $('#changePasswordModal').modal('show');
+    });
+  });
+</script>

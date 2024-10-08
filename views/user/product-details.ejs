@@ -44,7 +44,7 @@
 											<div class="wrap-slick3-dots"></div>
 											<div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
 											<div class="slick3 gallery-lb">
-												<% product.images.slice(0, 3).forEach(function(image, index) { %>
+												<% product.images.slice(0, 4).forEach(function(image, index) { %>
 													<div class="item-slick3"
 														data-thumb="/adminAssets/uploads/product_images/<%= image %>">
 														<div class="wrap-pic-w pos-relative"
@@ -72,6 +72,13 @@
 
 										<span class="mtext-106 cl2 d-block mb-4">
 											₹ <%= product.price.toFixed(2) %>
+										</span>
+
+										<span class="mtext-106 cl2 d-block mb-4" style="color: red">
+											<%= product.discount %>% off
+											<p style="color: rgb(29, 119, 12)">
+												now at <%= (product.price-(product.price*product.discount/100)).toFixed(2) %>
+											</p>
 										</span>
 
 										<div class="product-details">

@@ -4,7 +4,7 @@ const CartItem = require("../../models/cartModel");
 const { StatusCode } = require("../../config/StatusCode");
 const product = require("../../models/product");
 const Address = require("../../models/userAddress");
-
+const Order = require("../../models/orderModel");
 
 const addToCart = async (req, res) => {
   try {
@@ -294,6 +294,7 @@ const loadCheckout = async (req, res) => {
     }
 
     const cartItems = await CartItem.find({ userId }).populate("product.productId");
+    
     const userData = await User.findById(userId);
     const addressData = await Address.find({ userId });
 
@@ -304,19 +305,20 @@ const loadCheckout = async (req, res) => {
       totalProductCount += cartItem.product[0].quantity
     });
 
-    subtotal = cartItems.reduce((acc, item)=> acc + (item.product[0].totalPriceWithOffer),0);
+    subtotal = cartItems.reduce((acc, item)=> acc + (item.product[0].totalPrice),0);
+    const totalAmount = cartItems.reduce((acc, item)=> acc + (item.product[0].totalPriceWithOffer),0);
 
     let deliveryCharge = 0;
 
-      if (subtotal > 1000000) {
-        deliveryCharge = 5000;
-      } else if (subtotal > 2000000) {
-        deliveryCharge = 3000;
-      } else if (subtotal > 3000000) {
-        deliveryCharge = 2000;
+      if (totalAmount < 10000) {
+        deliveryCharge = 50;
+      } else if (totalAmount < 20000) {
+        deliveryCharge = 30;
+      } else if (totalAmount < 30000) {
+        deliveryCharge = 20;
       }
 
-    const total = subtotal + deliveryCharge;
+    const total = totalAmount + deliveryCharge ;
 
     res.render("checkout", {
       cartItems,
@@ -331,7 +333,7 @@ const loadCheckout = async (req, res) => {
 
   } catch (error) {
     console.log(error.message);
-    
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 }
 
@@ -427,6 +429,122 @@ const removeAddress = async (req, res) => {
   }
 };
 
+const placeOrder = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Please login to place an order.",
+      });
+    }
+
+    const { selectedAddress, paymentMethod, subtotal, deliveryCharge, totalAmount, discount } = req.body;
+    
+    if (!selectedAddress) {
+      return res.status(400).json({
+        success: false,
+        message: "Please select a delivery address.",
+      });
+    } else if (!paymentMethod) {
+      return res.status(400).json({
+        success: false,
+        message: "Please select a payment method.",
+      });
+    }
+
+    const cartItems = await CartItem.find({ userId }).populate("product.productId");
+    const cartId = cartItems.map((item) => item._id);
+
+    if (cartItems.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Your cart is empty.",
+      });
+    }
+    const orderedItems = [];
+
+    for (const cartItem of cartItems) {
+      for (const productItem of cartItem.product) {
+        const product = await Products.findById(productItem.productId).populate('category');
+        if (!product) {
+          return res.status(404).json({
+            success: false,
+            message: `Product not found with ID: ${productItem.productId}`,
+          });
+        }
+        if (product.quantity < productItem.quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for product: ${product.name}`,
+          });
+        }
+
+        if(paymentMethod ==="wallet"){
+          return res.status(400).json({
+            success: false,
+            message: 'wallet payment not available now'
+          })
+        }
+
+        const discountOnProduct = product.price - (product.price * (product.discount/100));
+        
+    orderedItems.push({
+      productId: productItem.productId,
+      quantity: productItem.quantity,
+      priceAtPurchase: product.price,
+      discountedPrice: discountOnProduct,
+      totalProductAmount: totalAmount,
+      status: "pending"
+    })
+    
+    product.quantity -= productItem.quantity;
+    await product.save();
+      }
+    }
+
+    const orderData = new Order({
+      userId,
+      cartId,
+      orderedItem: orderedItems,
+      orderAmount: totalAmount,
+      orderDate: new Date(),
+      deliveryAddress: selectedAddress,
+      deliveryCharge,
+      paymentMethod,
+      discount, 
+      paymentStatus: false,
+    });
+
+    await orderData.save();
+
+    await CartItem.deleteMany({ _id: { $in: cartId } });
+
+
+    return res.status(200).json({
+      success: true,
+      message: "Order placed successfully!",
+    });
+
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while placing the order.",
+    });
+  }
+};
+
+
+const renderOrderPlaced = async (req, res) => {
+  try {
+    res.render("orderplaced");
+  } catch (error) {
+    return res.status(500).send({ error: "Internal server error" });
+  }
+};
+
 
 
 module.exports = {
@@ -439,5 +557,7 @@ module.exports = {
   addNewAddress,
   insertCheckoutAddress,
   removeAddress,
+  placeOrder,
+  renderOrderPlaced,
 
 };

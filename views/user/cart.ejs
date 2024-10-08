@@ -358,14 +358,17 @@
         }
         function updateSubtotalAndTotal(cartItems) {
           let subtotal = 0;
+          let discount = 0;
           let total = 0;
 
           cartItems.forEach(item => {
             subtotal += item.product[0].totalPrice;
+            discount += item.product[0].offerDiscount;
             total += item.product[0].totalPriceWithOffer;
           });
 
           document.querySelector('.flex-w.flex-t.bor12.p-b-13 .size-209 .mtext-110.cl2').textContent = '₹ ' + formatPriceWithCommas(subtotal);
+          document.querySelector('.flex-w.flex-t.bor12.p-b-13:nth-of-type(2) .size-209 .mtext-110.cl2').textContent = '₹ ' + formatPriceWithCommas(discount);
           document.querySelector('.flex-w.flex-t.p-t-27.p-b-33 .size-209.p-t-1 .mtext-110.cl2').textContent = '₹ ' + formatPriceWithCommas(total);
         }
 

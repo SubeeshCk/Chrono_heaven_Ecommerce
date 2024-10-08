@@ -24,7 +24,7 @@ userRoute.set('views','./views/user');
 
 
 
-/******************************* USER SIGNUP,SIGN IN,LOGOUT ,OTP ************************************/
+/******************************* USER SIGNUP,SIGN IN,LOGOUT ,OTP **********************************/
 userRoute.get('/signUp',userAuth.is_logout,userVerificationController.renderSignUp);
 userRoute.post('/signUp',userAuth.is_logout, userVerificationController.insertUser);
 userRoute.get('/login',userAuth.is_logout,userVerificationController.renderLogin);
@@ -42,7 +42,7 @@ userRoute.get('/resendResetOtp',userAuth.is_logout,userVerificationController.re
 userRoute.get('/logOut',userAuth.is_login,userVerificationController.logOut);
 
 
-//************************* HOME,SHOP,PRODUCT_DETAILS,WOMEN,MEN********************************//
+//************************* HOME,SHOP,PRODUCT_DETAILS,WOMEN,MEN******************************//
 userRoute.get('/',setUserData ,userController.renderHome);
 userRoute.get('/products',setUserData ,userController.renderProducts);
 userRoute.get('/product-details/:id?',setUserData,userController.productDetails);
@@ -61,9 +61,10 @@ userRoute.get('/user-profile/address/edit-address',userAuth.is_login,profileCont
 userRoute.post('/user-profile/address/update-address',userAuth.is_login, profileController.updateAddress);
 userRoute.delete('/user-profile/address/delete-address/:id?',userAuth.is_login, profileController.deleteAddress);
 userRoute.post('/user-profile/change-password',setUserData,userAuth.is_login, profileController.resetPassword);
+userRoute.get('/user-profile/myorders',setUserData, userAuth.is_login, profileController.renderMyOrder)
+userRoute.get('/user-profile/myorders/orderDetails',setUserData, userAuth.is_login,profileController.renderOrderDetails)
 
-
-//*************************************Cart management***********************************************/
+//*************************************Cart management***************************************//
 userRoute.get('/cart', userAuth.is_login, setUserData,cartController.renderCart);
 userRoute.get('/addToCart/:id',userAuth.is_login, cartController.addToCart);
 userRoute.post('/updateCartItem',userAuth.is_login,cartController.updateCartItem);
@@ -74,8 +75,9 @@ userRoute.get('/cart/checkout',userAuth.is_login,cartController.loadCheckout);
 userRoute.get('/cart/checkout/addNewAddress',userAuth.is_login,cartController.addNewAddress)
 userRoute.post('/cart/checkout/addCheckoutAddress',userAuth.is_login, cartController.insertCheckoutAddress);
 userRoute.delete('/cart/checkout/deleteAddress/:id?', userAuth.is_login, cartController.removeAddress);
+userRoute.post('/placeOrder',userAuth.is_login, cartController.placeOrder);
 
-
+userRoute.get('/orderPlaced',userAuth.is_login,cartController.renderOrderPlaced)
 //************************** Google authentication ********************************//
 
 userRoute.get('/auth', passport.authenticate('google', { scope: ['email', 'profile'] }));
