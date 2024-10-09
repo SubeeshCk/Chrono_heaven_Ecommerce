@@ -119,10 +119,81 @@ const renderMens = async (req, res) => {
   }
 };
 
+const sortProducts = async (req, res) => {
+  try {
+    const { sortBy } = req.query;
+    let sortOption = {};
+    let aggregatePipeline = [];
+
+    const categories = await Category.find({ is_listed: true });
+    const unblockedCategoryIds = categories.map((category) => category._id);
+
+    aggregatePipeline.push({
+      $match: {
+        is_listed: true,
+        category: { $in: unblockedCategoryIds }
+      }
+    });
+
+    switch (sortBy) {
+      case 'popularity':
+        sortOption = { sales_count: -1 };
+        break;
+      case 'price-low-to-high':
+        sortOption = { price: 1 };
+        break;
+      case 'price-high-to-low':
+        sortOption = { price: -1 };
+        break;
+      case 'average-rating':
+        sortOption = { average_rating: -1 };
+        break;
+      case 'featured':
+        sortOption = { is_featured: -1 };
+        break;
+      case 'new-arrivals':
+        sortOption = { createdAt: -1 };
+        break;
+      case 'name-az':
+
+        aggregatePipeline.push({
+          $addFields: {
+            lowercaseName: { $toLower: "$product_name" }
+          }
+        });
+        sortOption = { lowercaseName: 1 };
+        break;
+      case 'name-za':
+
+        aggregatePipeline.push({
+          $addFields: {
+            lowercaseName: { $toLower: "$product_name" }
+          }
+        });
+        sortOption = { lowercaseName: -1 };
+        break;
+      default:
+        sortOption = { createdAt: -1 };
+    }
+
+
+    aggregatePipeline.push({ $sort: sortOption });
+
+    const productData = await Products.aggregate(aggregatePipeline);
+
+    res.json({ products: productData });
+  } catch (error) {
+    console.log(error.message);
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: 'An error occurred' });
+  }
+};
+
+
 module.exports = {
   renderHome,
   renderProducts,
   productDetails,
   renderMens,
   renderWomens,
+  sortProducts
 };

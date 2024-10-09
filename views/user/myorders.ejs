@@ -179,7 +179,7 @@
           </div>
           <p class="text-secondary text-muted">____________________________</p>
         </div>
-
+        
       <!-- Personal Information and Orders Content -->
       <div class="col-lg-8 p-b-50">
         <h5 class="d-flex justify-content-center" style="font-weight: bold;">Your Orders</h5>
@@ -214,8 +214,12 @@
                       <%= finalPrice %>
                       </p>
                       <p>
-                        <span class="badge status-label <%= order.paymentStatus ? item.status.toLowerCase() : 'pending' %>">
-                          <%= order.paymentStatus ? item.status : 'Payment Pending' %>
+                        <span class="badge status-label <%= item.status.toLowerCase()%>">
+                          <% if(order.paymentMethod === "cashOnDelivery"){ %>
+                            <%=item.status%>
+                            <% }else{ %>
+                              <%= order.paymentStatus ? item.status : 'Payment Pending' %>
+                            <%}%>
                         </span>
                       </p>
                       <p>

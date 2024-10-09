@@ -13,6 +13,7 @@ const cartController = require("../controllers/userControllers/cartController");
 //middlewares
 const userAuth = require("../middlewares/userAuth");
 const { setUserData } = require("../middlewares/setUserData");
+const setCartCount = require("../middlewares/setCartCount");
 
 //setting /userAssets as static
 userRoute.use('/userAssets', express.static('public/userAssets'));
@@ -43,41 +44,44 @@ userRoute.get('/logOut',userAuth.is_login,userVerificationController.logOut);
 
 
 //************************* HOME,SHOP,PRODUCT_DETAILS,WOMEN,MEN******************************//
-userRoute.get('/',setUserData ,userController.renderHome);
-userRoute.get('/products',setUserData ,userController.renderProducts);
-userRoute.get('/product-details/:id?',setUserData,userController.productDetails);
-userRoute.get('/products/womens',setUserData ,userController.renderWomens);
-userRoute.get('/products/mens',setUserData ,userController.renderMens);
+userRoute.get('/',setUserData ,setCartCount, userController.renderHome);
+userRoute.get('/products',setUserData ,setCartCount, userController.renderProducts);
+userRoute.get('/product-details/:id?',setUserData, setCartCount, userController.productDetails);
+userRoute.get('/products/womens',setUserData ,setCartCount, userController.renderWomens);
+userRoute.get('/products/mens',setUserData ,setCartCount, userController.renderMens);
+userRoute.get('/sort-products',setUserData ,setCartCount, userController.sortProducts);
+
 
 
 //********************************User profile management************************************//
-userRoute.get('/user-profile',userAuth.is_login, setUserData,profileController.renderProfile);
-userRoute.get('/user-profile/edit-profile',userAuth.is_login, setUserData,profileController.renderEditProfile);
+userRoute.get('/user-profile',userAuth.is_login ,setUserData ,setCartCount ,profileController.renderProfile);
+userRoute.get('/user-profile/edit-profile',userAuth.is_login ,setUserData ,setCartCount,profileController.renderEditProfile);
 userRoute.post('/user-profile/edit-profile',userAuth.is_login, profileController.updateProfile);
-userRoute.get('/user-profile/address',userAuth.is_login, profileController.renderAddress);
-userRoute.get('/user-profile/address/add-address',userAuth.is_login, setUserData,profileController.renderAddNewAddress);
+userRoute.get('/user-profile/address',userAuth.is_login, setCartCount, profileController.renderAddress);
+userRoute.get('/user-profile/address/add-address',userAuth.is_login, setUserData,setCartCount, profileController.renderAddNewAddress);
 userRoute.post('/user-profile/address/add-address',userAuth.is_login, setUserData,profileController.insertNewAddress);
-userRoute.get('/user-profile/address/edit-address',userAuth.is_login,profileController.renderEditAddress);
+userRoute.get('/user-profile/address/edit-address',userAuth.is_login ,setCartCount, profileController.renderEditAddress);
 userRoute.post('/user-profile/address/update-address',userAuth.is_login, profileController.updateAddress);
 userRoute.delete('/user-profile/address/delete-address/:id?',userAuth.is_login, profileController.deleteAddress);
 userRoute.post('/user-profile/change-password',setUserData,userAuth.is_login, profileController.resetPassword);
-userRoute.get('/user-profile/myorders',setUserData, userAuth.is_login, profileController.renderMyOrder)
-userRoute.get('/user-profile/myorders/orderDetails',setUserData, userAuth.is_login,profileController.renderOrderDetails)
+userRoute.get('/user-profile/myorders',setUserData, userAuth.is_login, setCartCount, profileController.renderMyOrder)
+userRoute.get('/user-profile/myorders/orderDetails',setUserData, userAuth.is_login,setCartCount, profileController.renderOrderDetails)
+userRoute.post('/cancelOrder', userAuth.is_login,profileController.cancelOrder);
 
 //*************************************Cart management***************************************//
-userRoute.get('/cart', userAuth.is_login, setUserData,cartController.renderCart);
-userRoute.get('/addToCart/:id',userAuth.is_login, cartController.addToCart);
+userRoute.get('/cart', userAuth.is_login, setUserData,setCartCount, cartController.renderCart);
+userRoute.get('/addToCart/:id',userAuth.is_login, setCartCount, cartController.addToCart);
 userRoute.post('/updateCartItem',userAuth.is_login,cartController.updateCartItem);
-userRoute.get('/check-stock',userAuth.is_login, cartController.checkStock);
+userRoute.get('/check-stock',userAuth.is_login, setCartCount, cartController.checkStock);
 userRoute.post('/removeCartItem',userAuth.is_login,cartController.removeCartItem);
 
-userRoute.get('/cart/checkout',userAuth.is_login,cartController.loadCheckout);
-userRoute.get('/cart/checkout/addNewAddress',userAuth.is_login,cartController.addNewAddress)
+userRoute.get('/cart/checkout',userAuth.is_login, setCartCount, cartController.loadCheckout);
+userRoute.get('/cart/checkout/addNewAddress',userAuth.is_login, setCartCount, cartController.addNewAddress);
 userRoute.post('/cart/checkout/addCheckoutAddress',userAuth.is_login, cartController.insertCheckoutAddress);
 userRoute.delete('/cart/checkout/deleteAddress/:id?', userAuth.is_login, cartController.removeAddress);
 userRoute.post('/placeOrder',userAuth.is_login, cartController.placeOrder);
 
-userRoute.get('/orderPlaced',userAuth.is_login,cartController.renderOrderPlaced)
+userRoute.get('/orderPlaced',userAuth.is_login,cartController.renderOrderPlaced);
 //************************** Google authentication ********************************//
 
 userRoute.get('/auth', passport.authenticate('google', { scope: ['email', 'profile'] }));

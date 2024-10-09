@@ -496,10 +496,11 @@ const placeOrder = async (req, res) => {
       priceAtPurchase: product.price,
       discountedPrice: discountOnProduct,
       totalProductAmount: totalAmount,
-      status: "pending"
+      status: "confirmed"
     })
     
     product.quantity -= productItem.quantity;
+    product.sales_count += productItem.quantity;
     await product.save();
       }
     }

@@ -1,5 +1,5 @@
 const User = require("../../models/userModel");
-const product = require("../../models/product");
+const Products = require("../../models/product");
 const { StatusCode } = require("../../config/StatusCode");
 const Address = require("../../models/userAddress");
 const bcrypt = require("bcrypt");
@@ -345,9 +345,6 @@ const renderMyOrder = async (req, res) => {
         .populate('orderedItem.productId')
         .populate('deliveryAddress');
 
-        console.log("ooooooooooooooooooooooorderdata",orderData);
-        
-      
       res.render('myorders', { orderData });
     } else {
       res.redirect('/login');
@@ -378,15 +375,66 @@ const renderOrderDetails = async (req, res) => {
           return res.render("orderdetails", { message: "Order details not found." });
       }
       const specificProduct = orderData.orderedItem.find(item => item._id.toString() === orderItemId);
-      console.log("produuuuuuctspecificproduct",specificProduct);
-      console.log("ooooooooooooooooooorderData",orderData);
-      
-      
 
       res.render("orderdetails", { orderData, specificProduct });
   } catch (error) {
       console.log(error.message);
       res.status(500).render("error", { message: "Internal Server Error" });
+  }
+};
+
+const cancelOrder = async (req, res) => {
+  try {
+      const userId = req.session.userId;
+      const { orderItemId, cancelReason } = req.body;
+
+      if (!userId) {
+          console.log("Unauthorized: No user ID found in session");
+          return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const order = await Order.findOne({ 'orderedItem._id': orderItemId, userId }).populate("orderedItem.productId");
+
+      if (!order) {
+          console.log("Order not found or does not belong to the user");
+          return res.status(404).json({ error: "Order not found or does not belong to the user" });
+      }
+
+      const orderedItem = order.orderedItem.find(item => item._id.toString() === orderItemId);
+
+      if (!orderedItem) {
+          console.log("Ordered item not found");
+          return res.status(404).json({ error: "Ordered item not found" });
+      }
+
+      if (orderedItem.status === "Cancelled") {
+          console.log("Product is already cancelled");
+          return res.status(400).json({ error: "Product is already cancelled" });
+      }
+
+      
+      const baseRefundAmount = orderedItem.discountedPrice ? orderedItem.discountedPrice * orderedItem.quantity: orderedItem.totalProductAmount* orderedItem.quantity;
+      const refundAmount = order.deliveryCharge ? baseRefundAmount + order.deliveryCharge : baseRefundAmount;
+
+
+      orderedItem.status = "Cancelled";
+      orderedItem.reason = cancelReason;
+      await order.save();
+
+      const product = await Products.findById(orderedItem.productId._id);
+      if (!product) {
+          console.log("Product not found");
+          return res.status(404).json({ error: "Product not found" });
+      }
+
+      product.quantity += orderedItem.quantity;
+      await product.save();
+
+      res.status(200).json({ success: "Order cancelled successfully"});
+
+  } catch (error) {
+      console.log(error.message);
+      res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -403,5 +451,6 @@ module.exports = {
   deleteAddress,
   resetPassword,
   renderMyOrder,
-  renderOrderDetails
+  renderOrderDetails,
+  cancelOrder
 };

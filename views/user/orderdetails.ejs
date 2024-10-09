@@ -299,19 +299,19 @@
         <div class="row d-flex justify-content-end">
           <div class="path">
             <div class="l">
-              <a href="/profile">Personal Information</a>
+              <a href="/user-profile" style="color: red;">Personal Information</a>
             </div>
             <p class="text-secondary text-muted">____________________________</p>
             <div>
-              <a href="/user-profile/myorders" style="color: red;">My Orders</a>
+              <a href="/user-profile/myorders">My Orders</a>
             </div>
             <p class="text-secondary text-muted">____________________________</p>
             <div>
-              <a href="/address">Address</a>
+              <a href="/user-profile/address">Address</a>
             </div>
             <p class="text-secondary text-muted">____________________________</p>
             <div>
-              <a href="/wallet">Wallet</a>
+              <a href="/Wallet">Wallet</a>
             </div>
             <p class="text-secondary text-muted">____________________________</p>
             <div>
@@ -323,7 +323,7 @@
             </div>
             <p class="text-secondary text-muted">____________________________</p>
             <div>
-              <a href="/refferral">Referral</a>
+              <a href="/refferal">Referral</a>
             </div>
             <p class="text-secondary text-muted">____________________________</p>
           </div>
@@ -342,7 +342,11 @@
           <p><strong>Order ID:</strong> <%= orderData._id %></p><br>
           <p><strong>Status:</strong> 
               <strong class="status-label <%= specificProduct.status.toLowerCase() %>">
+                <% if(orderData.paymentMethod === "cashOnDelivery"){ %>
+                <%=specificProduct.status%>
+                <% }else{ %>
                   <%= orderData.paymentStatus ? specificProduct.status : 'Payment Pending' %>
+                <%}%>
               </strong>
           </p>
           <% if (!orderData.paymentStatus) { %>
@@ -357,13 +361,24 @@
       </div>
       <!-- Display other order details such as total amount, payment method, delivery address -->
       <div class="col-md-6">
-          <p><strong>Total Amount:</strong> ₹<% if (orderData.deliveryCharge) { %>
-            <%= orderData.orderAmount %>
-          <% } else if (specificProduct.discountedPrice) { %>
-            <%= specificProduct.discountedPrice *specificProduct.quantity %>
-          <% } else { %>
-            <%= specificProduct.totalProductAmount *specificProduct.quantity %>
-          <% } %></p>
+          <p><strong>Total Amount:</strong>
+            <% 
+            // Calculate base total price (price * quantity)
+            let Total = specificProduct.priceAtPurchase * specificProduct.quantity;
+          
+            // Apply discount if available
+            if (specificProduct.discountedPrice) {
+              Total = specificProduct.discountedPrice * specificProduct.quantity;
+            }
+          
+            // Add delivery charge if available
+            if (orderData.deliveryCharge) {
+              Total = Total + orderData.deliveryCharge;
+            }
+
+            %>
+            <%= Total %>
+          </p>
           <p><strong>Payment Method:</strong> <%= orderData.paymentMethod %></p>
           <p><strong>Delivery Address:</strong> <br><%= orderData.deliveryAddress.address %>, <%= orderData.deliveryAddress.locality %><br>
               <%= orderData.deliveryAddress.city %>, <%= orderData.deliveryAddress.pincode %>, <%= orderData.deliveryAddress.state %>
@@ -395,7 +410,7 @@
           <td>₹<%= specificProduct.priceAtPurchase.toFixed(2) %></td>
           <td><%= (specificProduct.priceAtPurchase * specificProduct.quantity).toFixed(2) %></td>
           <td>₹<%= orderData.deliveryCharge %></td>
-          <td>₹<%= specificProduct.priceAtPurchase-specificProduct.discountedPrice %></td>
+          <td>₹<%= (specificProduct.priceAtPurchase-specificProduct.discountedPrice)*specificProduct.quantity %></td>
 
       </tr>
   </tbody>
