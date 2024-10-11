@@ -122,7 +122,7 @@
     width: 70%;
   }
 </style>
-</head>
+
 <body>
 <!-- Modal for returnOrder -->
 <div class="modal fade" id="returnOrderModal" tabindex="-1" role="dialog" aria-labelledby="returnOrderModalLabel" aria-hidden="true">
@@ -299,11 +299,11 @@
         <div class="row d-flex justify-content-end">
           <div class="path">
             <div class="l">
-              <a href="/user-profile" style="color: red;">Personal Information</a>
+              <a href="/user-profile" >Personal Information</a>
             </div>
             <p class="text-secondary text-muted">____________________________</p>
             <div>
-              <a href="/user-profile/myorders">My Orders</a>
+              <a href="/user-profile/myorders" style="color: red;">My Orders</a>
             </div>
             <p class="text-secondary text-muted">____________________________</p>
             <div>
@@ -403,7 +403,7 @@
   <tbody>
       <tr>
           <td>
-              <img src="/adminAssets/uploads/product_images/<%= specificProduct.productId.images[0] %>" alt="Product Image" class="product-image" style="width: 100px;height: 100px;">
+              <img src="/adminAssets/uploads/product_images/<%= specificProduct.productId.images[0] %>" alt="Product Image" class="product-image" style="width: 100px;height: 125px;">
           </td>
           <td><%= specificProduct.productId.product_name %></td>
           <td><%= specificProduct.quantity %></td>
@@ -475,8 +475,7 @@
 <% } %>
 
             </div>
-        </div>
-        
+          </div>
         </div>
       </form>
     </div>
@@ -576,7 +575,6 @@
     });
   </script>
   
-  
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -584,107 +582,5 @@
 <!-- Include Toastify library in your HTML head -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
-<script>
-  document.getElementById('retryPaymentBtn').addEventListener('click', function(e) {
-    fetch('/initiatePayment', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ orderId: '<%= orderData._id %>' })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        var options = {
-          "key": data.razorpayKey,
-          "amount": data.amount,
-          "currency": "INR",
-          "name": "Your Company Name",
-          "description": "Order Payment",
-          "order_id": data.orderId,
-          "handler": function(response) {
-            // Handle the payment success
-            verifyPayment(response, '<%= orderData._id %>'); // Pass orderId here
-          },
-        };
-        var rzp1 = new Razorpay(options);
-        rzp1.open();
-      } else {
-        Toastify({
-          text: 'Payment initiation failed. Please try again.',
-          backgroundColor: 'linear-gradient(to right, #ff416c, #ff4b2b)',
-          duration: 3000
-        }).showToast();
-      }
-    })
-    .catch(error => {
-      console.error('Error initiating payment:', error);
-      Toastify({
-        text: 'Payment initiation failed. Please try again.',
-        backgroundColor: 'linear-gradient(to right, #ff416c, #ff4b2b)',
-        duration: 3000
-      }).showToast();
-    });
-  });
-
-  function verifyPayment(response, orderId) {
-  fetch('/verifyPayment', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      razorpay_order_id: response.razorpay_order_id,
-      razorpay_payment_id: response.razorpay_payment_id,
-      razorpay_signature: response.razorpay_signature,
-      orderId: orderId // Include orderId in the request body
-    })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      // Payment verification successful
-      Swal.fire({
-        icon: 'success',
-        title: 'Payment Successful',
-        text: 'Your payment has been successfully verified.',
-        confirmButtonText: 'OK'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Reload the page
-          location.reload();
-        }
-      });
-    } else {
-      // Payment verification failed
-      Swal.fire({
-        icon: 'error',
-        title: 'Payment Verification Failed',
-        text: 'There was an issue verifying your payment. Please contact support.'
-      });
-    }
-  })
-  .catch(error => {
-    console.error('Error verifying payment:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'An error occurred while verifying payment. Please try again or contact support.'
-    });
-  });
-}
-
-</script>
-
-
-
-
-
-
-
-
-
 
 <%- include('../layouts/user/footer') %>

@@ -49,7 +49,8 @@ adminRoute.get("/products/list-products/:id?",adminAuth.is_login,productControll
 
 //*****************************   Orders  **************************************//
 adminRoute.get("/orders",adminAuth.is_login,orderController.renderOrder);
-adminRoute.get("/orders/order-details",adminAuth.is_login,orderController.renderOrderDetails);
+adminRoute.get("/orders/orderDetails",adminAuth.is_login,orderController.renderOrderDetails);
+adminRoute.post('/orders/orderDetails/updateProductStatus',adminAuth.is_login,orderController.updateOrderStatus)
 
 
 //*****************************   customer  ************************************//

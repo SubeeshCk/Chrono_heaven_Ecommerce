@@ -155,7 +155,6 @@ const sortProducts = async (req, res) => {
         sortOption = { createdAt: -1 };
         break;
       case 'name-az':
-
         aggregatePipeline.push({
           $addFields: {
             lowercaseName: { $toLower: "$product_name" }
@@ -164,7 +163,6 @@ const sortProducts = async (req, res) => {
         sortOption = { lowercaseName: 1 };
         break;
       case 'name-za':
-
         aggregatePipeline.push({
           $addFields: {
             lowercaseName: { $toLower: "$product_name" }
@@ -172,10 +170,18 @@ const sortProducts = async (req, res) => {
         });
         sortOption = { lowercaseName: -1 };
         break;
+      case 'in-stock':
+        // Add a match stage to filter for products with stock > 0
+        aggregatePipeline.push({
+          $match: {
+            quantity: { $gt: 0 }
+          }
+        });
+        sortOption = { stock: -1 }; // Sort by stock, highest first
+        break;
       default:
         sortOption = { createdAt: -1 };
     }
-
 
     aggregatePipeline.push({ $sort: sortOption });
 
