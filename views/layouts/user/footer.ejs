@@ -265,19 +265,22 @@
 	document.addEventListener('DOMContentLoaded', function() {
 	  const sortLinks = document.querySelectorAll('.sort-link');
 	  const productContainer = document.querySelector('.isotope-grid');
+	  
+	  // Get the category from the body tag, defaulting to 'all' if not set
+	  const category = document.body.dataset.category || 'all';
 	
 	  sortLinks.forEach(link => {
 		link.addEventListener('click', function(e) {
 		  e.preventDefault();
 		  const sortBy = this.getAttribute('data-sort');
 	
-		  fetch(`/sort-products?sortBy=${sortBy}`)
+		  fetch(`/sort-products?sortBy=${sortBy}&category=${category}`)
 			.then(response => response.json())
 			.then(data => {
 			  productContainer.innerHTML = '';
 			  data.products.forEach(product => {
 				const productHTML = `
-				  <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
+				  <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
 					<div class="block2">
 					  <div class="block2-pic hov-img0">
 						<img src="/adminAssets/uploads/product_images/${product.images[0]}" alt="IMG-PRODUCT" />

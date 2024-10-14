@@ -9,12 +9,11 @@ const renderOrder = async (req,res) => {
         const orderData = await Order.find()
         .sort({createdAt:-1})
         .populate("orderedItem.productId")
-        .populate('userId');
+        .populate('userId');      
 
         res.render("orders",{orderData});
     } catch (error) {
-        console.log(error.message);
-        
+      return next(error);  
     }
 };
 
@@ -27,7 +26,7 @@ const renderOrderDetails = async (req, res) => {
             .populate('orderedItem.productId')
             .populate('userId')
             .populate('deliveryAddress')
-            .populate('deliveryCharge')
+            .populate('deliveryCharge')           
 
         if (!order) {
             return res.status(404).send("Order not found");
@@ -40,8 +39,7 @@ const renderOrderDetails = async (req, res) => {
 
         res.render('order-details', { order, product });
     } catch (error) {
-        console.log(error.message);  
-        return res.status(500).send({ error: "Internal server error" });
+      return next(error);
     }
 };
 
@@ -66,12 +64,15 @@ const updateOrderStatus = async (req, res) => {
           $inc: { quantity: orderedQuantity } 
         });
       }
+
+      if(productStatus === 'delivered'){
+      order.paymentStatus = 'true';
+      }
       await order.save();
   
       res.status(200).json({ message: 'Product status updated successfully' });
     } catch (error) {
-      console.error(error.message);
-      res.status(500).json({ message: 'Internal server error' });
+      return next(error);
     }
   };
 

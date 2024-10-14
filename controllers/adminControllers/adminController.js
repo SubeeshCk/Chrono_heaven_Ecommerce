@@ -6,8 +6,7 @@ const renderLogin = async (req, res) => {
   try {
     return res.render("login");
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -16,13 +15,13 @@ const loadLogout = async (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         console.log("Logout error:", err.message);
-        return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Failed to log out" });
+        err.message = "Failed to logout"
+        return next(err);
       }
       res.redirect("/admin");
     });
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -34,8 +33,7 @@ const loadLogin = async (req, res) => {
       return res.redirect("/admin");
     }
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -64,8 +62,7 @@ const verifyLogin = async (req, res) => {
       return res.redirect("/admin");
     }
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -73,8 +70,8 @@ const renderDashboard = async (req, res) => {
   try {
     res.render("dashboard");
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Failed to load dashboard" });
+    error.message = "Failed to load dashboard";
+    return next(error);
   }
 };
 
@@ -83,14 +80,14 @@ const logOut = async (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         console.log("Logout error:", err.message);
-        return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Failed to log out" });
+        err.message = ("Failed to logout")
+        return next(error);
       }
       res.clearCookie('connect.sid');
       res.redirect("/admin/login");
     });
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 

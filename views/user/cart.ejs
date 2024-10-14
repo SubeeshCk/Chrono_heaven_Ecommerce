@@ -314,7 +314,6 @@
           });
         }
 
-        // Add event listener for the checkout button
         const checkoutButton = document.querySelector('button[formaction="/cart/checkout"]');
         if (checkoutButton) {
           checkoutButton.addEventListener('click', function (e) {
@@ -331,7 +330,6 @@
                     confirmButtonText: 'OK'
                   });
                 } else {
-                  // Proceed with checkout
                   window.location.href = '/cart/checkout';
                 }
               },

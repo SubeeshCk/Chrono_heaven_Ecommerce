@@ -2,6 +2,7 @@ const User = require("../../models/userModel");
 const moment = require("moment");
 const API_ROUTES = require("../../config/apiRoutes");
 const { StatusCode } = require("../../config/StatusCode");
+const Address = require("../../models/userAddress");
 
 
 
@@ -14,8 +15,7 @@ const renderCustomer = async (req, res) => {
     });
     return res.render("customers", { userData: formattedUserData });
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -34,8 +34,7 @@ const blockUser = async (req, res) => {
       redirect: API_ROUTES.CUSTOMER.LIST,
     });
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ message: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -52,8 +51,7 @@ const unblockUser = async (req, res) => {
       redirect: API_ROUTES.CUSTOMER.LIST,
     });
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ message: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -61,14 +59,16 @@ const renderCustomerProfile = async (req, res) => {
   try {
     customerId = req.params.id;
     const customer = await User.findById(customerId);
+    const addresses = await Address.find({ userId:customerId });
+    console.log(addresses);
+    
     if (!customer) {
       req.flash("error", "Customer not found");
       res.redirect(API_ROUTES.CUSTOMER.LIST);
     }
-    res.render("customer-profile", { customer });
+    res.render("customer-profile", { customer,addresses });
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ message: "Internal server error" });
+    return next(error);
   }
 };
 

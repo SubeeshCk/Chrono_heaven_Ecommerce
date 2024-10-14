@@ -2,9 +2,9 @@ const User = require("../../models/userModel");
 const Products = require("../../models/product");
 const CartItem = require("../../models/cartModel");
 const { StatusCode } = require("../../config/StatusCode");
-const product = require("../../models/product");
 const Address = require("../../models/userAddress");
 const Order = require("../../models/orderModel");
+
 
 const addToCart = async (req, res) => {
   try {
@@ -18,7 +18,6 @@ const addToCart = async (req, res) => {
       return res.status(StatusCode.NOT_FOUND).send("Product not found");
     }
 
-    // Check if there's enough stock
     if (product.quantity < quantity) {
       return res
         .status(StatusCode.BAD_REQUEST)
@@ -58,7 +57,6 @@ const addToCart = async (req, res) => {
         const newQuantity =
           cartItem.product[existingProductIndex].quantity + quantity;
 
-        // Check if the new total quantity exceeds available stock
         if (newQuantity > product.quantity) {
           return res
             .status(StatusCode.BAD_REQUEST)
@@ -92,8 +90,7 @@ const addToCart = async (req, res) => {
     await cartItem.save();
     res.redirect("/cart");
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    return next(error);
   }
 };
 
@@ -133,8 +130,7 @@ const renderCart = async (req, res) => {
       totalPrice: totalPrice,
     });
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    return next(error);
   }
 };
 
@@ -237,7 +233,6 @@ const updateCartItem = async (req, res) => {
   }
 };
 
-// New function to check stock before checkout
 const checkStock = async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -255,8 +250,7 @@ const checkStock = async (req, res) => {
 
     res.json({ outOfStock: false });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: true, message: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -287,7 +281,6 @@ const removeCartItem = async (req, res) => {
 const loadCheckout = async (req, res) => {
   try {
     const userId = req.session.userId;
-    
 
     if (!userId) {
       return res.redirect("/login");
@@ -348,7 +341,7 @@ const addNewAddress = async (req, res) => {
       res.render("addCheckoutAddress", { userData , addressData });
     }
   } catch (error) {
-    return res.status(500).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -425,7 +418,7 @@ const removeAddress = async (req, res) => {
     await Address.findByIdAndDelete(addressId);
     res.json({ success: true, message: "Address removed successfully" });
   } catch (error) {
-    return res.status(500).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -542,7 +535,7 @@ const renderOrderPlaced = async (req, res) => {
   try {
     res.render("orderplaced");
   } catch (error) {
-    return res.status(500).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 

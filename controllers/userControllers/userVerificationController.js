@@ -24,7 +24,7 @@ const securePassword = async (password) => {
     const passwordHash = await bcrypt.hash(password, 10);
     return passwordHash;
   } catch (error) {
-    console.log(error.message);
+    next(error);
   }
 };
 
@@ -64,7 +64,7 @@ const sendPassResetMail = async (name, email, otp) => {
       }
     });
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 
@@ -105,7 +105,7 @@ const sendVerifyMail = async (name, email, otp) => {
       }
     });
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 
@@ -113,7 +113,7 @@ const renderSignUp = async (req, res) => {
   try {
     res.render("signUp");
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 
@@ -211,7 +211,6 @@ const insertUser = async (req, res) => {
     res.redirect("/otp");
 
   } catch (error) {
-
     console.error("Error in insertUser:", error.message);
     req.flash("error", "An unexpected error occurred. Please try again.");
     res.redirect("/signUp");
@@ -279,7 +278,7 @@ const renderOtp = async (req, res) => {
   try {
     res.render("otp");
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 
@@ -319,7 +318,7 @@ const renderLogin = async (req, res) => {
   try {
     res.render("login");
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 
@@ -377,8 +376,7 @@ const verifyLogin = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -386,7 +384,7 @@ const renderForgotPassword = async (req, res) => {
   try {
     res.render("forgot-password");
   } catch (error) {
-    console.log(error);
+    return next(error);
   }
 };
 
@@ -488,11 +486,16 @@ const verifyResetOtp = async (req, res) => {
 };
 
 const renderResetPassword = async (req, res) => {
+try {
   if (!req.session.userForReset) {
     req.flash("error", "Session expired. Please request a new OTP.");
     return res.redirect("/forgot-password");
   }
   res.render("reset-password");
+
+} catch (error) {
+   return next(error);
+}
 };
 
 const updatePassword = async (req, res) => {
@@ -538,7 +541,7 @@ const logOut = async (req, res) => {
     req.session.destroy();
     res.redirect("/");
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 

@@ -11,7 +11,7 @@ const securePassword = async (password) => {
     const passwordHash = await bcrypt.hash(password, 10);
     return passwordHash;
   } catch (error) {
-    console.log(error.message);
+    next(error);
   }
 };
 
@@ -24,8 +24,7 @@ const renderProfile = (req, res) => {
     }
     res.render("user-profile");
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -39,8 +38,7 @@ const renderEditProfile = async (req, res) => {
     }
     res.render("edit-profile");
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -83,8 +81,7 @@ const updateProfile = async (req, res) => {
       req.flash("error", "Failed to update profile");
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -107,8 +104,7 @@ const renderAddress = async (req, res) => {
 
     res.render("address", { userData: user, addresses });
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -116,8 +112,7 @@ const renderAddNewAddress = async (req, res) => {
   try {
     res.render("add-address");
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -146,14 +141,14 @@ const insertNewAddress = async (req, res) => {
       !trimmedState
     ) {
       req.flash("error", "All fields are required");
-      return res.redirect("/user-profile/address/add-addres");
+      return res.redirect("/user-profile/address/add-address");
     }
 
     let numRegex = /^\d+$/;
     const pincodeRegex = /^\d{6}$/;
     if (!pincodeRegex.test(trimmedPincode)) {
       req.flash("error", "Enter a valid pincode");
-      return res.redirect("/user-profile/address/add-addres");
+      return res.redirect("/user-profile/address/add-address");
     }
 
     const allFieldsAreSpaces = Object.values(req.body).every(
@@ -161,7 +156,7 @@ const insertNewAddress = async (req, res) => {
     );
     if (allFieldsAreSpaces) {
       req.flash("error", "All fields cannot be empty or contain only spaces");
-      return res.redirect("/user-profile/address/add-addres");
+      return res.redirect("/user-profile/address/add-address");
     }
     if (
       numRegex.test(
@@ -169,7 +164,7 @@ const insertNewAddress = async (req, res) => {
       )
     ) {
       req.flash("error", "Enter a valid address");
-      return res.redirect("/user-profile/address/add-addres");
+      return res.redirect("/user-profile/address/add-address");
     }
 
     const newAddress = new Address({
@@ -194,8 +189,7 @@ const insertNewAddress = async (req, res) => {
       res.redirect("/user-profile/address");
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -217,8 +211,7 @@ const renderEditAddress = async (req, res) => {
 
     res.render("edit-address", { userData: [address] });
   } catch (error) {
-    console.error("Error rendering edit address:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -232,7 +225,7 @@ const updateAddress = async (req, res) => {
     }
 
     const addressId = req.body.addressId;
-    const { pincode, locality, address, city, state, addresstype } = req.body;
+    const { name, pincode, locality, address, city, state, addresstype } = req.body;
 
     const pincodeRegex = /^\d+$/;
     if (!pincodeRegex.test(pincode)) {
@@ -250,7 +243,7 @@ const updateAddress = async (req, res) => {
 
     const updatedAddress = await Address.findByIdAndUpdate(
       addressId,
-      { pincode, locality, address, city, state, addresstype },
+      { name, pincode, locality, address, city, state, addresstype },
       { new: true }
     );
 
@@ -290,8 +283,7 @@ const deleteAddress = async (req, res) => {
 
     res.status(200).json({ message: "Address deleted successfully" });
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -331,8 +323,7 @@ const resetPassword = async ( req,res ) => {
       }
 
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    return next(error);
   }
 }
 
@@ -350,8 +341,7 @@ const renderMyOrder = async (req, res) => {
       res.redirect('/login');
     }
   } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Internal Server Error');
+    return next(error);
   }
 };
 
@@ -378,8 +368,7 @@ const renderOrderDetails = async (req, res) => {
 
       res.render("orderdetails", { orderData, specificProduct });
   } catch (error) {
-      console.log(error.message);
-      res.status(500).render("error", { message: "Internal Server Error" });
+    return next(error);
   }
 };
 
@@ -433,8 +422,7 @@ const cancelOrder = async (req, res) => {
       res.status(200).json({ success: "Order cancelled successfully"});
 
   } catch (error) {
-      console.log(error.message);
-      res.status(500).json({ error: "Internal server error" });
+    return next(error);
   }
 };
 

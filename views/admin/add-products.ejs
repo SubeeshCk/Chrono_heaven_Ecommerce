@@ -1,227 +1,378 @@
-<%- include("../layouts/admin/header") -%>
+<!DOCTYPE html>
+<html lang="en">
 
-    <section class="content-main">
-        <div class="row">
-            <div class="col-9">
-                <div class="content-header">
-                    <h2 class="content-title">Add New Product</h2>
-                    <% if (messages.success) { %>
-                        <div class="alert alert-success" role="alert" style="color: green;">
-                            <%= messages.success %>
-                        </div>
-                        <% } %>
+<head>
+    <meta charset="utf-8" />
+    <title>Admin dashboard</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="" />
+    <meta property="og:type" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="" />
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="/logo-title.png" />
+    <!-- Template CSS -->
+    <link href="/adminAssets/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
+</head>
 
-                            <% if (messages.error) { %>
-                                <div class="alert alert-danger" role="alert" style="color: red;">
-                                    <%= messages.error %>
-                                </div>
-                                <% } %>
-                                    <div>
-                                        <a href="/admin/products" class="btn btn-md rounded font-sm hover-up">Back</a>
-                                    </div>
-                </div>
+<body>
+    <div class="screen-overlay"></div>
+    <aside class="navbar-aside" id="offcanvas_aside">
+        <div class="aside-top">
+            <a href="index.html" class="brand-wrap">
+                <img src="/userAssets/images/icons/logo-01.png" class="logo" alt="Nest Dashboard" />
+            </a>
+            <div>
+                <button class="btn btn-icon btn-aside-minimize"><i
+                        class="text-muted material-icons md-menu_open"></i></button>
             </div>
-            <div class="col-lg-12">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <!-- Form to Add Product -->
-                        <form id="productForm" method="post" action="/admin/products/add-products"
-                            enctype="multipart/form-data">
-                            <div class="mb-4">
-                                <label for="product_name" class="form-label">Product Name</label>
-                                <input type="text" name="name" placeholder="Type here" class="form-control"
-                                    id="product_name" required />
-                            </div>
-                            <div class="mb-4">
-                                <label for="brand_name" class="form-label">Brand Name</label>
-                                <input type="text" name="brand_name" placeholder="Brand name" class="form-control"
-                                    id="brand_name" required />
-                            </div>
-                            <div class="mb-4">
-                                <label for="price" class="form-label">Price</label>
-                                <input type="number" name="price" placeholder="Price" class="form-control" id="price"
-                                    required min="0" />
-                            </div>
-                            <div class="mb-4">
-                                <label for="quantity" class="form-label">Quantity</label>
-                                <input type="number" name="quantity" placeholder="Available quantity"
-                                    class="form-control" id="quantity" required min="0" />
-                            </div>
+        </div>
+        <nav>
+            <ul class="menu-aside">
+                <li class="menu-item ">
+                    <a class="menu-link" href="/admin/Dashboard">
+                        <i class="icon material-icons md-home"></i>
+                        <span class="text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link">
+                        <i class="icon material-icons md-shopping_bag"></i>
+                        <span class="text">Categories</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="/admin/categories">Categories</a>
+                    </div>
+                </li>
+                <li class="menu-item has-submenu active">
+                    <a class="menu-link">
+                        <i class="icon material-icons md-shopping_bag"></i>
+                        <span class="text">Products</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="/admin/products">Products list</a>
+                        <a href="/admin/products/add-products">Add product</a>
+                    </div>
+                </li>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link">
+                        <i class="icon material-icons md-shopping_cart"></i>
+                        <span class="text">Orders</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="/admin/orders">Orders</a>
+                    </div>
+                </li>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link" href="/admin/users">
+                        <i class="icon material-icons md-person"></i>
+                        <span class="text">Customers</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="/admin/customers">Customers</a>
+                    </div>
+                </li>
+                <br />
+                <br />
+        </nav>
+    </aside>
 
-                            <!-- Gender Dropdown -->
-                            <div class="mb-4">
-                                <label for="gender" class="form-label">Gender</label>
-                                <select name="gender" class="form-control" id="gender" required>
-                                    <option value="">Select Gender</option>
-                                    <option value="men">Men</option>
-                                    <option value="women">Women</option>
-                                </select>
-                            </div>
+    <main class="main-wrap">
+        <header class="main-header navbar">
+            <div class="col-search">
+                <form class="searchform">
+                    <div class="input-group">
+                        <input list="search_terms" type="text" class="form-control" placeholder="Search term" />
+                        <button class="btn btn-light bg" type="button"><i class="material-icons md-search"></i></button>
+                    </div>
+                    <datalist id="search_terms">
+                        <option value="Products"></option>
+                        <option value="New orders"></option>
+                        <option value="Apple iphone"></option>
+                        <option value="Ahmed Hassan"></option>
+                    </datalist>
+                </form>
+            </div>
+            <div class="col-nav">
+                <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"><i
+                        class="material-icons md-apps"></i></button>
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a class="nav-link btn-icon" href="#">
+                            <i class="material-icons md-notifications animation-shake"></i>
+                            <span class="badge rounded-pill">3</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn-icon darkmode" href="#"> <i class="material-icons md-nights_stay"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="requestfullscreen nav-link btn-icon"><i
+                                class="material-icons md-cast"></i></a>
+                    </li>
+                    <li class="dropdown nav-item">
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownLanguage"
+                            aria-expanded="false"><i class="material-icons md-public"></i></a>
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownLanguage">
+                            <a class="dropdown-item text-brand" href="#"><img src="/adminAssets/imgs/theme/flag-us.png"
+                                    alt="English" />English</a>
+                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-fr.png"
+                                    alt="Français" />Français</a>
+                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-jp.png"
+                                    alt="Français" />日本語</a>
+                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-cn.png"
+                                    alt="Français" />中国人</a>
+                        </div>
+                    </li>
+                    <li class="dropdown nav-item">
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
+                            aria-expanded="false"> <img class="img-xs rounded-circle"
+                                src="/adminAssets/imgs/people/avatar-2.png" alt="User" /></a>
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+                            <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit
+                                Profile</a>
+                            <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account
+                                Settings</a>
+                            <a class="dropdown-item" href="#"><i
+                                    class="material-icons md-account_balance_wallet"></i>Wallet</a>
+                            <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
+                            <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help
+                                center</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger" href="/admin/logOut"><i
+                                    class="material-icons md-exit_to_app"></i>Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </header>
 
-                            <!-- Movement Dropdown -->
-                            <div class="mb-4">
-                                <label for="movement" class="form-label">Movement</label>
-                                <select name="movement" class="form-control" id="movement" required>
-                                    <option value="">Select Movement</option>
-                                    <option value="automatic">Automatic</option>
-                                    <option value="quartz">Quartz</option>
-                                    <option value="hand wound">Hand Wound</option>
-                                </select>
+        <section class="content-main">
+            <div class="row">
+                <div class="col-9">
+                    <div class="content-header">
+                        <h2 class="content-title">Add New Product</h2>
+                        <% if (messages.success) { %>
+                            <div class="alert alert-success" role="alert" style="color: green;">
+                                <%= messages.success %>
                             </div>
+                            <% } %>
 
-                            <!-- Size Input -->
-                            <div class="mb-4">
-                                <label for="size" class="form-label">Size</label>
-                                <input type="text" name="size" placeholder="Size (mm)" class="form-control" id="size"
-                                    required />
-                            </div>
-
-                            <!-- Dial Shape Input -->
-                            <div class="mb-4">
-                                <label for="dial_shape" class="form-label">Dial shape</label>
-                                <select name="dial_shape" class="form-control" id="dial_shape" required>
-                                    <option value="">Select dial shape</option>
-                                    <option value="round">round</option>
-                                    <option value="rectangle">rectangle</option>
-                                    <option value="ovel">Ovel</option>
-                                </select>
-                            </div>
-
-                            <!-- Case Material Dropdown -->
-                            <div class="mb-4">
-                                <label for="case_material" class="form-label">Case Material</label>
-                                <select name="case_material" class="form-control" id="case_material" required>
-                                    <option value="">Select Case Material</option>
-                                    <option value="platinum">Platinum</option>
-                                    <option value="silver">Silver</option>
-                                    <option value="steel">Steel</option>
-                                    <option value="gold">Gold</option>
-                                    <option value="rose gold">Rose Gold</option>
-                                </select>
-                            </div>
-
-                            <!-- Strap/Bracelet Dropdown -->
-                            <div class="mb-4">
-                                <label for="strap_bracelet" class="form-label">Strap/Bracelet</label>
-                                <select name="strap_bracelet" class="form-control" id="strap_bracelet" required>
-                                    <option value="">Select Strap/Bracelet</option>
-                                    <option value="strap">Strap</option>
-                                    <option value="bracelet">Bracelet</option>
-                                </select>
-                            </div>
-
-                            <!-- Water Resistance Capacity Input -->
-                            <div class="mb-4">
-                                <label for="water_resistance_capacity" class="form-label">Water Resistance
-                                    Capacity</label>
-                                <input type="text" name="water_resistance_capacity"
-                                    placeholder="Water resistance (meters)" class="form-control"
-                                    id="water_resistance_capacity" required />
-                            </div>
-
-                            <!-- Brand Warranty Input -->
-                            <div class="mb-4">
-                                <label for="brand_warranty" class="form-label">Brand Warranty</label>
-                                <input type="text" name="brand_warranty" placeholder="Brand warranty"
-                                    class="form-control" id="brand_warranty" required />
-                            </div>
-
-                            <!-- Description Textarea -->
-                            <div class="mb-4">
-                                <label for="description" class="form-label">Description</label>
-                                <textarea name="description" placeholder="Product description" class="form-control"
-                                    rows="4" required></textarea>
-                            </div>
-
-                            <!-- Category Dropdown -->
-                            <div class="mb-3">
-                                <label for="productCategory" class="form-label">Category</label>
-                                <select class="form-control" id="productCategory" name="category" required>
-                                    <option value="">Select a category</option>
-                                    <% categoryData.forEach(category=> { %>
-                                        <option value="<%= category._id %>">
-                                            <%= category.name %>
-                                        </option>
-                                        <% }) %>
-                                </select>
-                            </div>
-
-                            <!-- Media Section -->
-                            <div class="mb-4">
-                                <label for="images" class="form-label">Images (Max 4)</label>
-                                <input class="form-control" type="file" name="images" id="images" accept="image/*"
-                                    multiple required />
-                                <div id="imagePreview" class="mt-3 d-flex flex-wrap"></div>
-                            </div>
-
-                            <!-- Submit Button -->
-                            <div class="mb-4">
-                                <button type="submit" class="btn btn-primary">Add Product</button>
-                            </div>
-                        </form>
+                                <% if (messages.error) { %>
+                                    <div class="alert alert-danger" role="alert" style="color: red;">
+                                        <%= messages.error %>
+                                    </div>
+                                    <% } %>
+                                        <div>
+                                            <a href="/admin/products"
+                                                class="btn btn-md rounded font-sm hover-up">Back</a>
+                                        </div>
                     </div>
                 </div>
-            </div>
-    </section>
+                <div class="col-lg-12">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <!-- Form to Add Product -->
+                            <form id="productForm" method="post" action="/admin/products/add-products"
+                                enctype="multipart/form-data">
+                                <div class="mb-4">
+                                    <label for="product_name" class="form-label">Product Name</label>
+                                    <input type="text" name="name" placeholder="Type here" class="form-control"
+                                        id="product_name" required />
+                                </div>
+                                <div class="mb-4">
+                                    <label for="brand_name" class="form-label">Brand Name</label>
+                                    <input type="text" name="brand_name" placeholder="Brand name" class="form-control"
+                                        id="brand_name" required />
+                                </div>
+                                <div class="mb-4">
+                                    <label for="price" class="form-label">Price</label>
+                                    <input type="number" name="price" placeholder="Price" class="form-control"
+                                        id="price" required min="0" />
+                                </div>
+                                <div class="mb-4">
+                                    <label for="quantity" class="form-label">Quantity</label>
+                                    <input type="number" name="quantity" placeholder="Available quantity"
+                                        class="form-control" id="quantity" required min="0" />
+                                </div>
 
-    <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="/adminAssets/js/main.js"></script>
+                                <!-- Gender Dropdown -->
+                                <div class="mb-4">
+                                    <label for="gender" class="form-label">Gender</label>
+                                    <select name="gender" class="form-control" id="gender" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="men">Men</option>
+                                        <option value="women">Women</option>
+                                    </select>
+                                </div>
 
-    <script>
-        // Image preview function
-        function previewImages(input) {
-            const preview = document.getElementById('imagePreview');
-            preview.innerHTML = ''; // Clear existing previews
+                                <!-- Movement Dropdown -->
+                                <div class="mb-4">
+                                    <label for="movement" class="form-label">Movement</label>
+                                    <select name="movement" class="form-control" id="movement" required>
+                                        <option value="">Select Movement</option>
+                                        <option value="automatic">Automatic</option>
+                                        <option value="quartz">Quartz</option>
+                                        <option value="hand wound">Hand Wound</option>
+                                    </select>
+                                </div>
 
-            if (input.files) {
-                [...input.files].forEach(file => {
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.className = 'img-thumbnail m-1';
-                            img.style.width = '300px';
-                            img.style.height = '500px';
-                            img.style.objectFit = 'cover';
-                            preview.appendChild(img);
+                                <!-- Size Input -->
+                                <div class="mb-4">
+                                    <label for="size" class="form-label">Size</label>
+                                    <input type="text" name="size" placeholder="Size (mm)" class="form-control"
+                                        id="size" required />
+                                </div>
+
+                                <!-- Dial Shape Input -->
+                                <div class="mb-4">
+                                    <label for="dial_shape" class="form-label">Dial shape</label>
+                                    <select name="dial_shape" class="form-control" id="dial_shape" required>
+                                        <option value="">Select dial shape</option>
+                                        <option value="round">round</option>
+                                        <option value="rectangle">rectangle</option>
+                                        <option value="ovel">Ovel</option>
+                                    </select>
+                                </div>
+
+                                <!-- Case Material Dropdown -->
+                                <div class="mb-4">
+                                    <label for="case_material" class="form-label">Case Material</label>
+                                    <select name="case_material" class="form-control" id="case_material" required>
+                                        <option value="">Select Case Material</option>
+                                        <option value="platinum">Platinum</option>
+                                        <option value="silver">Silver</option>
+                                        <option value="steel">Steel</option>
+                                        <option value="gold">Gold</option>
+                                        <option value="rose gold">Rose Gold</option>
+                                    </select>
+                                </div>
+
+                                <!-- Strap/Bracelet Dropdown -->
+                                <div class="mb-4">
+                                    <label for="strap_bracelet" class="form-label">Strap/Bracelet</label>
+                                    <select name="strap_bracelet" class="form-control" id="strap_bracelet" required>
+                                        <option value="">Select Strap/Bracelet</option>
+                                        <option value="strap">Strap</option>
+                                        <option value="bracelet">Bracelet</option>
+                                    </select>
+                                </div>
+
+                                <!-- Water Resistance Capacity Input -->
+                                <div class="mb-4">
+                                    <label for="water_resistance_capacity" class="form-label">Water Resistance
+                                        Capacity</label>
+                                    <input type="text" name="water_resistance_capacity"
+                                        placeholder="Water resistance (meters)" class="form-control"
+                                        id="water_resistance_capacity" required />
+                                </div>
+
+                                <!-- Brand Warranty Input -->
+                                <div class="mb-4">
+                                    <label for="brand_warranty" class="form-label">Brand Warranty</label>
+                                    <input type="text" name="brand_warranty" placeholder="Brand warranty"
+                                        class="form-control" id="brand_warranty" required />
+                                </div>
+
+                                <!-- Description Textarea -->
+                                <div class="mb-4">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea name="description" placeholder="Product description" class="form-control"
+                                        rows="4" required></textarea>
+                                </div>
+
+                                <!-- Category Dropdown -->
+                                <div class="mb-3">
+                                    <label for="productCategory" class="form-label">Category</label>
+                                    <select class="form-control" id="productCategory" name="category" required>
+                                        <option value="">Select a category</option>
+                                        <% categoryData.forEach(category=> { %>
+                                            <option value="<%= category._id %>">
+                                                <%= category.name %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
+                                </div>
+
+                                <!-- Media Section -->
+                                <div class="mb-4">
+                                    <label for="images" class="form-label">Images (Max 4)</label>
+                                    <input class="form-control" type="file" name="images" id="images" accept="image/*"
+                                        multiple required />
+                                    <div id="imagePreview" class="mt-3 d-flex flex-wrap"></div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="mb-4">
+                                    <button type="submit" class="btn btn-primary">Add Product</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+        </section>
+        <script defer src="https://cdn.crop.guide/loader/l.js?c=XTWLQY"></script>
+        <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+        <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+        <script src="/adminAssets/js/main.js"></script>
+
+        <script>
+            // Image preview function
+            function previewImages(input) {
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML = ''; // Clear existing previews
+
+                if (input.files) {
+                    [...input.files].forEach(file => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                img.className = 'img-thumbnail m-1';
+                                img.style.width = '300px';
+                                img.style.height = '500px';
+                                img.style.objectFit = 'cover';
+                                preview.appendChild(img);
+                            }
+                            reader.readAsDataURL(file);
                         }
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-        }
-
-        // Validate that no more than 4 images are uploaded and only accept JPEG/PNG files
-        document.getElementById('images').addEventListener('change', function () {
-            const validImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-            const files = this.files;
-
-            // Check the number of files
-            if (files.length > 4) {
-                alert("You can upload a maximum of 4 images.");
-                this.value = ''; // Clear the input if more than 4 files are selected
-                return;
-            }
-
-            // Check each file's type
-            for (let i = 0; i < files.length; i++) {
-                if (!validImageTypes.includes(files[i].type)) {
-                    alert("Only JPEG and PNG images are allowed.");
-                    this.value = ''; // Clear the input if any invalid file is found
-                    return;
+                    });
                 }
             }
 
-            // Preview images if validation passes
-            previewImages(this);
-        });
+            // Validate that no more than 4 images are uploaded and only accept JPEG/PNG files
+            document.getElementById('images').addEventListener('change', function () {
+                const validImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                const files = this.files;
 
-        // ... (rest of the JavaScript validation code remains the same) ...
-    </script>
+                // Check the number of files
+                if (files.length > 4) {
+                    alert("You can upload a maximum of 4 images.");
+                    this.value = ''; // Clear the input if more than 4 files are selected
+                    return;
+                }
+
+                // Check each file's type
+                for (let i = 0; i < files.length; i++) {
+                    if (!validImageTypes.includes(files[i].type)) {
+                        alert("Only JPEG and PNG images are allowed.");
+                        this.value = ''; // Clear the input if any invalid file is found
+                        return;
+                    }
+                }
+
+                // Preview images if validation passes
+                previewImages(this);
+            });
+
+            // ... (rest of the JavaScript validation code remains the same) ...
+        </script>
 
 
-    </body>
+</body>
 
-    </html>
+</html>

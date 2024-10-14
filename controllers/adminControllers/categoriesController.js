@@ -7,7 +7,7 @@ const renderCategories = async (req, res) => {
     const categories = await Category.find({});
     res.render("categories", { categories });
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 
@@ -15,7 +15,7 @@ const renderAddCategory = async (req, res) => {
   try {
     res.render("add-category");
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 
@@ -60,7 +60,7 @@ const renderUpdateCategory = async (req, res) => {
     const category = await Category.findById(categoryId);
     res.render("update-category", { category });
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 
@@ -87,7 +87,7 @@ const updateCategory = async (req, res) => {
     req.flash("success", "Category updated successfully!");
     return res.redirect(API_ROUTES.CATEGORY.LIST);
   } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
     req.flash("error", "An error occurred while updating the category.");
     return res.redirect(`/admin/categories/update-category/${id}`);
   }
@@ -115,7 +115,7 @@ const unlistCategory = async (req, res) => {
     req.flash("success", "Category unlisted successfully");
     res.redirect(API_ROUTES.CATEGORY.LIST);
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 
@@ -141,7 +141,7 @@ const listCategory = async (req, res) => {
     req.flash("success", "Category listed successfully");
     res.redirect(API_ROUTES.CATEGORY.LIST);
   } catch (error) {
-    console.log(error.message);
+    return next(error);
   }
 };
 

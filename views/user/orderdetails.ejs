@@ -349,12 +349,7 @@
                 <%}%>
               </strong>
           </p>
-          <% if (!orderData.paymentStatus) { %>
-              <!-- Show retry payment button if payment is pending -->
-              <div class="text-center mt-3">
-                  <button id="retryPaymentBtn" type="button" class="btn btn-primary btn-custom" data-order-id="<%= orderData._id %>">Retry Payment</button>
-              </div>
-          <% } %>
+          <br>
           <!-- Display order date -->
           <p><strong>Order Date:</strong> <%= new Date(orderData.createdAt).toLocaleDateString() %></p>
           <p><strong>Delivery Charge:</strong>  ₹<%= orderData.deliveryCharge %></p>
@@ -380,8 +375,8 @@
             <%= Total %>
           </p>
           <p><strong>Payment Method:</strong> <%= orderData.paymentMethod %></p>
-          <p><strong>Delivery Address:</strong> <br><%= orderData.deliveryAddress.address %>, <%= orderData.deliveryAddress.locality %><br>
-              <%= orderData.deliveryAddress.city %>, <%= orderData.deliveryAddress.pincode %>, <%= orderData.deliveryAddress.state %>
+          <p><strong>Delivery Address:</strong> <br><%= orderData.deliveryAddress.name %> <br> <%= orderData.deliveryAddress.address %> <br> <%= orderData.deliveryAddress.locality %><br>
+              <%= orderData.deliveryAddress.city %> <br> <%= orderData.deliveryAddress.pincode %> <br> <%= orderData.deliveryAddress.state %>
           </p>
       </div>
   </div>

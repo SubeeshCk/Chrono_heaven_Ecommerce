@@ -164,7 +164,7 @@
                     <li class="list-group-item d-flex justify-content-between align-items-center" style="padding: 20px; margin-bottom: 10px;" data-address-id="<%= address._id %>">
                       <div>
                         <span class="status-indicator-pill" style="display: inline-block; padding: 5px 10px; border-radius: 5px; background-color: rgb(195, 193, 193); color: #000; font-size: 14px;"><%= address.addresstype === 'work' ? 'Work' : 'Home' %></span>
-                        <p class="mb-0" style="font-size: 16px; color: #000;"><%= address.address %>, <%= address.locality %>, <%= address.city %>, <%= address.pincode %></p>
+                        <p class="mb-0" style="font-size: 16px; color: #000;"><%= address.name %>,<%= address.address %>, <%= address.locality %>, <%= address.city %>, <%= address.pincode %></p>
                       </div>
                       <div class="dropdown-container">
                         <button class="btn dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton<%= address.id %>">

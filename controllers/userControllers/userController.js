@@ -29,8 +29,7 @@ const renderHome = async (req, res) => {
     res.render("home", { productData });
 
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).send("An error occurred");
+    return next(error);
   }
 };
 
@@ -51,8 +50,7 @@ const renderProducts = async (req, res) => {
 
     res.render("products", { productData });
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).send('An error occurred');
+    return next(error);
   }
 };
 
@@ -69,8 +67,7 @@ const productDetails = async (req, res) => {
     res.render("product-details", { product });
 
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).send('An error occurred');  
+    return next(error); 
   }
 };
 
@@ -89,11 +86,10 @@ const renderWomens = async (req, res) => {
 
     const categories = [womenCategory];
 
-    res.render("womens", { productData, categories });
+    res.render("womens", { productData, categories, pageCategory: "women" });
 
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    return next(error);
   }
 };
 
@@ -112,28 +108,34 @@ const renderMens = async (req, res) => {
 
     const categories = [mensCategory];
 
-    res.render("mens", { productData, categories });
+    res.render("mens", { productData, categories, pageCategory: "men" });
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    return next(error);
   }
 };
 
 const sortProducts = async (req, res) => {
   try {
-    const { sortBy } = req.query;
+    const { sortBy, category } = req.query;
     let sortOption = {};
     let aggregatePipeline = [];
 
-    const categories = await Category.find({ is_listed: true });
-    const unblockedCategoryIds = categories.map((category) => category._id);
+    let matchCondition = { is_listed: true };
 
-    aggregatePipeline.push({
-      $match: {
-        is_listed: true,
-        category: { $in: unblockedCategoryIds }
+    if (category && category !== 'all') {
+      const categoryDoc = await Category.findOne({ name: category, is_listed: true });
+      if (!categoryDoc) {
+        return res.status(StatusCode.NOT_FOUND).json({ error: 'Category not found' });
       }
-    });
+      matchCondition.category = categoryDoc._id;
+
+    } else {
+      const listedCategories = await Category.find({ is_listed: true });
+      const listedCategoryIds = listedCategories.map(cat => cat._id);
+      matchCondition.category = { $in: listedCategoryIds };
+    }
+
+    aggregatePipeline.push({ $match: matchCondition });
 
     switch (sortBy) {
       case 'popularity':
@@ -171,13 +173,12 @@ const sortProducts = async (req, res) => {
         sortOption = { lowercaseName: -1 };
         break;
       case 'in-stock':
-        // Add a match stage to filter for products with stock > 0
         aggregatePipeline.push({
           $match: {
             quantity: { $gt: 0 }
           }
         });
-        sortOption = { stock: -1 }; // Sort by stock, highest first
+        sortOption = { stock: -1 };
         break;
       default:
         sortOption = { createdAt: -1 };
@@ -189,8 +190,7 @@ const sortProducts = async (req, res) => {
 
     res.json({ products: productData });
   } catch (error) {
-    console.log(error.message);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ error: 'An error occurred' });
+    return next(error);
   }
 };
 

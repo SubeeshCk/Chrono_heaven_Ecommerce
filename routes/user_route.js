@@ -1,10 +1,9 @@
 const express = require ("express");
 const userRoute = express();
 const passport = require('passport')
+require('../middlewares/passport');
 
-userRoute.use(express.json());
-userRoute.use(express.urlencoded({ extended: true }));
-
+//controllers
 const userVerificationController = require("../controllers/userControllers/userVerificationController");
 const userController = require("../controllers/userControllers/userController");
 const profileController = require("../controllers/userControllers/profileController");
@@ -15,12 +14,13 @@ const userAuth = require("../middlewares/userAuth");
 const { setUserData } = require("../middlewares/setUserData");
 const setCartCount = require("../middlewares/setCartCount");
 
+userRoute.use(passport.initialize());
+userRoute.use(passport.session());
+
 //setting /userAssets as static
 userRoute.use('/userAssets', express.static('public/userAssets'));
 
-
 //view engine
-userRoute.set('view engine','ejs');
 userRoute.set('views','./views/user');
 
 
@@ -68,6 +68,7 @@ userRoute.get('/user-profile/myorders',setUserData, userAuth.is_login, setCartCo
 userRoute.get('/user-profile/myorders/orderDetails',setUserData, userAuth.is_login,setCartCount, profileController.renderOrderDetails)
 userRoute.post('/cancelOrder', userAuth.is_login,profileController.cancelOrder);
 
+
 //*************************************Cart management***************************************//
 userRoute.get('/cart', userAuth.is_login, setUserData,setCartCount, cartController.renderCart);
 userRoute.get('/addToCart/:id',userAuth.is_login, setCartCount, cartController.addToCart);
@@ -82,9 +83,32 @@ userRoute.delete('/cart/checkout/deleteAddress/:id?', userAuth.is_login, cartCon
 userRoute.post('/placeOrder',userAuth.is_login, cartController.placeOrder);
 
 userRoute.get('/orderPlaced',userAuth.is_login,cartController.renderOrderPlaced);
+
+
+
 //************************** Google authentication ********************************//
 
 userRoute.get('/auth', passport.authenticate('google', { scope: ['email', 'profile'] }));
+
+userRoute.get('/auth/callback', passport.authenticate('google', {
+    successRedirect: '/auth/callback/success',
+    failureRedirect: '/auth/callback/failure'
+}));
+
+userRoute.get('/auth/callback/success', (req, res) => {
+    if (req.user) {
+        if (req.user.block) {
+            console.log('User is blocked');
+            req.flash("error","your account is blocked");
+            return res.redirect('/login');
+        }
+        req.session.userId = req.user._id;
+        console.log('Login success');
+        res.redirect('/');
+    } else {
+        res.redirect('/login');
+    }
+});
 
 userRoute.get('/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login', failureFlash: true }), 
@@ -101,8 +125,6 @@ userRoute.get('/auth/callback/failure', (req, res) => {
    req.flash('error', 'You are not authenticated to log in');
    res.redirect('/login');
 });
-
-
 
 
 module.exports = userRoute;

@@ -1,13 +1,14 @@
 const express = require("express");
+const errorHandler = require('./middlewares/errorHandler');
 const session = require('express-session');
 const dotenv = require('dotenv');
 const flash = require('express-flash');
 const nocache = require('nocache');
 const mongoose = require('mongoose');
-const passport = require('passport');
 const cookieSession = require('cookie-session');
 const path = require("path");
-require('./middlewares/passport');
+const connectDB = require ("./config/db");
+
 
 // Load environment variables
 dotenv.config();
@@ -15,15 +16,15 @@ dotenv.config();
 const app = express();
 app.set('view engine', 'ejs');
 
-// Check if environment variables are being read
-console.log("MONGODB_URL: ", process.env.MONGODB_URL);
-console.log("PORT: ", process.env.PORT);
 
 // Middlewares
 app.use(express.static('public'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Setup session middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// session middleware
 app.use(session({
     secret: "your_secret_key",
     resave: false,
@@ -36,18 +37,6 @@ app.use(session({
 app.use(flash());
 app.use(nocache());
 
-app.use(passport.initialize());
-app.use(passport.session());
-
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URL)
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((error) => {
-    console.error('MongoDB connection error:', error);
-  });
-
 // Import and use routes
 const userRoute = require("./routes/user_route");
 app.use("/", userRoute);
@@ -55,35 +44,10 @@ app.use("/", userRoute);
 const adminRoute = require("./routes/admin_route")
 app.use("/admin" ,adminRoute );
 
-// Google OAuth Routes
-app.get('/auth', passport.authenticate('google', { scope: ['email', 'profile'] }));
+app.use(errorHandler);
 
-app.get('/auth/callback', passport.authenticate('google', {
-    successRedirect: '/auth/callback/success',
-    failureRedirect: '/auth/callback/failure'
-}));
-
-
-app.get('/auth/callback/success', (req, res) => {
-    if (req.user) {
-        if (req.user.block) {
-            console.log('User is blocked');
-            req.flash("error","your account is blocked");
-            return res.redirect('/login');
-        }
-        req.session.userId = req.user._id;
-        console.log('Login success');
-        res.redirect('/');
-    } else {
-        res.redirect('/login');
-    }
-});
-
-
-app.get('/auth/callback/failure', (req, res) => {
-    res.send("Error");
-});
-
+// MongoDB connection
+connectDB();
 
 // Start server
 const port = process.env.PORT || 4000;

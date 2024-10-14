@@ -8,8 +8,8 @@ const API_ROUTES = {
     CATEGORY: {
       LIST: '/admin/categories',
       ADD: '/admin/categories/add-category',
-      EDIT:'admin/categories/edit-categor/:id?',
-      UPDATE:'admin/categories/edit-categor/:id?'
+      EDIT:'/admin/categories/edit-category/:id?',
+      UPDATE:'/admin/categories/edit-category/:id?'
     },
     PRODUCT: {
       LIST: '/admin/products',

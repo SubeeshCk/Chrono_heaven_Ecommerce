@@ -14,9 +14,7 @@ const renderProduct = async (req, res) => {
     const products = await Products.find({});
     res.render("products", { products });
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
-  }
+    return next(error);  }
 };
 
 const renderAddProducts = async (req, res) => {
@@ -24,8 +22,7 @@ const renderAddProducts = async (req, res) => {
     const categoryData = await Category.find({ is_listed: true });
     return res.render("add-products", { categoryData });
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -103,7 +100,7 @@ const addProduct = async (req, res) => {
     req.flash("success", "Product added successfully!");
     res.redirect(API_ROUTES.PRODUCT.LIST);
   } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
     req.flash("error", "An error occurred while adding the product.");
     res.redirect(API_ROUTES.PRODUCT.ADD);
   }
@@ -122,7 +119,7 @@ const renderUpdateProducts = async (req, res) => {
       res.redirect(API_ROUTES.PRODUCT.LIST);
     }
   } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
     req.flash("error", "An error occurred while fetching the product");
     res.redirect(API_ROUTES.PRODUCT.LIST);
   }
@@ -131,9 +128,7 @@ const renderUpdateProducts = async (req, res) => {
 
 const updateProducts = async (req, res) => {
   try {
-    console.log("req.body:", req.body);
     const id = req.params.id;
-    console.log(id);
     
     let {
       name,
@@ -239,7 +234,7 @@ const updateProducts = async (req, res) => {
     req.flash("success", "Product updated successfully");
     return res.redirect(API_ROUTES.PRODUCT.LIST);
   } catch (error) {
-    console.log("Error in updating the product",error.message);
+    console.error("Error in updating the product",error.message);
     req.flash("error", error.message || "An error occurred while updating the product");
     return res.redirect(API_ROUTES.PRODUCT.LIST);
   }
@@ -267,8 +262,7 @@ const unlistProduct = async (req, res) => {
     req.flash("success", "Product unlisted successfully");
     res.redirect(API_ROUTES.PRODUCT.LIST);
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 
@@ -294,8 +288,7 @@ const listProduct = async (req, res) => {
     req.flash("success", "Product listed successfully");
     res.redirect(API_ROUTES.PRODUCT.LIST);
   } catch (error) {
-    console.log(error.message);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).send({ error: "Internal server error" });
+    return next(error);
   }
 };
 
