@@ -1,0 +1,308 @@
+<%- include('../layouts/user/product-header') %>
+
+  <style>
+    .path a {
+      margin-bottom: 5px;
+      color: #000;
+      text-decoration: none;
+    }
+
+    .path a:hover {
+      color: red;
+      transition-duration: 0.6s;
+    }
+
+    .path {
+      font-family: Montserrat, sans-serif;
+      font-size: 19px;
+      text-align: left;
+      margin-right: auto;
+      margin-top: 10px;
+      height: 500px;
+    }
+
+    .referral-section {
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .referral-link {
+      font-size: 18px;
+      font-weight: bold;
+      color: #007bff;
+      word-break: break-all;
+    }
+
+    .referral-info {
+      font-size: 16px;
+    }
+
+    .align-right-btn {
+      float: right;
+    }
+
+    /* Toast styling */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 250px;
+      background-color: black;
+      color: white;
+      text-align: center;
+    }
+  </style>
+  </head>
+
+  <body>
+
+    <!-- Breadcrumb Begin -->
+    <div class="container">
+      <div class="bread-crumb flex-w  p-r-15 p-t-30 p-lr-0-lg">
+        <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+          Home
+          <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+
+        <a href="/user-profile" class="stext-109 cl8 hov-cl1 trans-04">
+          User profile
+          <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+
+        <a href="#" class="stext-109 cl8 hov-cl1 trans-04">
+          Refferal
+          <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+    <!-- Breadcrumb End -->
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog"
+      aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form action="/user-profile/change-password" method="post" id="changePasswordForm">
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" class="form-control" id="currentPassword" name="current_password" required>
+              </div>
+              <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" class="form-control" id="newPassword" name="new_password" required>
+                <small id="passwordHelp" class="form-text text-muted">
+                  Your password must be minimum 8 characters long, contain uppercase and lowercase letters, a number,
+                  and a
+                  special character.
+                </small>
+              </div>
+              <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+                <small id="passwordMatchError" class="form-text text-danger" style="display: none;">
+                  Passwords do not match!
+                </small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal info Section Begin -->
+    <section class="checkout spad">
+      <div class="container">
+        <form action="#" class="checkout__form">
+          <div class="row d-flex justify-content-end">
+            <div class="path">
+              <div class="l">
+                <a href="/user-profile">Personal Information</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="/user-profile/myorders">My Orders</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="/user-profile/address">Address</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="/Wallet">Wallet</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="/coupons">My Coupons</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="#" id="changePasswordBtn">Change Password</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="/refferal" style="color: red;">Referral</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+            </div>
+
+            <div class="col-md-9">
+              <h5 style="text-align: center; font-weight: bold;">Referral code</h5>
+              <hr>
+
+              <div class="referral-section">
+                <p class="referral-info">Share your referral link with friends and earn rewards!</p>
+                <div class="form-group">
+                  <label for="referralCode">Your Referral Code:</label>
+                  <input type="text" class="form-control text-center" id="referralCode"
+                    value="<%= userData.referral_code %>" readonly>
+                </div>
+                <div>
+                  <button class="btn btn-primary" onclick="copyReferralCode()">Copy Code</button>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </section>
+    <!-- Referral Section End -->
+
+    <!-- Toast Notification -->
+    <div id="referralToast"
+      style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #333; color: white; padding: 15px; border-radius: 5px; z-index: 1000;">
+      Referral code copied!
+    </div>
+
+    <%- include('../layouts/user/footer') %>
+
+      <!-- Include jQuery and Bootstrap JavaScript at the end of the body to ensure they are loaded after the DOM is ready -->
+      <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const copyButton = document.querySelector('.btn-primary');
+          const toast = document.getElementById('referralToast');
+
+          function showToast() {
+            toast.style.display = 'block';
+            setTimeout(() => {
+              toast.style.display = 'none';
+            }, 3000);
+          }
+
+          window.copyReferralCode = function () {
+            const copyText = document.getElementById("referralCode");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+            document.execCommand("copy");
+            showToast();
+          };
+
+          copyButton.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent form submission if the button is within a form
+            copyReferralCode();
+          });
+        });
+
+      </script>
+      <script>
+        $(document).ready(function () {
+          $('#changePasswordBtn').click(function () {
+            $('#changePasswordModal').modal('show');
+          });
+        });
+        $(document).ready(function () {
+          // Show modal when the "Change Password" button is clicked
+          $('#changePasswordBtn').click(function () {
+            $('#changePasswordModal').modal('show');
+          });
+
+          // Form submission validation
+          $('#changePasswordForm').on('submit', function (e) {
+            var newPassword = $('#newPassword').val();
+            var confirmPassword = $('#confirmPassword').val();
+            var passwordMatchError = $('#passwordMatchError');
+            var passwordHelp = $('#passwordHelp');
+
+            // Regular expression for a strong password: 
+            // at least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
+            var strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            // Check if passwords match
+            if (newPassword !== confirmPassword) {
+              e.preventDefault(); // Stop form submission
+              passwordMatchError.show(); // Show the error message
+            } else {
+              passwordMatchError.hide(); // Hide the error message
+            }
+
+            // Check if the password is strong enough
+            if (!strongPasswordRegex.test(newPassword)) {
+              e.preventDefault(); // Stop form submission
+              passwordHelp.text('Password is not strong enough!').addClass('text-danger');
+            } else {
+              passwordHelp.text('Your password must be 8-20 characters long, contain uppercase and lowercase letters, a number, and a special character.').removeClass('text-danger');
+            }
+          });
+        });
+
+      </script>
+
+      <script>
+        $(document).ready(function () {
+          $('#changePasswordBtn').click(function () {
+            $('#changePasswordModal').modal('show');
+          });
+        });
+        $(document).ready(function () {
+          // Show modal when the "Change Password" button is clicked
+          $('#changePasswordBtn').click(function () {
+            $('#changePasswordModal').modal('show');
+          });
+
+          // Form submission validation
+          $('#changePasswordForm').on('submit', function (e) {
+            var newPassword = $('#newPassword').val();
+            var confirmPassword = $('#confirmPassword').val();
+            var passwordMatchError = $('#passwordMatchError');
+            var passwordHelp = $('#passwordHelp');
+
+            // Regular expression for a strong password: 
+            // at least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
+            var strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            // Check if passwords match
+            if (newPassword !== confirmPassword) {
+              e.preventDefault(); // Stop form submission
+              passwordMatchError.show(); // Show the error message
+            } else {
+              passwordMatchError.hide(); // Hide the error message
+            }
+
+            // Check if the password is strong enough
+            if (!strongPasswordRegex.test(newPassword)) {
+              e.preventDefault(); // Stop form submission
+              passwordHelp.text('Password is not strong enough!').addClass('text-danger');
+            } else {
+              passwordHelp.text('Your password must be 8-20 characters long, contain uppercase and lowercase letters, a number, and a special character.').removeClass('text-danger');
+            }
+          });
+        });
+      </script>
+
+  </body>
+
+  </html>

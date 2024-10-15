@@ -8,6 +8,7 @@ const userVerificationController = require("../controllers/userControllers/userV
 const userController = require("../controllers/userControllers/userController");
 const profileController = require("../controllers/userControllers/profileController");
 const cartController = require("../controllers/userControllers/cartController");
+const walletController = require("../controllers/userControllers/walletController");
 
 //middlewares
 const userAuth = require("../middlewares/userAuth");
@@ -50,6 +51,9 @@ userRoute.get('/product-details/:id?',setUserData, setCartCount, userController.
 userRoute.get('/products/womens',setUserData ,setCartCount, userController.renderWomens);
 userRoute.get('/products/mens',setUserData ,setCartCount, userController.renderMens);
 userRoute.get('/sort-products',setUserData ,setCartCount, userController.sortProducts);
+userRoute.get('/wishlist',userAuth.is_login,setUserData ,setCartCount,userController.renderWishlist)
+userRoute.get('/addToWishlist',userAuth.is_login,setUserData, userController.addToWishlist)
+userRoute.get('/RemoveFromWishlist',userAuth.is_login,setUserData, userController.RemoveFromWishlist)
 
 
 
@@ -67,6 +71,11 @@ userRoute.post('/user-profile/change-password',setUserData,userAuth.is_login, pr
 userRoute.get('/user-profile/myorders',setUserData, userAuth.is_login, setCartCount, profileController.renderMyOrder)
 userRoute.get('/user-profile/myorders/orderDetails',setUserData, userAuth.is_login,setCartCount, profileController.renderOrderDetails)
 userRoute.post('/cancelOrder', userAuth.is_login,profileController.cancelOrder);
+
+userRoute.get('/Wallet',userAuth.is_login,setCartCount,walletController.renderWallet);
+userRoute.post('/add-money',userAuth.is_login,walletController.addMoneyToWallet);
+
+userRoute.get('/refferal',userAuth.is_login, setUserData, setCartCount ,profileController.renderRefferal)
 
 
 //*************************************Cart management***************************************//

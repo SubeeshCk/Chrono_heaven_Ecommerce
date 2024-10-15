@@ -14,6 +14,7 @@ const categoriesController = require("../controllers/adminControllers/categories
 const productController = require("../controllers/adminControllers/productController");
 const orderController = require ("../controllers/adminControllers/orderController");
 const customerController = require ("../controllers/adminControllers/customerController");
+const offerController = require ("../controllers/adminControllers/offerControllers");
 
 //authentication middleware
 const adminAuth = require("../middlewares/adminAuth");
@@ -58,6 +59,17 @@ adminRoute.get("/customers",adminAuth.is_login,customerController.renderCustomer
 adminRoute.post('/customers/block',adminAuth.is_login, customerController.blockUser);
 adminRoute.post('/customers/unblock',adminAuth.is_login, customerController.unblockUser);
 adminRoute.get("/customers/customer-profile/:id?",adminAuth.is_login,customerController.renderCustomerProfile);
+
+
+//*****************************   Offer  ************************************//
+adminRoute.get('/product-offers',adminAuth.is_login,offerController.renderProductOffers)
+adminRoute.get('/category-offers',adminAuth.is_login,offerController.renderCategoryOffer)
+adminRoute.get('/addProductOffer',adminAuth.is_login,offerController.renderAddProductOffer);
+adminRoute.get('/addCategoryOffer',adminAuth.is_login,offerController.renderAddCategoryOffer)
+adminRoute.post('/addCategoryOffer',adminAuth.is_login,offerController.AddCategoryOffer)
+adminRoute.delete('/removeCategoryOffer/:offerId',adminAuth.is_login,offerController.removeCategoryOffer)
+adminRoute.post('/addProductOffer',adminAuth.is_login,offerController.addProductOffer)
+adminRoute.delete('/removeProductOffer/:offerId',adminAuth.is_login,offerController.removeProductOffer)
 
 
 module.exports = adminRoute;

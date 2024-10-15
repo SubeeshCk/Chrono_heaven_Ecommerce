@@ -426,6 +426,14 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+const renderRefferal = async(req,res)=>{
+  try{
+      res.render('refferal')
+  }catch(error){
+      return next(error);
+  }
+}
+
 
 module.exports = {
   renderProfile,
@@ -440,5 +448,6 @@ module.exports = {
   resetPassword,
   renderMyOrder,
   renderOrderDetails,
-  cancelOrder
+  cancelOrder,
+  renderRefferal
 };

@@ -194,6 +194,87 @@ const sortProducts = async (req, res) => {
   }
 };
 
+const addToWishlist = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const { productId } = req.query;
+    const product = await Products.findById(productId);
+    
+    const { discountedPrice, discountPercent } = await calculateDiscountedPrice(product);
+
+    let wishlistItem = await WishlistItem.findOne({
+      userId: userId,
+      "product.productId": productId,
+    });
+    
+    if (!wishlistItem) {
+      wishlistItem = new WishlistItem({
+        userId: userId,
+        product: [{
+          productId: productId,
+          discountedPrice: discountedPrice,
+          discountPercent: discountPercent
+        }],
+      });
+    } else {
+      wishlistItem.product[0].discountedPrice = discountedPrice;
+      wishlistItem.product[0].discountPercent = discountPercent;
+    }
+    
+    await wishlistItem.save();
+    res.redirect("/wishlist");
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const renderWishlist = async (req, res) => {
+  try {
+    if (req.session.userId) {
+      const userData = await User.findById(req.session.userId);
+      let wishlistItems = await WishlistItem.find({
+        userId: req.session.userId,
+      }).populate("product.productId");
+
+      // Update prices for each item
+      for (let item of wishlistItems) {
+        const { discountedPrice, discountPercent } = await calculateDiscountedPrice(item.product[0].productId);
+        item.product[0].discountedPrice = discountedPrice;
+        item.product[0].discountPercent = discountPercent;
+        await item.save();
+      }
+
+      res.render("wishlist", {
+        wishlistItems: wishlistItems,
+        userData: userData,
+      });
+    } else {
+      res.redirect("/login");
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const RemoveFromWishlist = async (req, res) => {
+  try {
+    const { productId } = req.query;
+    if (req.session.userId) {
+      await WishlistItem.findOneAndDelete({
+        userId: req.session.userId,
+        "product.productId": productId,
+      });
+      res.status(200).json({ message: "Item removed from wishlist" });
+    } else {
+      res.status(401).json({ message: "Unauthorized" });
+    }
+  } catch (error) {
+
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 
 module.exports = {
   renderHome,
@@ -201,5 +282,8 @@ module.exports = {
   productDetails,
   renderMens,
   renderWomens,
-  sortProducts
+  sortProducts,
+  renderWishlist,
+  addToWishlist,
+  RemoveFromWishlist,
 };

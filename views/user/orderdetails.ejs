@@ -1,581 +1,668 @@
 <%- include('../layouts/user/product-header') %>
 
-<style>
-/* Style for Cancel Order button */
-.btn-custom.cancel-order-btn {
-  background-color: #dc3545; /* Red background */
-  color: #fff; /* White text */
-  border-color: #dc3545; /* Red border */
-}
+  <style>
+    /* Style for Cancel Order button */
+    .btn-custom.cancel-order-btn {
+      background-color: #dc3545;
+      /* Red background */
+      color: #fff;
+      /* White text */
+      border-color: #dc3545;
+      /* Red border */
+    }
 
-/* Style for Return Order button */
-.btn-custom.return-order-btn {
-  background-color: #dc3545; /* Red background */
-  color: #fff; /* White text */
-  border-color: #dc3545; /* Red border */
-  margin-left: -350px;
+    /* Style for Return Order button */
+    .btn-custom.return-order-btn {
+      background-color: #dc3545;
+      /* Red background */
+      color: #fff;
+      /* White text */
+      border-color: #dc3545;
+      /* Red border */
+      margin-left: -350px;
 
-}
+    }
 
-/* Style for Add Review button */
-.btn-custom.add-review-btn {
-  background-color: #007bff; /* Blue background */
-  color: #fff; /* White text */
-  border-color: #007bff; /* Blue border */
+    /* Style for Add Review button */
+    .btn-custom.add-review-btn {
+      background-color: #007bff;
+      /* Blue background */
+      color: #fff;
+      /* White text */
+      border-color: #007bff;
+      /* Blue border */
 
-}
+    }
 
-/* Style for Download Invoice link */
-.btn-custom.download-invoice-btn {
-  background-color: #28a745; /* Green background */
-  color: #fff; /* White text */
-  border-color: #28a745; /* Green border */
- 
-}
+    /* Style for Download Invoice link */
+    .btn-custom.download-invoice-btn {
+      background-color: #28a745;
+      /* Green background */
+      color: #fff;
+      /* White text */
+      border-color: #28a745;
+      /* Green border */
 
-
-
-  .status-label {
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: bold;
-}
-
-/* Status label colors */
-.status-label.pending {
-    background-color: #ffc107; /* Yellow */
-    color: #333; /* Dark text color for contrast */
-}
-
-.status-label.confirmed {
-    background-color: #0d6efd; /* Blue */
-    color: #fff; /* White text color */
-}
-
-.status-label.shipped,
-.status-label.delivered {
-    background-color: #198754; /* Green */
-    color: #fff; /* White text color */
-}
-
-.status-label.cancelled {
-    background-color: #dc3545; /* Red */
-    color: #fff; /* White text color */
-}
-.status-label.returned {
-    background-color: #dc3545; /* Red */
-    color: #fff;
-}
-
-.status-label.return-requested {
-    background-color: #dc3545; /* Red */
-    color: #fff;
-}
-
-  /* Modal styles */
-  .modal-body label {
-    font-weight: bold;
-  }
-
-  .modal-footer button {
-    font-weight: bold;
-  }
+    }
 
 
-  /* Additional styles as needed */
-  .path a {
-    margin-bottom: 5px;
-    color: #000;
-    text-decoration: none;
-  }
 
-  .path a:hover {
-    color: red;
-    transition-duration: 0.6s;
-  }
+    .status-label {
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
 
-  .path {
-    font-family: Montserrat, sans-serif;
-    font-size: 19px;
-    text-align: left;
-    margin-right: auto;
-    margin-top: 10px;
-    height: 500px;
-  }
+    /* Status label colors */
+    .status-label.pending {
+      background-color: #ffc107;
+      /* Yellow */
+      color: #333;
+      /* Dark text color for contrast */
+    }
 
-  .checkout_form_input input[type="date"] {
-    cursor: pointer;
-  }
+    .status-label.confirmed {
+      background-color: #0d6efd;
+      /* Blue */
+      color: #fff;
+      /* White text color */
+    }
 
-  /* Change cursor for gender radio buttons */
-  .gender-inputs input[type="radio"] {
-    cursor: pointer;
-  }
+    .status-label.shipped,
+    .status-label.delivered {
+      background-color: #198754;
+      /* Green */
+      color: #fff;
+      /* White text color */
+    }
 
-  .align-right-btn {
-    float: right;
-  }
+    .status-label.cancelled {
+      background-color: #dc3545;
+      /* Red */
+      color: #fff;
+      /* White text color */
+    }
 
-  /* Add this style to float the order details section to the right */
-  .order-details-section {
-    float: right;
-    width: 70%;
-  }
-</style>
+    .status-label.returned {
+      background-color: #dc3545;
+      /* Red */
+      color: #fff;
+    }
 
-<body>
-<!-- Modal for returnOrder -->
-<div class="modal fade" id="returnOrderModal" tabindex="-1" role="dialog" aria-labelledby="returnOrderModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="returnOrderModalLabel">Return Order</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="returnOrderForm" action="/returnOrder" method="POST">
-          <input type="hidden" name="productId" value="<%= specificProduct.productId._id %>">
-          <input type="hidden" name="orderItemId" value="<%= specificProduct._id %>">
-          <div class="form-group">
-            <label for="returnReason">Select a reason for returning the order:</label>
-            <select class="form-control" id="returnReason" name="returnReason">
-              <option value="Defective item received">Defective item received</option>
-              <option value="Wrong item received">Wrong item received</option>
-              <option value="Delayed delivery">Delayed delivery</option>
-              <!-- Add more reasons as needed -->
-            </select>
+    .status-label.return-requested {
+      background-color: #dc3545;
+      /* Red */
+      color: #fff;
+    }
+
+    /* Modal styles */
+    .modal-body label {
+      font-weight: bold;
+    }
+
+    .modal-footer button {
+      font-weight: bold;
+    }
+
+
+    /* Additional styles as needed */
+    .path a {
+      margin-bottom: 5px;
+      color: #000;
+      text-decoration: none;
+    }
+
+    .path a:hover {
+      color: red;
+      transition-duration: 0.6s;
+    }
+
+    .path {
+      font-family: Montserrat, sans-serif;
+      font-size: 19px;
+      text-align: left;
+      margin-right: auto;
+      margin-top: 10px;
+      height: 500px;
+    }
+
+    .checkout_form_input input[type="date"] {
+      cursor: pointer;
+    }
+
+    /* Change cursor for gender radio buttons */
+    .gender-inputs input[type="radio"] {
+      cursor: pointer;
+    }
+
+    .align-right-btn {
+      float: right;
+    }
+
+    /* Add this style to float the order details section to the right */
+    .order-details-section {
+      float: right;
+      width: 70%;
+    }
+  </style>
+
+  <body>
+    <!-- Modal for returnOrder -->
+    <div class="modal fade" id="returnOrderModal" tabindex="-1" role="dialog" aria-labelledby="returnOrderModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="returnOrderModalLabel">Return Order</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="submit" form="returnOrderForm" class="btn btn-danger">Confirm Return</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal for addReview -->
-<div class="modal fade" id="addReviewModal" tabindex="-1" role="dialog" aria-labelledby="addReviewModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addReviewModalLabel">Add Review and Rating</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="addReviewForm" action="/addReview" method="POST">
-          <input type="hidden" name="productId" value="<%= specificProduct.productId._id %>">
-          <input type="hidden" name="userId" value="<%= orderData.userId._id %>">
-          <div class="form-group">
-            <label for="reviewText">Your Review:</label>
-            <textarea class="form-control" id="reviewText" name="reviewText" rows="3" required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="starRating">Star Rating:</label>
-            <select class="form-control" id="starRating" name="starRating" required>
-              <option value="1">1 Star</option>
-              <option value="2">2 Stars</option>
-              <option value="3">3 Stars</option>
-              <option value="4">4 Stars</option>
-              <option value="5">5 Stars</option>
-            </select>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="submit" form="addReviewForm" class="btn btn-primary">Submit Review</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-<!-- Modal for cancelOrder -->
-<div class="modal fade" id="cancelOrderModal" tabindex="-1" role="dialog" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="cancelOrderModalLabel">Cancel Order</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="cancelOrderForm" action="/cancelOrder" method="POST">
-          <input type="hidden" name="productId" value="<%= specificProduct.productId._id %>">
-          <input type="hidden" name="orderItemId" value="<%= specificProduct._id %>">
-          <div class="form-group">
-            <label for="cancelReason">Select a reason for canceling the order:</label>
-            <select class="form-control" id="cancelReason" name="cancelReason">
-              <option value="I'm worried about the ratings/reviews">I'm worried about the ratings/reviews</option>
-              <option value="Price of the product has now decreased">Price of the product has now decreased</option>
-              <option value="Delayed delivery">Delayed delivery</option>
-              <!-- Add more reasons as needed -->
-            </select>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="submit" form="cancelOrderForm" class="btn btn-danger">Confirm Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Breadcrumb Begin -->
-<div class="container">
-  <div class="bread-crumb flex-w  p-r-15 p-t-30 p-lr-0-lg">
-    <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
-      Home
-      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-    </a>
-
-    <a href="/user-profile" class="stext-109 cl8 hov-cl1 trans-04">
-      User profile
-      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-    </a>
-
-    <a href="/user-profile/myorders" class="stext-109 cl8 hov-cl1 trans-04">
-      My orders
-      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-    </a>
-
-    <a href="#" class="stext-109 cl8 hov-cl1 trans-04">
-      Order details
-      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-    </a>
-    
-  </div>
-</div>
-<!-- Breadcrumb End -->
-
-  <!-- Change Password Modal -->
-  <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <form action="/change-password" method="post">
           <div class="modal-body">
-            <div class="form-group">
-              <label for="currentPassword">Current Password</label>
-              <input type="password" class="form-control" id="currentPassword" name="current_password" required>
-            </div>
-            <div class="form-group">
-              <label for="newPassword">New Password</label>
-              <input type="password" class="form-control" id="newPassword" name="new_password" required>
-            </div>
-            <div class="form-group">
-              <label for="confirmPassword">Confirm New Password</label>
-              <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
-            </div>
+            <form id="returnOrderForm" action="/returnOrder" method="POST">
+              <input type="hidden" name="productId" value="<%= specificProduct.productId._id %>">
+              <input type="hidden" name="orderItemId" value="<%= specificProduct._id %>">
+              <div class="form-group">
+                <label for="returnReason">Select a reason for returning the order:</label>
+                <select class="form-control" id="returnReason" name="returnReason">
+                  <option value="Defective item received">Defective item received</option>
+                  <option value="Wrong item received">Wrong item received</option>
+                  <option value="Delayed delivery">Delayed delivery</option>
+                  <!-- Add more reasons as needed -->
+                </select>
+              </div>
+            </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Save changes</button>
+            <button type="submit" form="returnOrderForm" class="btn btn-danger">Confirm Return</button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Personal info Section Begin -->
-  <section class="checkout spad">
-    <div class="container">
-      <form action="#" class="checkout__form">
-        <div class="row d-flex justify-content-end">
-          <div class="path">
-            <div class="l">
-              <a href="/user-profile" >Personal Information</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="/user-profile/myorders" style="color: red;">My Orders</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="/user-profile/address">Address</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="/Wallet">Wallet</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="/coupons" >My Coupons</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="#" id="changePasswordBtn">Change Password</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="/refferal">Referral</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
+
+    <!-- Modal for addReview -->
+    <div class="modal fade" id="addReviewModal" tabindex="-1" role="dialog" aria-labelledby="addReviewModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addReviewModalLabel">Add Review and Rating</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
+          <div class="modal-body">
+            <form id="addReviewForm" action="/addReview" method="POST">
+              <input type="hidden" name="productId" value="<%= specificProduct.productId._id %>">
+              <input type="hidden" name="userId" value="<%= orderData.userId._id %>">
+              <div class="form-group">
+                <label for="reviewText">Your Review:</label>
+                <textarea class="form-control" id="reviewText" name="reviewText" rows="3" required></textarea>
+              </div>
+              <div class="form-group">
+                <label for="starRating">Star Rating:</label>
+                <select class="form-control" id="starRating" name="starRating" required>
+                  <option value="1">1 Star</option>
+                  <option value="2">2 Stars</option>
+                  <option value="3">3 Stars</option>
+                  <option value="4">4 Stars</option>
+                  <option value="5">5 Stars</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" form="addReviewForm" class="btn btn-primary">Submit Review</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-          <div class="order-details-section">
-            <div class="container mt-5">
+
+
+    <!-- Modal for cancelOrder -->
+    <div class="modal fade" id="cancelOrderModal" tabindex="-1" role="dialog" aria-labelledby="cancelOrderModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cancelOrderModalLabel">Cancel Order</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="cancelOrderForm" action="/cancelOrder" method="POST">
+              <input type="hidden" name="productId" value="<%= specificProduct.productId._id %>">
+              <input type="hidden" name="orderItemId" value="<%= specificProduct._id %>">
+              <div class="form-group">
+                <label for="cancelReason">Select a reason for canceling the order:</label>
+                <select class="form-control" id="cancelReason" name="cancelReason">
+                  <option value="I'm worried about the ratings/reviews">I'm worried about the ratings/reviews</option>
+                  <option value="Price of the product has now decreased">Price of the product has now decreased</option>
+                  <option value="Delayed delivery">Delayed delivery</option>
+                  <!-- Add more reasons as needed -->
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" form="cancelOrderForm" class="btn btn-danger">Confirm Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breadcrumb Begin -->
+    <div class="container">
+      <div class="bread-crumb flex-w  p-r-15 p-t-30 p-lr-0-lg">
+        <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+          Home
+          <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+
+        <a href="/user-profile" class="stext-109 cl8 hov-cl1 trans-04">
+          User profile
+          <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+
+        <a href="/user-profile/myorders" class="stext-109 cl8 hov-cl1 trans-04">
+          My orders
+          <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+
+        <a href="#" class="stext-109 cl8 hov-cl1 trans-04">
+          Order details
+          <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+
+      </div>
+    </div>
+    <!-- Breadcrumb End -->
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog"
+      aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form action="/user-profile/change-password" method="post" id="changePasswordForm">
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" class="form-control" id="currentPassword" name="current_password" required>
+              </div>
+              <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" class="form-control" id="newPassword" name="new_password" required>
+                <small id="passwordHelp" class="form-text text-muted">
+                  Your password must be minimum 8 characters long, contain uppercase and lowercase letters, a number,
+                  and a
+                  special character.
+                </small>
+              </div>
+              <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+                <small id="passwordMatchError" class="form-text text-danger" style="display: none;">
+                  Passwords do not match!
+                </small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal info Section Begin -->
+    <section class="checkout spad">
+      <div class="container">
+        <form action="#" class="checkout__form">
+          <div class="row d-flex justify-content-end">
+            <div class="path">
+              <div class="l">
+                <a href="/user-profile">Personal Information</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="/user-profile/myorders" style="color: red;">My Orders</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="/user-profile/address">Address</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="/Wallet">Wallet</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="/coupons">My Coupons</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="#" id="changePasswordBtn">Change Password</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+              <div>
+                <a href="/refferal">Referral</a>
+              </div>
+              <p class="text-secondary text-muted">____________________________</p>
+            </div>
+
+            <div class="order-details-section">
+              <div class="container mt-5">
                 <h5 style="text-align: center; font-weight: bold;">Order Details</h5>
                 <br><br>
                 <!-- Order Details -->
-<% if (orderData && specificProduct) { %>
-  <!-- Display order details -->
-  <div class="row">
-      <!-- Order summary -->
-      <div class="col-md-6">
-          <!-- Display order ID, status, and other details -->
-          <p><strong>Order ID:</strong> <%= orderData._id %></p><br>
-          <p><strong>Status:</strong> 
-              <strong class="status-label <%= specificProduct.status.toLowerCase() %>">
-                <% if(orderData.paymentMethod === "cashOnDelivery"){ %>
-                <%=specificProduct.status%>
-                <% }else{ %>
-                  <%= orderData.paymentStatus ? specificProduct.status : 'Payment Pending' %>
-                <%}%>
-              </strong>
-          </p>
-          <br>
-          <!-- Display order date -->
-          <p><strong>Order Date:</strong> <%= new Date(orderData.createdAt).toLocaleDateString() %></p>
-          <p><strong>Delivery Charge:</strong>  ₹<%= orderData.deliveryCharge %></p>
-      </div>
-      <!-- Display other order details such as total amount, payment method, delivery address -->
-      <div class="col-md-6">
-          <p><strong>Total Amount:</strong>
-            <% 
-            // Calculate base total price (price * quantity)
-            let Total = specificProduct.priceAtPurchase * specificProduct.quantity;
-          
-            // Apply discount if available
-            if (specificProduct.discountedPrice) {
-              Total = specificProduct.discountedPrice * specificProduct.quantity;
-            }
-          
-            // Add delivery charge if available
-            if (orderData.deliveryCharge) {
-              Total = Total + orderData.deliveryCharge;
-            }
+                <% if (orderData && specificProduct) { %>
+                  <!-- Display order details -->
+                  <div class="row">
+                    <!-- Order summary -->
+                    <div class="col-md-6">
+                      <!-- Display order ID, status, and other details -->
+                      <p><strong>Order ID:</strong>
+                        <%= orderData._id %>
+                      </p><br>
+                      <p><strong>Status:</strong>
+                        <strong class="status-label <%= specificProduct.status.toLowerCase() %>">
+                          <% if(orderData.paymentMethod==="cashOnDelivery" ){ %>
+                            <%=specificProduct.status%>
+                              <% }else{ %>
+                                <%= orderData.paymentStatus ? specificProduct.status : 'Payment Pending' %>
+                                  <%}%>
+                        </strong>
+                      </p>
+                      <br>
+                      <!-- Display order date -->
+                      <p><strong>Order Date:</strong>
+                        <%= new Date(orderData.createdAt).toLocaleDateString() %>
+                      </p>
+                      <p><strong>Delivery Charge:</strong> ₹<%= orderData.deliveryCharge %>
+                      </p>
+                    </div>
+                    <!-- Display other order details such as total amount, payment method, delivery address -->
+                    <div class="col-md-6">
+                      <p><strong>Total Amount:</strong>
+                        <% // Calculate base total price (price * quantity) let Total=specificProduct.priceAtPurchase *
+                          specificProduct.quantity; // Apply discount if available if (specificProduct.discountedPrice)
+                          { Total=specificProduct.discountedPrice * specificProduct.quantity; } // Add delivery charge
+                          if available if (orderData.deliveryCharge) { Total=Total + orderData.deliveryCharge; } %>
+                          <%= Total %>
+                      </p>
+                      <p><strong>Payment Method:</strong>
+                        <%= orderData.paymentMethod %>
+                      </p>
+                      <p><strong>Delivery Address:</strong> <br>
+                        <%= orderData.deliveryAddress.name %> <br>
+                          <%= orderData.deliveryAddress.address %> <br>
+                            <%= orderData.deliveryAddress.locality %><br>
+                              <%= orderData.deliveryAddress.city %> <br>
+                                <%= orderData.deliveryAddress.pincode %> <br>
+                                  <%= orderData.deliveryAddress.state %>
+                      </p>
+                    </div>
+                  </div>
+                  <br>
+                  <!-- Display product details -->
+                  <h5 style="margin-top: 20px; font-weight: bold;">Product Details</h5><br>
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>deliveryCharge</th>
+                        <th>Discount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <img src="/adminAssets/uploads/product_images/<%= specificProduct.productId.images[0] %>"
+                            alt="Product Image" class="product-image" style="width: 100px;height: 125px;">
+                        </td>
+                        <td>
+                          <%= specificProduct.productId.product_name %>
+                        </td>
+                        <td>
+                          <%= specificProduct.quantity %>
+                        </td>
+                        <td>₹<%= specificProduct.priceAtPurchase.toFixed(2) %>
+                        </td>
+                        <td>
+                          <%= (specificProduct.priceAtPurchase * specificProduct.quantity).toFixed(2) %>
+                        </td>
+                        <td>₹<%= orderData.deliveryCharge %>
+                        </td>
+                        <td>₹<%=
+                            (specificProduct.priceAtPurchase-specificProduct.discountedPrice)*specificProduct.quantity
+                            %>
+                        </td>
 
-            %>
-            <%= Total %>
-          </p>
-          <p><strong>Payment Method:</strong> <%= orderData.paymentMethod %></p>
-          <p><strong>Delivery Address:</strong> <br><%= orderData.deliveryAddress.name %> <br> <%= orderData.deliveryAddress.address %> <br> <%= orderData.deliveryAddress.locality %><br>
-              <%= orderData.deliveryAddress.city %> <br> <%= orderData.deliveryAddress.pincode %> <br> <%= orderData.deliveryAddress.state %>
-          </p>
-      </div>
-  </div>
-  <br>
-  <!-- Display product details -->
-  <h5 style="margin-top: 20px; font-weight: bold;">Product Details</h5><br>
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-          <th>Image</th>
-          <th>Product Name</th>
-          <th>Quantity</th>
-          <th>Price</th>
-          <th>Total</th>
-          <th>deliveryCharge</th>
-          <th>Discount</th>
-        </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>
-              <img src="/adminAssets/uploads/product_images/<%= specificProduct.productId.images[0] %>" alt="Product Image" class="product-image" style="width: 100px;height: 125px;">
-          </td>
-          <td><%= specificProduct.productId.product_name %></td>
-          <td><%= specificProduct.quantity %></td>
-          <td>₹<%= specificProduct.priceAtPurchase.toFixed(2) %></td>
-          <td><%= (specificProduct.priceAtPurchase * specificProduct.quantity).toFixed(2) %></td>
-          <td>₹<%= orderData.deliveryCharge %></td>
-          <td>₹<%= (specificProduct.priceAtPurchase-specificProduct.discountedPrice)*specificProduct.quantity %></td>
+                      </tr>
+                    </tbody>
 
-      </tr>
-  </tbody>
-  
-  
-      <tfoot>
-          <tr>
-              <td colspan="3" style="text-align: right; font-weight: bold;">Total Order Amount:</td>
-              <td colspan="3" style="font-weight: bold;">₹
-                <% 
-                // Calculate base total price (price * quantity)
-                let totalPrice = specificProduct.priceAtPurchase * specificProduct.quantity;
-              
-                // Apply discount if available
-                if (specificProduct.discountedPrice) {
-                  totalPrice = specificProduct.discountedPrice * specificProduct.quantity;
-                }
-              
-                // Add delivery charge if available
-                if (orderData.deliveryCharge) {
-                  totalPrice = totalPrice + orderData.deliveryCharge;
-                }
 
-                %>
-                <%= totalPrice %>
-              </td> 
-          </tr>
-      </tfoot>
-  </table>
-  
+                    <tfoot>
+                      <tr>
+                        <td colspan="3" style="text-align: right; font-weight: bold;">Total Order Amount:</td>
+                        <td colspan="3" style="font-weight: bold;">₹
+                          <% // Calculate base total price (price * quantity) let
+                            totalPrice=specificProduct.priceAtPurchase * specificProduct.quantity; // Apply discount if
+                            available if (specificProduct.discountedPrice) { totalPrice=specificProduct.discountedPrice
+                            * specificProduct.quantity; } // Add delivery charge if available if
+                            (orderData.deliveryCharge) { totalPrice=totalPrice + orderData.deliveryCharge; } %>
+                            <%= totalPrice %>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
 
-<div class="row">
-  <div class="col-md-6 p-b-100"></div>
-  <div class="col-md-6 text-right">
-    <% if (orderData && specificProduct) { %>
-      <% 
-        // Get the status of the specific product
-        const productStatus = specificProduct.status.toLowerCase();
-      %>
-      
-      <% if (productStatus !== 'delivered' && productStatus !== 'cancelled' && productStatus !== 'returned') { %>
-        <!-- Button to cancel order -->
-        <button type="button" class="btn btn-danger btn-custom cancel-order-btn" data-toggle="modal" data-target="#cancelOrderModal">Cancel Order</button>
-      <% } %>
 
-      <% if (productStatus === 'delivered') { %>
-        <!-- Show return order button -->
-        <button type="button" class="btn btn-danger btn-custom return-order-btn" data-toggle="modal" data-target="#returnOrderModal">Return Order</button>
-        <!-- Modal trigger button for add review -->
-        <button type="button" class="btn btn-primary btn-custom add-review-btn" data-toggle="modal" data-target="#addReviewModal">Add Review</button>
-        <!-- Download invoice button -->
-        <a href="/invoice/<%= orderData._id %>/<%= specificProduct.productId._id %>" class="btn btn-primary btn-custom download-invoice-btn">Download Invoice</a>
-      <% } %>
-    <% } %>
-  </div>
-</div>
-  
-  
-<% } else { %>
-  <!-- Display message if order details are not available -->
-  <p>Order details not available.</p>
-<% } %>
+                  <div class="row">
+                    <div class="col-md-6 p-b-100"></div>
+                    <div class="col-md-6 text-right">
+                      <% if (orderData && specificProduct) { %>
+                        <% // Get the status of the specific product const
+                          productStatus=specificProduct.status.toLowerCase(); %>
 
+                          <% if (productStatus !=='delivered' && productStatus !=='cancelled' && productStatus
+                            !=='returned' ) { %>
+                            <!-- Button to cancel order -->
+                            <button type="button" class="btn btn-danger btn-custom cancel-order-btn" data-toggle="modal"
+                              data-target="#cancelOrderModal">Cancel Order</button>
+                            <% } %>
+
+                              <% if (productStatus==='delivered' ) { %>
+                                <!-- Show return order button -->
+                                <button type="button" class="btn btn-danger btn-custom return-order-btn"
+                                  data-toggle="modal" data-target="#returnOrderModal">Return Order</button>
+                                <!-- Modal trigger button for add review -->
+                                <button type="button" class="btn btn-primary btn-custom add-review-btn"
+                                  data-toggle="modal" data-target="#addReviewModal">Add Review</button>
+                                <!-- Download invoice button -->
+                                <a href="/invoice/<%= orderData._id %>/<%= specificProduct.productId._id %>"
+                                  class="btn btn-primary btn-custom download-invoice-btn">Download Invoice</a>
+                                <% } %>
+                                  <% } %>
+                    </div>
+                  </div>
+
+
+                  <% } else { %>
+                    <!-- Display message if order details are not available -->
+                    <p>Order details not available.</p>
+                    <% } %>
+
+              </div>
             </div>
           </div>
-        </div>
-      </form>
-    </div>
-  </section>
-  <!-- Personal info Section End -->
+        </form>
+      </div>
+    </section>
+    <!-- Personal info Section End -->
 
-  <!-- Add your JavaScript here -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <!-- Add your JavaScript here -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNlqljVRmFW9k4iJ9Vj8aSNYeU7Zr+Fqtwqg6AGpR9PHfsIH8r+EVjE5E4E/Mpc" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy3zYbFf2L6F4iSOAZOZ/j7g5p6yl7daEQFUvrs" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"
+      integrity="sha384-eMNlqljVRmFW9k4iJ9Vj8aSNYeU7Zr+Fqtwqg6AGpR9PHfsIH8r+EVjE5E4E/Mpc"
+      crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy3zYbFf2L6F4iSOAZOZ/j7g5p6yl7daEQFUvrs"
+      crossorigin="anonymous"></script>
 
-  <script>
-    $(document).ready(function() {
-      $('#addReviewForm').submit(function(event) {
-        event.preventDefault(); // Prevent the default form submission
-  
-        // Serialize the form data
-        const formData = $(this).serialize();
-  
-        // Send a POST request to add the review
-        $.post('/addReview', formData)
-          .done(function(response) {
-            // If the review submission is successful
-            alert('Review submitted successfully!');
-            $('#addReviewModal').modal('hide');
-            location.reload(); // Reload the page to reflect the new review
-          })
-          .fail(function(error) {
-            // Handle errors
-            console.error('Error submitting review:', error);
-            alert('An error occurred while submitting the review. Please try again later.');
-          });
-      });
-  
-      $('#changePasswordBtn').click(function() {
-        $('#changePasswordModal').modal('show');
-      });
-  
-      $('#returnOrderForm').submit(function(event) {
-        event.preventDefault(); // Prevent the default form submission
-  
-        // Serialize the form data
-        const formData = $(this).serialize();
-  
-        // Send a POST request to return the order
-        $.post('/returnOrder', formData)
-          .done(function(response) {
-            // If the return is successful
-            updateOrderStatus('returned');
+    <script>
+      $(document).ready(function () {
+        $('#addReviewForm').submit(function (event) {
+          event.preventDefault(); // Prevent the default form submission
+
+          // Serialize the form data
+          const formData = $(this).serialize();
+
+          // Send a POST request to add the review
+          $.post('/addReview', formData)
+            .done(function (response) {
+              // If the review submission is successful
+              alert('Review submitted successfully!');
+              $('#addReviewModal').modal('hide');
+              location.reload(); // Reload the page to reflect the new review
+            })
+            .fail(function (error) {
+              // Handle errors
+              console.error('Error submitting review:', error);
+              alert('An error occurred while submitting the review. Please try again later.');
+            });
+        });
+
+        $('#changePasswordBtn').click(function () {
+          $('#changePasswordModal').modal('show');
+        });
+
+        $('#returnOrderForm').submit(function (event) {
+          event.preventDefault(); // Prevent the default form submission
+
+          // Serialize the form data
+          const formData = $(this).serialize();
+
+          // Send a POST request to return the order
+          $.post('/returnOrder', formData)
+            .done(function (response) {
+              // If the return is successful
+              updateOrderStatus('returned');
+              $('.btn-danger').hide(); // Hide cancel and return buttons
+              location.reload();
+            })
+            .fail(function (error) {
+              // Handle errors
+              console.error('Error returning order:', error);
+              alert('An error occurred while returning the order. Please try again later.');
+            });
+        });
+
+        $('#cancelOrderForm').submit(function (event) {
+          event.preventDefault(); // Prevent the default form submission
+
+          // Serialize the form data
+          const formData = $(this).serialize();
+
+          // Send a POST request to cancel the order
+          $.post('/cancelOrder', formData)
+            .done(function (response) {
+              // If the cancellation is successful
+              updateOrderStatus('cancelled');
+              $('.btn-danger').hide(); // Hide cancel and return buttons
+              location.reload();
+            })
+            .fail(function (error) {
+              // Handle errors
+              console.error('Error cancelling order:', error);
+              alert('An error occurred while cancelling the order. Please try again later.');
+            });
+        });
+
+        function updateOrderStatus(newStatus) {
+          var statusLabel = $('.status-label');
+          statusLabel.text(newStatus.charAt(0).toUpperCase() + newStatus.slice(1));
+          statusLabel.removeClass().addClass('status-label').addClass(newStatus);
+          if (newStatus === 'cancelled' || newStatus === 'returned' || newStatus === 'returnrequested') {
             $('.btn-danger').hide(); // Hide cancel and return buttons
-            location.reload();
-          })
-          .fail(function(error) {
-            // Handle errors
-            console.error('Error returning order:', error);
-            alert('An error occurred while returning the order. Please try again later.');
-          });
-      });
-  
-      $('#cancelOrderForm').submit(function(event) {
-        event.preventDefault(); // Prevent the default form submission
-  
-        // Serialize the form data
-        const formData = $(this).serialize();
-  
-        // Send a POST request to cancel the order
-        $.post('/cancelOrder', formData)
-          .done(function(response) {
-            // If the cancellation is successful
-            updateOrderStatus('cancelled');
-            $('.btn-danger').hide(); // Hide cancel and return buttons
-            location.reload();
-          })
-          .fail(function(error) {
-            // Handle errors
-            console.error('Error cancelling order:', error);
-            alert('An error occurred while cancelling the order. Please try again later.');
-          });
-      });
-  
-      function updateOrderStatus(newStatus) {
-        var statusLabel = $('.status-label');
-        statusLabel.text(newStatus.charAt(0).toUpperCase() + newStatus.slice(1));
-        statusLabel.removeClass().addClass('status-label').addClass(newStatus);
-        if (newStatus === 'cancelled' || newStatus === 'returned' || newStatus === 'returnrequested') {
+          }
+        }
+
+        // Initial hiding of buttons based on current status
+        var orderStatus = $('.status-label').text().trim().toLowerCase();
+        if (orderStatus === 'cancelled' || orderStatus === 'returned' || orderStatus === 'returnrequested') {
           $('.btn-danger').hide(); // Hide cancel and return buttons
         }
-      }
-  
-      // Initial hiding of buttons based on current status
-      var orderStatus = $('.status-label').text().trim().toLowerCase();
-      if (orderStatus === 'cancelled' || orderStatus === 'returned' || orderStatus === 'returnrequested') {
-        $('.btn-danger').hide(); // Hide cancel and return buttons
-      }
-    });
-  </script>
-  
+      });
+    </script>
+
+    <script>
+      $(document).ready(function () {
+        $('#changePasswordBtn').click(function () {
+          $('#changePasswordModal').modal('show');
+        });
+      });
+      $(document).ready(function () {
+        // Show modal when the "Change Password" button is clicked
+        $('#changePasswordBtn').click(function () {
+          $('#changePasswordModal').modal('show');
+        });
+
+        // Form submission validation
+        $('#changePasswordForm').on('submit', function (e) {
+          var newPassword = $('#newPassword').val();
+          var confirmPassword = $('#confirmPassword').val();
+          var passwordMatchError = $('#passwordMatchError');
+          var passwordHelp = $('#passwordHelp');
+
+          // Regular expression for a strong password: 
+          // at least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
+          var strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+          // Check if passwords match
+          if (newPassword !== confirmPassword) {
+            e.preventDefault(); // Stop form submission
+            passwordMatchError.show(); // Show the error message
+          } else {
+            passwordMatchError.hide(); // Hide the error message
+          }
+
+          // Check if the password is strong enough
+          if (!strongPasswordRegex.test(newPassword)) {
+            e.preventDefault(); // Stop form submission
+            passwordHelp.text('Password is not strong enough!').addClass('text-danger');
+          } else {
+            passwordHelp.text('Your password must be 8-20 characters long, contain uppercase and lowercase letters, a number, and a special character.').removeClass('text-danger');
+          }
+        });
+      });
+    </script>
 
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<!-- Include Toastify library in your HTML head -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Include Toastify library in your HTML head -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-<%- include('../layouts/user/footer') %>
+    <%- include('../layouts/user/footer') %>

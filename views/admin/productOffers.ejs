@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Admin dashboard</title>
+    <title>Admin dashboard - Manage Product Offers</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -15,6 +15,10 @@
     <link rel="shortcut icon" type="image/x-icon" href="/logo-title.png" />
     <!-- Template CSS -->
     <link href="/adminAssets/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20/dist/sweetalert2.min.css">
 </head>
 
 <body>
@@ -37,12 +41,12 @@
                         <span class="text">Dashboard</span>
                     </a>
                 </li>
-                <li class="menu-item has-submenu active">
+                <li class="menu-item has-submenu ">
                     <a class="menu-link">
                         <i class="icon material-icons md-shopping_bag"></i>
                         <span class="text">Categories</span>
                     </a>
-                    <div class="submenu">
+                    <div class="submenu ">
                         <a href="/admin/categories">Categories</a>
                     </div>
                 </li>
@@ -74,7 +78,7 @@
                         <a href="/admin/customers">Customers</a>
                     </div>
                 </li>
-                <li class="menu-item has-submenu ">
+                <li class="menu-item has-submenu active">
                     <a class="menu-link" href="#">
                         <i class="icon material-icons md-person"></i>
                         <span class="text">Offers</span>
@@ -162,48 +166,137 @@
 
         <section class="content-main">
             <div class="content-header">
-                <h2 class="content-title">Update Category</h2>
-                <p>Modify the form below to update the product category.</p>
-                <% if (messages.success) { %>
-                    <div class="alert alert-success" role="alert" style="color: green;">
-                        <%= messages.success %>
-                    </div>
-                    <% } %>
-
-                        <% if (messages.error) { %>
-                            <div class="alert alert-danger" role="alert" style="color: red;">
-                                <%= messages.error %>
-                            </div>
-                            <% } %>
+                <h2 class="content-title">Manage Product Offers</h2>
+                <div id="flash-messages"></div>
+                <button type="button" class="btn btn-primary mb-3" onclick="openAddOfferForm()">Add Offer</button>
             </div>
 
-            <div class="card mb-4">
+
+            <div class="card">
                 <div class="card-body">
-                    <!-- Pre-fill existing category data -->
-                    <form action="/admin/categories/update-category/<%= category._id %>" method="POST">
-                        <div class="mb-3">
-                            <label for="categoryName" class="form-label">Category Name</label>
-                            <input type="text" name="name" class="form-control" id="categoryName"
-                                value="<%= category.name %>" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="categoryDescription" class="form-label">Description</label>
-                            <input type="text" name="description" class="form-control" id="categoryDescription"
-                                value="<%= category.description %>" required>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Update Category</button>
-                        </div>
-                    </form>
+                    <h5 class="card-title mb-4">Available Product Offers</h5>
+                    <div class="row" id="offersList">
+                        <% if (offers.length> 0) { %>
+                            <% offers.forEach(offer=> { %>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-text">Product: <%= offer.productId ? offer.productId.name
+                                                    : 'Product Not Available' %>
+                                            </h5>
+                                            <p class="card-title">Description: <%= offer.description %>
+                                            </p>
+                                            <p class="card-text">Discount Value: <%= offer.discountValue %>%</p>
+                                            <p class="card-text">Start Date: <%= offer.startDate.toLocaleDateString() %>
+                                            </p>
+                                            <p class="card-text">End Date: <%= offer.endDate.toLocaleDateString() %>
+                                            </p>
+                                            <button type="button" class="btn btn-danger"
+                                                onclick="confirmRemoveOffer('<%= offer._id %>')">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }); %>
+                                    <% } else { %>
+                                        <p>No offers available.</p>
+                                        <% } %>
+                    </div>
                 </div>
             </div>
         </section>
+    </main>
 
-        <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
-        <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
-        <script src="/adminAssets/js/main.js"></script>
+    <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/adminAssets/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20/dist/sweetalert2.min.js"></script>
+    <script>
+        function openAddOfferForm() {
+            window.location.href = '/admin/addProductOffer';
+        }
+
+        function confirmRemoveOffer(offerId) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Once deleted, you will not be able to recover this offer!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!",
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    removeOffer(offerId);
+                }
+            });
+        }
+
+        async function removeOffer(offerId) {
+            try {
+                const response = await fetch(`/admin/removeProductOffer/${offerId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Offer removed successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    const errorData = await response.json();
+                    displayFlashMessage('danger', errorData.error || 'Failed to remove offer');
+                }
+            } catch (error) {
+                console.error('Error removing offer:', error);
+                displayFlashMessage('danger', 'An error occurred while removing the offer');
+            }
+        }
+
+        function displayFlashMessage(type, message) {
+            const flashMessage = `<div class="alert alert-${type}" role="alert">${message}</div>`;
+            document.getElementById('flash-messages').innerHTML = flashMessage;
+            setTimeout(() => {
+                document.getElementById('flash-messages').innerHTML = '';
+            }, 3000);
+        }
+
+        document.getElementById('addOfferForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            try {
+                const response = await fetch('/admin/addProductOffer', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Product offer added successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    const errorData = await response.json();
+                    displayFlashMessage('danger', errorData.error || 'Failed to add product offer');
+                }
+            } catch (error) {
+                console.error('Error adding product offer:', error);
+                displayFlashMessage('danger', 'An error occurred while adding the product offer');
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -3,7 +3,7 @@ const nodeMailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const { error } = require("console");
-//const Wallet = require("../models/walletModel");
+const Wallet = require("../../models/walletModel");
 
 //for genarate an otp
 function generateOTP() {
@@ -209,7 +209,6 @@ const insertUser = async (req, res) => {
     req.session.otpExpiration = Date.now() + 1 * 60 * 1000;
     req.flash("success", "Your verification mail send successfully");
     res.redirect("/otp");
-
   } catch (error) {
     console.error("Error in insertUser:", error.message);
     req.flash("error", "An unexpected error occurred. Please try again.");
@@ -233,7 +232,6 @@ const verifyOtp = async (req, res) => {
 
     // Check OTP expiration
     if (Date.now() > otpExpiration) {
-
       delete req.session.tempUser;
       delete req.session.otpExpiration;
       req.flash("error", "OTP has expired. Please sign up again.");
@@ -257,6 +255,49 @@ const verifyOtp = async (req, res) => {
 
     const userData = await user.save();
 
+    const wallet = new Wallet({
+      userId: userData._id,
+      balance: 0,
+      transactions: [],
+    });
+    await wallet.save();
+
+    if (tempUser.referredUserId) {
+      const referredUser = await User.findById(tempUser.referredUserId);
+      if (referredUser) {
+        let referredUserWallet = await Wallet.findOne({
+          userId: referredUser._id,
+        });
+        if (!referredUserWallet) {
+          referredUserWallet = new Wallet({
+            userId: referredUser._id,
+            balance: 0,
+            transactions: [],
+          });
+        }
+        referredUserWallet.balance += 100;
+        referredUserWallet.transactions.push({
+          amount: 100,
+          transactionMethod: "Referral",
+          date: new Date(),
+          description: "Referral Bonus for referring " + userData.name,
+        });
+        await referredUserWallet.save();
+
+        wallet.balance += 100;
+        wallet.transactions.push({
+          amount: 100,
+          transactionMethod: "Referral",
+          date: new Date(),
+          description: "Referral Bonus for joining via " + referredUser.name,
+        });
+        await wallet.save();
+
+        referredUser.referral_bonus_given = true;
+        await referredUser.save();
+      }
+    }
+
     // Clear session and redirect
     delete req.session.tempUser;
     delete req.session.otpExpiration;
@@ -267,7 +308,6 @@ const verifyOtp = async (req, res) => {
     );
     res.redirect("/login");
   } catch (error) {
-
     console.log(error.message);
     req.flash("error", "An unexpected error occurred. Please try again.");
     res.redirect("/signUp");
@@ -486,16 +526,15 @@ const verifyResetOtp = async (req, res) => {
 };
 
 const renderResetPassword = async (req, res) => {
-try {
-  if (!req.session.userForReset) {
-    req.flash("error", "Session expired. Please request a new OTP.");
-    return res.redirect("/forgot-password");
+  try {
+    if (!req.session.userForReset) {
+      req.flash("error", "Session expired. Please request a new OTP.");
+      return res.redirect("/forgot-password");
+    }
+    res.render("reset-password");
+  } catch (error) {
+    return next(error);
   }
-  res.render("reset-password");
-
-} catch (error) {
-   return next(error);
-}
 };
 
 const updatePassword = async (req, res) => {
