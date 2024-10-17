@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Admin dashboard - Add Category Offer</title>
+    <title>Admin dashboard - Manage Coupons</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -35,18 +35,18 @@
         </div>
         <nav>
             <ul class="menu-aside">
-                <li class="menu-item ">
+                <li class="menu-item">
                     <a class="menu-link" href="/admin/Dashboard">
                         <i class="icon material-icons md-home"></i>
                         <span class="text">Dashboard</span>
                     </a>
                 </li>
-                <li class="menu-item has-submenu ">
+                <li class="menu-item has-submenu">
                     <a class="menu-link">
                         <i class="icon material-icons md-shopping_bag"></i>
                         <span class="text">Categories</span>
                     </a>
-                    <div class="submenu ">
+                    <div class="submenu">
                         <a href="/admin/categories">Categories</a>
                     </div>
                 </li>
@@ -89,8 +89,7 @@
                         <a href="/admin/coupons">Manage Coupons</a>
                     </div>
                 </li>
-                <br />
-                <br />
+            </ul>
         </nav>
     </aside>
 
@@ -129,20 +128,6 @@
                                 class="material-icons md-cast"></i></a>
                     </li>
                     <li class="dropdown nav-item">
-                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownLanguage"
-                            aria-expanded="false"><i class="material-icons md-public"></i></a>
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownLanguage">
-                            <a class="dropdown-item text-brand" href="#"><img src="/adminAssets/imgs/theme/flag-us.png"
-                                    alt="English" />English</a>
-                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-fr.png"
-                                    alt="Français" />Français</a>
-                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-jp.png"
-                                    alt="Français" />日本語</a>
-                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-cn.png"
-                                    alt="Français" />中国人</a>
-                        </div>
-                    </li>
-                    <li class="dropdown nav-item">
                         <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
                             aria-expanded="false"> <img class="img-xs rounded-circle"
                                 src="/adminAssets/imgs/people/avatar-2.png" alt="User" /></a>
@@ -166,58 +151,92 @@
         </header>
         <section class="content-main">
             <div class="content-header">
-                <h2 class="content-title">Manage Category Offers</h2>
+                <h2 class="content-title">Manage Coupons</h2>
                 <div id="flash-messages"></div>
-                <button type="button" class="btn btn-primary mb-3" onclick="openAddOfferForm()">Add Offer</button>
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addCouponModal">Add Coupon</button>
             </div>
 
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title mb-4">Available Offers</h5>
-                    <div class="row" id="offersList">
-                        <% if (offers.length> 0) { %>
-                            <% offers.forEach(offer=> { %>
+                    <h5 class="card-title mb-4">Available Coupons</h5>
+                    <div class="row" id="couponsList">
+                        <% if (coupons && coupons.length > 0) { %>
+                            <% coupons.forEach(coupon => { %>
                                 <div class="col-md-4 mb-3">
                                     <div class="card">
                                         <div class="card-body">
-                                            <h5 class="card-text">Category: <%= offer.categoryId ? offer.categoryId.name
-                                                    : 'Category Not Available' %>
-                                            </h5>
-                                            <p class="card-title">Description: <%= offer.description %>
-                                            </p>
-                                            <p class="card-text">Discount Value: <%= offer.discountValue %>%</p>
-                                            <p class="card-text">Start Date: <%= offer.startDate.toLocaleDateString() %>
-                                            </p>
-                                            <p class="card-text">End Date: <%= offer.endDate.toLocaleDateString() %>
-                                            </p>
-                                            <button type="button" class="btn btn-danger"
-                                                onclick="confirmRemoveOffer('<%= offer._id %>')">Remove</button>
+                                            <h5 class="card-title">Coupon Code: <%= coupon.code %></h5>
+                                            <p class="card-text">Discount Type: <%= coupon.discountType %></p>
+                                            <%if(coupon.discountType === "percentage"){%>
+                                            <p class="card-text">Discount Value: <%= coupon.discountValue %>%</p>
+                                            <%}else if(coupon.discountType === "Fixed Amount"){%>
+                                                <p class="card-text">Discount Value: ₹<%= coupon.discountValue %>%</p>
+                                            <%}%>
+                                            <p class="card-text">Minimum Purchase Amount: ₹<%= coupon.minPurchaseAmount %></p>
+                                            <p class="card-text">Validity: <%= coupon.validity.toLocaleDateString() %> </p>
+                                            <button type="button" class="btn btn-danger" onclick="confirmRemoveCoupon('<%= coupon._id %>')">Remove</button>
                                         </div>
                                     </div>
                                 </div>
-                                <% }); %>
-                                    <% } else { %>
-                                        <p>No offers available.</p>
-                                        <% } %>
+                            <% }); %>
+                        <% } else { %>
+                            <p>No coupons available.</p>
+                        <% } %>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
+    <!-- Add Coupon Modal -->
+    <div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCouponModalLabel">Add Coupon</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCouponForm" method="POST" action="/admin/addCoupon">
+                        <div class="mb-3">
+                            <label for="couponCode" class="form-label">Coupon Code</label>
+                            <input type="text" class="form-control" id="couponCode" name="code" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="discountType" class="form-label">Discount Type</label>
+                            <select class="form-control" id="discountType" name="discountType" required>
+                                <option value="fixed">Fixed Amount</option>
+                                <option value="percentage">Percentage</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="discountValue" class="form-label">Discount Value</label>
+                            <input type="number" class="form-control" id="discountValue" name="discountValue" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="minPurchaseAmount" class="form-label">Minimum Purchase Amount</label>
+                            <input type="number" class="form-control" id="minPurchaseAmount" name="minPurchaseAmount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="validity" class="form-label">Validity (in days)</label>
+                            <input type="number" class="form-control" id="validity" name="validity" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Coupon</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="/adminAssets/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20/dist/sweetalert2.min.js"></script>
     <script>
-        function openAddOfferForm() {
-            window.location.href = '/admin/addCategoryOffer';
-        }
-
-        function confirmRemoveOffer(offerId) {
+        function confirmRemoveCoupon(couponId) {
             Swal.fire({
                 title: "Are you sure?",
-                text: "Once deleted, you will not be able to recover this offer!",
+                text: "Once deleted, you will not be able to recover this coupon!",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#d33",
@@ -225,14 +244,14 @@
                 confirmButtonText: "Yes, delete it!",
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    removeOffer(offerId);
+                    await removeCoupon(couponId);
                 }
             });
         }
 
-        async function removeOffer(offerId) {
+        async function removeCoupon(couponId) {
             try {
-                const response = await fetch(`/admin/removeCategoryOffer/${offerId}`, {
+                const response = await fetch(`/admin/removeCoupon/${couponId}`, {
                     method: 'DELETE'
                 });
 
@@ -240,7 +259,7 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
-                        text: 'Offer removed successfully!',
+                        text: 'Coupon removed successfully!',
                         showConfirmButton: false,
                         timer: 1500
                     });
@@ -249,11 +268,11 @@
                     }, 1500);
                 } else {
                     const errorData = await response.json();
-                    displayFlashMessage('danger', errorData.error || 'Failed to remove offer');
+                    displayFlashMessage('danger', errorData.error || 'Failed to remove coupon');
                 }
             } catch (error) {
-                console.error('Error removing offer:', error);
-                displayFlashMessage('danger', 'An error occurred while removing the offer');
+                console.error('Error removing coupon:', error);
+                displayFlashMessage('danger', 'An error occurred while removing the coupon');
             }
         }
 
@@ -265,36 +284,46 @@
             }, 3000);
         }
 
-        document.getElementById('addOfferForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
+        document.getElementById('addCouponForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-            const formData = new FormData(this);
-            try {
-                const response = await fetch('/admin/addCategoryOffer', {
-                    method: 'POST',
-                    body: formData
-                });
+    const formData = new FormData(this);
+    const formDataObject = Object.fromEntries(formData.entries());
 
-                if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: 'Offer added successfully!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    const errorData = await response.json();
-                    displayFlashMessage('danger', errorData.error || 'Failed to add offer');
-                }
-            } catch (error) {
-                console.error('Error adding offer:', error);
-                displayFlashMessage('danger', 'An error occurred while adding the offer');
-            }
+    try {
+        const response = await fetch('/admin/addCoupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formDataObject)
         });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: result.message,
+                showConfirmButton: false,
+                timer: 1500
+            });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        console.error('Error adding coupon:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: error.message || 'An error occurred while adding the coupon',
+        });
+    }
+});
     </script>
 </body>
 

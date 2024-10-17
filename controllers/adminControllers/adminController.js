@@ -2,7 +2,7 @@ const User = require("../../models/userModel");
 const bcrypt = require("bcrypt");
 const { StatusCode } = require("../../config/StatusCode");
 
-const renderLogin = async (req, res) => {
+const renderLogin = async (req, res, next) => {
   try {
     return res.render("login");
   } catch (error) {
@@ -10,7 +10,7 @@ const renderLogin = async (req, res) => {
   }
 };
 
-const loadLogout = async (req, res) => {
+const loadLogout = async (req, res, next) => {
   try {
     req.session.destroy((err) => {
       if (err) {
@@ -25,7 +25,7 @@ const loadLogout = async (req, res) => {
   }
 };
 
-const loadLogin = async (req, res) => {
+const loadLogin = async (req, res, next) => {
   try {
     if (req.session.isAdmin) {
       return res.redirect("/admin/dashboard");
@@ -37,7 +37,7 @@ const loadLogin = async (req, res) => {
   }
 };
 
-const verifyLogin = async (req, res) => {
+const verifyLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const userData = await User.findOne({ email });
@@ -66,7 +66,7 @@ const verifyLogin = async (req, res) => {
   }
 };
 
-const renderDashboard = async (req, res) => {
+const renderDashboard = async (req, res, next) => {
   try {
     res.render("dashboard");
   } catch (error) {
@@ -75,7 +75,7 @@ const renderDashboard = async (req, res) => {
   }
 };
 
-const logOut = async (req, res) => {
+const logOut = async (req, res, next) => {
   try {
     req.session.destroy((err) => {
       if (err) {

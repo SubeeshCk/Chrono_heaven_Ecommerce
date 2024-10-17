@@ -9,7 +9,7 @@ const path = require('path');
 
 
 
-const renderProduct = async (req, res) => {
+const renderProduct = async (req, res, next) => {
   try {
     const products = await Products.find({});
     res.render("products", { products });
@@ -17,7 +17,7 @@ const renderProduct = async (req, res) => {
     return next(error);  }
 };
 
-const renderAddProducts = async (req, res) => {
+const renderAddProducts = async (req, res, next) => {
   try {
     const categoryData = await Category.find({ is_listed: true });
     return res.render("add-products", { categoryData });
@@ -26,7 +26,7 @@ const renderAddProducts = async (req, res) => {
   }
 };
 
-const addProduct = async (req, res) => {
+const addProduct = async (req, res, next) => {
   try {
     const {
       name,
@@ -106,7 +106,7 @@ const addProduct = async (req, res) => {
   }
 };
 
-const renderUpdateProducts = async (req, res) => {
+const renderUpdateProducts = async (req, res, next) => {
   try {
     const productId = req.params.id;
     const products = await Products.findById(productId).populate("category");
@@ -126,7 +126,7 @@ const renderUpdateProducts = async (req, res) => {
 };
 
 
-const updateProducts = async (req, res) => {
+const updateProducts = async (req, res, next) => {
   try {
     const id = req.params.id;
     
@@ -240,7 +240,7 @@ const updateProducts = async (req, res) => {
   }
 };
 
-const unlistProduct = async (req, res) => {
+const unlistProduct = async (req, res, next) => {
   try {
     const id = req.params.id;
 
@@ -266,7 +266,7 @@ const unlistProduct = async (req, res) => {
   }
 };
 
-const listProduct = async (req, res) => {
+const listProduct = async (req, res, next) => {
   try {
     const id = req.params.id;
 

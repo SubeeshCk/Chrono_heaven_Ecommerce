@@ -109,7 +109,7 @@ const sendVerifyMail = async (name, email, otp) => {
   }
 };
 
-const renderSignUp = async (req, res) => {
+const renderSignUp = async (req, res, next) => {
   try {
     res.render("signUp");
   } catch (error) {
@@ -117,7 +117,7 @@ const renderSignUp = async (req, res) => {
   }
 };
 
-const insertUser = async (req, res) => {
+const insertUser = async (req, res, next) => {
   try {
     const { name, email, mobile, password, cpassword, referred_code } =
       req.body;
@@ -216,7 +216,7 @@ const insertUser = async (req, res) => {
   }
 };
 
-const verifyOtp = async (req, res) => {
+const verifyOtp = async (req, res, next) => {
   try {
     const { otp } = req.body;
 
@@ -314,7 +314,7 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-const renderOtp = async (req, res) => {
+const renderOtp = async (req, res, next) => {
   try {
     res.render("otp");
   } catch (error) {
@@ -322,7 +322,7 @@ const renderOtp = async (req, res) => {
   }
 };
 
-const resendOtp = async (req, res) => {
+const resendOtp = async (req, res, next) => {
   try {
     const tempUser = req.session.tempUser;
 
@@ -354,7 +354,7 @@ const resendOtp = async (req, res) => {
   }
 };
 
-const renderLogin = async (req, res) => {
+const renderLogin = async (req, res, next) => {
   try {
     res.render("login");
   } catch (error) {
@@ -362,7 +362,7 @@ const renderLogin = async (req, res) => {
   }
 };
 
-const verifyLogin = async (req, res) => {
+const verifyLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const userData = await User.findOne({ email: email });
@@ -420,7 +420,7 @@ const verifyLogin = async (req, res) => {
   }
 };
 
-const renderForgotPassword = async (req, res) => {
+const renderForgotPassword = async (req, res, next) => {
   try {
     res.render("forgot-password");
   } catch (error) {
@@ -428,7 +428,7 @@ const renderForgotPassword = async (req, res) => {
   }
 };
 
-const findAccount = async (req, res) => {
+const findAccount = async (req, res, next) => {
   try {
     const { email } = req.body;
     const userData = await User.findOne({ email: email });
@@ -456,7 +456,7 @@ const findAccount = async (req, res) => {
   }
 };
 
-const resendResetOtp = async (req, res) => {
+const resendResetOtp = async (req, res, next) => {
   try {
     if (!req.session.tempUser) {
       req.flash("error", "Session expired. Please start over.");
@@ -479,7 +479,7 @@ const resendResetOtp = async (req, res) => {
   }
 };
 
-const renderResetOtp = async (req, res) => {
+const renderResetOtp = async (req, res, next) => {
   try {
     if (!req.session.tempUser) {
       req.flash("error", "Session expired. Please start over.");
@@ -492,7 +492,7 @@ const renderResetOtp = async (req, res) => {
   }
 };
 
-const verifyResetOtp = async (req, res) => {
+const verifyResetOtp = async (req, res, next) => {
   try {
     const { otp } = req.body;
 
@@ -525,7 +525,7 @@ const verifyResetOtp = async (req, res) => {
   }
 };
 
-const renderResetPassword = async (req, res) => {
+const renderResetPassword = async (req, res, next) => {
   try {
     if (!req.session.userForReset) {
       req.flash("error", "Session expired. Please request a new OTP.");
@@ -537,7 +537,7 @@ const renderResetPassword = async (req, res) => {
   }
 };
 
-const updatePassword = async (req, res) => {
+const updatePassword = async (req, res, next) => {
   try {
     const { newPassword, confirmPassword } = req.body;
     const userForReset = req.session.userForReset;
@@ -575,7 +575,7 @@ const updatePassword = async (req, res) => {
   }
 };
 
-const logOut = async (req, res) => {
+const logOut = async (req, res, next) => {
   try {
     req.session.destroy();
     res.redirect("/");

@@ -62,14 +62,17 @@ adminRoute.get("/customers/customer-profile/:id?",adminAuth.is_login,customerCon
 
 
 //*****************************   Offer  ************************************//
-adminRoute.get('/product-offers',adminAuth.is_login,offerController.renderProductOffers)
-adminRoute.get('/category-offers',adminAuth.is_login,offerController.renderCategoryOffer)
+adminRoute.get('/coupons',adminAuth.is_login,offerController.renderCoupons);
+adminRoute.post('/addCoupon',adminAuth.is_login,offerController.addCoupons);
+adminRoute.delete('/removeCoupon/:couponId',adminAuth.is_login,offerController.removeCoupon);
+adminRoute.get('/product-offers',adminAuth.is_login,offerController.renderProductOffers);
+adminRoute.get('/category-offers',adminAuth.is_login,offerController.renderCategoryOffer);
 adminRoute.get('/addProductOffer',adminAuth.is_login,offerController.renderAddProductOffer);
-adminRoute.get('/addCategoryOffer',adminAuth.is_login,offerController.renderAddCategoryOffer)
-adminRoute.post('/addCategoryOffer',adminAuth.is_login,offerController.AddCategoryOffer)
-adminRoute.delete('/removeCategoryOffer/:offerId',adminAuth.is_login,offerController.removeCategoryOffer)
-adminRoute.post('/addProductOffer',adminAuth.is_login,offerController.addProductOffer)
-adminRoute.delete('/removeProductOffer/:offerId',adminAuth.is_login,offerController.removeProductOffer)
+adminRoute.get('/addCategoryOffer',adminAuth.is_login,offerController.renderAddCategoryOffer);
+adminRoute.post('/addCategoryOffer',adminAuth.is_login,offerController.AddCategoryOffer);
+adminRoute.delete('/removeCategoryOffer/:offerId',adminAuth.is_login,offerController.removeCategoryOffer);
+adminRoute.post('/addProductOffer',adminAuth.is_login,offerController.addProductOffer);
+adminRoute.delete('/removeProductOffer/:offerId',adminAuth.is_login,offerController.removeProductOffer);
 
 
 module.exports = adminRoute;

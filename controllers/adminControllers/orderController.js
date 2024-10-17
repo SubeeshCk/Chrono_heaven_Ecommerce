@@ -4,7 +4,7 @@ const Products = require("../../models/product");
 
 
 
-const renderOrder = async (req,res) => {
+const renderOrder = async (req, res, next) => {
     try {
         const orderData = await Order.find()
         .sort({createdAt:-1})
@@ -18,7 +18,7 @@ const renderOrder = async (req,res) => {
 };
 
 
-const renderOrderDetails = async (req, res) => {
+const renderOrderDetails = async (req, res, next) => {
     try {
         const { productId, userId ,orderId} = req.query;
 
@@ -43,7 +43,7 @@ const renderOrderDetails = async (req, res) => {
     }
 };
 
-const updateOrderStatus = async (req, res) => {
+const updateOrderStatus = async (req, res, next) => {
     const { orderId, productId, productStatus } = req.body;
     try {
       const order = await Order.findById(orderId);

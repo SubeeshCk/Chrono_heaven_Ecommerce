@@ -139,15 +139,28 @@
                             <a href="/product-details/<%= product._id %>" class="product-name stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                               <%= product.product_name %>
                             </a>                  
-                            <% function formatPriceWithCommas(price) { price=price.toString(); let
-                              lastThree=price.substring(price.length-3); let otherNumbers=price.substring(0, price.length-3); if
-                              (otherNumbers !='' ) lastThree=',' + lastThree; let
-                              formattedPrice=otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, "," ) + lastThree; return formattedPrice; }
-                              %>
-                               <br>
+                            <% function formatPriceWithCommas(price) {
+                                 price = price.toString();
+                                 let lastThree = price.substring(price.length-3);
+                                 let otherNumbers = price.substring(0, price.length-3);
+                                 if (otherNumbers != '') lastThree = ',' + lastThree;
+                                 let formattedPrice = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+                                 return formattedPrice;
+                               }
+                            %>
+                            <br>
+                            <% if (product.hasDiscount) { %>
+                              <span class="mtext-106 cl2" style="text-decoration: line-through; color: #888;">
+                                ₹<%= formatPriceWithCommas(product.originalPrice) %>
+                              </span>
+                              <span class="mtext-110 cl2" style="color: #e95a5c;">
+                                ₹<%= formatPriceWithCommas(product.discountedPrice) %> (<%= Math.round(((product.originalPrice - product.discountedPrice) / product.originalPrice) * 100) %>% off)
+                              </span>
+                            <% } else { %>
                               <span class="mtext-110 cl2">
                                 ₹<%= formatPriceWithCommas(product.price) %>
                               </span>
+                            <% } %>
                           </div>
                           <div class="block2-txt-child2 flex-r p-t-3">
                             <a href="/addToWishlist/?productId=<%=product._id%>" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">

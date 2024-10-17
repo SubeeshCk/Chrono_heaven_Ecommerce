@@ -1,39 +1,34 @@
 const User = require("../../models/userModel");
 const Category = require("../../models/category");
 const Products = require("../../models/product");
+const WishlistItem = require("../../models/wishListModel"); // Assuming you have this model
 const { StatusCode } = require("../../config/StatusCode");
+const { applyOffers, calculateDiscountedPrice } = require("../../config/offerUtils");
 
-
-const renderHome = async (req, res) => {
+const renderHome = async (req, res, next) => {
   try {
     const categories = await Category.find({ is_listed: true });
     const unblockedCategoryIds = categories.map((category) => category._id);
-
-    const productData = await Products.find({
-      is_listed: true,
+    const productData = await Products.find({ 
+      is_listed: true, 
       category: { $in: unblockedCategoryIds },
     });
 
-    let userData = res.locals.userData; 
+    const { productsWithOffers, allActiveOffers } = await applyOffers(productData, categories);
 
-    if (userData) {
-      if (userData.block) {
-        req.session.destroy((err) => {
-          if (err) {
-            console.log("Error destroying session:", err.message);
-          }
-        });
-        userData = null;
-      }
-    }
-    res.render("home", { productData });
+    const renderData = { 
+      productData: productsWithOffers, 
+      categories, 
+      allActiveOffers 
+    };
 
+    res.render("home", { renderData });
   } catch (error) {
     return next(error);
   }
 };
 
-const renderProducts = async (req, res) => {
+const renderProducts = async (req, res, next) => {
   try {
     const categories = await Category.find({ is_listed: true });
     const unblockedCategoryIds = categories.map((category) => category._id);
@@ -48,13 +43,15 @@ const renderProducts = async (req, res) => {
       return res.redirect("/products");
     }
 
-    res.render("products", { productData });
+    const { productsWithOffers } = await applyOffers(productData, categories);
+
+    res.render("products", { productData: productsWithOffers });
   } catch (error) {
     return next(error);
   }
 };
 
-const productDetails = async (req, res) => {
+const productDetails = async (req, res, next) => {
   try {
     const id = req.params.id;
     const product = await Products.findById(id);
@@ -64,14 +61,17 @@ const productDetails = async (req, res) => {
       return res.redirect("/products");
     }
     
-    res.render("product-details", { product });
+    const categories = await Category.find({ is_listed: true });
+    const { productsWithOffers } = await applyOffers([product], categories);
+
+    res.render("product-details", { product: productsWithOffers[0] });
 
   } catch (error) {
     return next(error); 
   }
 };
 
-const renderWomens = async (req, res) => {
+const renderWomens = async (req, res, next) => {
   try {
     const womenCategory = await Category.findOne({ name: "women" });
 
@@ -84,16 +84,18 @@ const renderWomens = async (req, res) => {
       is_listed: true,
     }).populate("category");
 
-    const categories = [womenCategory];
+    const categories = await Category.find({ is_listed: true }); 
 
-    res.render("womens", { productData, categories, pageCategory: "women" });
+    const { productsWithOffers, allActiveOffers } = await applyOffers(productData, categories);
+
+    res.render("womens", { productData: productsWithOffers, categories, pageCategory: "women", allActiveOffers });
 
   } catch (error) {
     return next(error);
   }
 };
 
-const renderMens = async (req, res) => {
+const renderMens = async (req, res, next) => {
   try {
     const mensCategory = await Category.findOne({ name: "men" });
 
@@ -106,15 +108,17 @@ const renderMens = async (req, res) => {
       is_listed: true,
     }).populate("category");
 
-    const categories = [mensCategory];
+    const categories = await Category.find({ is_listed: true });
 
-    res.render("mens", { productData, categories, pageCategory: "men" });
+    const { productsWithOffers, allActiveOffers } = await applyOffers(productData, categories);
+
+    res.render("mens", { productData: productsWithOffers, categories, pageCategory: "men", allActiveOffers });
   } catch (error) {
     return next(error);
   }
 };
 
-const sortProducts = async (req, res) => {
+const sortProducts = async (req, res, next) => {
   try {
     const { sortBy, category } = req.query;
     let sortOption = {};
@@ -194,13 +198,15 @@ const sortProducts = async (req, res) => {
   }
 };
 
-const addToWishlist = async (req, res) => {
+const addToWishlist = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     const { productId } = req.query;
     const product = await Products.findById(productId);
     
-    const { discountedPrice, discountPercent } = await calculateDiscountedPrice(product);
+    const categories = await Category.find({ is_listed: true });
+    const { productsWithOffers } = await applyOffers([product], categories);
+    const productWithOffer = productsWithOffers[0];
 
     let wishlistItem = await WishlistItem.findOne({
       userId: userId,
@@ -212,13 +218,15 @@ const addToWishlist = async (req, res) => {
         userId: userId,
         product: [{
           productId: productId,
-          discountedPrice: discountedPrice,
-          discountPercent: discountPercent
+          discountedPrice: productWithOffer.discountedPrice,
+          discountPercent: productWithOffer.hasDiscount ? 
+            ((product.price - productWithOffer.discountedPrice) / product.price) * 100 : 0
         }],
       });
     } else {
-      wishlistItem.product[0].discountedPrice = discountedPrice;
-      wishlistItem.product[0].discountPercent = discountPercent;
+      wishlistItem.product[0].discountedPrice = productWithOffer.discountedPrice;
+      wishlistItem.product[0].discountPercent = productWithOffer.hasDiscount ? 
+        ((product.price - productWithOffer.discountedPrice) / product.price) * 100 : 0;
     }
     
     await wishlistItem.save();
@@ -229,7 +237,7 @@ const addToWishlist = async (req, res) => {
   }
 };
 
-const renderWishlist = async (req, res) => {
+const renderWishlist = async (req, res, next) => {
   try {
     if (req.session.userId) {
       const userData = await User.findById(req.session.userId);
@@ -237,13 +245,20 @@ const renderWishlist = async (req, res) => {
         userId: req.session.userId,
       }).populate("product.productId");
 
+      const categories = await Category.find({ is_listed: true });
+      const products = wishlistItems.map(item => item.product[0].productId);
+      const { productsWithOffers } = await applyOffers(products, categories);
+
       // Update prices for each item
-      for (let item of wishlistItems) {
-        const { discountedPrice, discountPercent } = await calculateDiscountedPrice(item.product[0].productId);
-        item.product[0].discountedPrice = discountedPrice;
-        item.product[0].discountPercent = discountPercent;
-        await item.save();
-      }
+      wishlistItems = wishlistItems.map((item, index) => {
+        const updatedProduct = productsWithOffers[index];
+        item.product[0].discountedPrice = updatedProduct.discountedPrice;
+        item.product[0].discountPercent = updatedProduct.hasDiscount ? 
+          ((updatedProduct.originalPrice - updatedProduct.discountedPrice) / updatedProduct.originalPrice) * 100 : 0;
+        return item;
+      });
+
+      await Promise.all(wishlistItems.map(item => item.save()));
 
       res.render("wishlist", {
         wishlistItems: wishlistItems,
@@ -257,7 +272,7 @@ const renderWishlist = async (req, res) => {
   }
 };
 
-const RemoveFromWishlist = async (req, res) => {
+const RemoveFromWishlist = async (req, res, next) => {
   try {
     const { productId } = req.query;
     if (req.session.userId) {
@@ -270,11 +285,9 @@ const RemoveFromWishlist = async (req, res) => {
       res.status(401).json({ message: "Unauthorized" });
     }
   } catch (error) {
-
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 module.exports = {
   renderHome,

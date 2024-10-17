@@ -2,7 +2,7 @@ const Category = require("../../models/category");
 const API_ROUTES = require("../../config/apiRoutes");
 const { findByIdAndUpdate } = require("../../models/userModel");
 
-const renderCategories = async (req, res) => {
+const renderCategories = async (req, res, next) => {
   try {
     const categories = await Category.find({});
     res.render("categories", { categories });
@@ -11,7 +11,7 @@ const renderCategories = async (req, res) => {
   }
 };
 
-const renderAddCategory = async (req, res) => {
+const renderAddCategory = async (req, res, next) => {
   try {
     res.render("add-category");
   } catch (error) {
@@ -19,7 +19,7 @@ const renderAddCategory = async (req, res) => {
   }
 };
 
-const insertCategory = async (req, res) => {
+const insertCategory = async (req, res, next) => {
   try {
     const { name } = req.body;
     console.log(req.body);
@@ -54,7 +54,7 @@ const insertCategory = async (req, res) => {
   }
 };
 
-const renderUpdateCategory = async (req, res) => {
+const renderUpdateCategory = async (req, res, next) => {
   try {
     const categoryId = req.params.id;
     const category = await Category.findById(categoryId);
@@ -64,7 +64,7 @@ const renderUpdateCategory = async (req, res) => {
   }
 };
 
-const updateCategory = async (req, res) => {
+const updateCategory = async (req, res, next) => {
   try {
     const id = req.params.id;
     const { name, description } = req.body;
@@ -93,7 +93,7 @@ const updateCategory = async (req, res) => {
   }
 };
 
-const unlistCategory = async (req, res) => {
+const unlistCategory = async (req, res, next) => {
   try {
     const id = req.params.id;
 
@@ -119,7 +119,7 @@ const unlistCategory = async (req, res) => {
   }
 };
 
-const listCategory = async (req, res) => {
+const listCategory = async (req, res, next) => {
   try {
     const id = req.params.id;
 

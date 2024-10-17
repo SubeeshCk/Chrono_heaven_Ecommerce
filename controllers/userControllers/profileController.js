@@ -15,7 +15,7 @@ const securePassword = async (password) => {
   }
 };
 
-const renderProfile = (req, res) => {
+const renderProfile = (req, res, next) => {
   try {
     const userData = res.locals.userData;
 
@@ -28,7 +28,7 @@ const renderProfile = (req, res) => {
   }
 };
 
-const renderEditProfile = async (req, res) => {
+const renderEditProfile = async (req, res, next) => {
   try {
     const userData = res.locals.userData;
 
@@ -42,7 +42,7 @@ const renderEditProfile = async (req, res) => {
   }
 };
 
-const updateProfile = async (req, res) => {
+const updateProfile = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     let { name = "", mobile = "" } = req.body;
@@ -85,7 +85,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-const renderAddress = async (req, res) => {
+const renderAddress = async (req, res, next) => {
   try {
     const userId = req.session.userId;
 
@@ -108,7 +108,7 @@ const renderAddress = async (req, res) => {
   }
 };
 
-const renderAddNewAddress = async (req, res) => {
+const renderAddNewAddress = async (req, res, next) => {
   try {
     res.render("add-address");
   } catch (error) {
@@ -116,7 +116,7 @@ const renderAddNewAddress = async (req, res) => {
   }
 };
 
-const insertNewAddress = async (req, res) => {
+const insertNewAddress = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     const { name,pincode, locality, address, city, state, addresstype } = req.body;
@@ -193,7 +193,7 @@ const insertNewAddress = async (req, res) => {
   }
 };
 
-const renderEditAddress = async (req, res) => {
+const renderEditAddress = async (req, res, next) => {
   try {
     const userId = req.session.userId;
 
@@ -215,7 +215,7 @@ const renderEditAddress = async (req, res) => {
   }
 };
 
-const updateAddress = async (req, res) => {
+const updateAddress = async (req, res, next) => {
   try {
     const userId = req.session.userId;
 
@@ -261,7 +261,7 @@ const updateAddress = async (req, res) => {
   }
 };
 
-const deleteAddress = async (req, res) => {
+const deleteAddress = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     const addressId = req.params.id;
@@ -327,7 +327,7 @@ const resetPassword = async ( req,res ) => {
   }
 }
 
-const renderMyOrder = async (req, res) => {
+const renderMyOrder = async (req, res, next) => {
   try {
     if (req.session.userId) {
       const userId = req.session.userId;
@@ -346,7 +346,7 @@ const renderMyOrder = async (req, res) => {
 };
 
 
-const renderOrderDetails = async (req, res) => {
+const renderOrderDetails = async (req, res, next) => {
   try {
       const userId = req.session.userId;
       const { productId, orderItemId } = req.query;
@@ -372,7 +372,7 @@ const renderOrderDetails = async (req, res) => {
   }
 };
 
-const cancelOrder = async (req, res) => {
+const cancelOrder = async (req, res, next) => {
   try {
       const userId = req.session.userId;
       const { orderItemId, cancelReason } = req.body;

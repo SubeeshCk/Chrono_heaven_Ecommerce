@@ -6,7 +6,7 @@ const Address = require("../../models/userAddress");
 
 
 
-const renderCustomer = async (req, res) => {
+const renderCustomer = async (req, res, next) => {
   try {
     const userData = await User.find({ is_admin: 0 });
     const formattedUserData = userData.map((user) => {
@@ -19,7 +19,7 @@ const renderCustomer = async (req, res) => {
   }
 };
 
-const blockUser = async (req, res) => {
+const blockUser = async (req, res, next) => {
   try {
     const { userId } = req.body;
     const updatedUser = await User.findByIdAndUpdate(
@@ -38,7 +38,7 @@ const blockUser = async (req, res) => {
   }
 };
 
-const unblockUser = async (req, res) => {
+const unblockUser = async (req, res, next) => {
   try {
     const { userId } = req.body;
     const updatedUser = await User.findByIdAndUpdate(
@@ -55,7 +55,7 @@ const unblockUser = async (req, res) => {
   }
 };
 
-const renderCustomerProfile = async (req, res) => {
+const renderCustomerProfile = async (req, res, next) => {
   try {
     customerId = req.params.id;
     const customer = await User.findById(customerId);

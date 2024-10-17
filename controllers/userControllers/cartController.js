@@ -6,7 +6,7 @@ const Address = require("../../models/userAddress");
 const Order = require("../../models/orderModel");
 
 
-const addToCart = async (req, res) => {
+const addToCart = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     const productId = req.params.id;
@@ -95,7 +95,7 @@ const addToCart = async (req, res) => {
 };
 
 
-const renderCart = async (req, res) => {
+const renderCart = async (req, res, next) => {
   try {
     const userId = req.session.userId;
 
@@ -135,7 +135,7 @@ const renderCart = async (req, res) => {
 };
 
 
-const updateCartItem = async (req, res) => {
+const updateCartItem = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     const { productId, quantityChange } = req.body;
@@ -233,7 +233,7 @@ const updateCartItem = async (req, res) => {
   }
 };
 
-const checkStock = async (req, res) => {
+const checkStock = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     const cartItems = await CartItem.find({ userId }).populate(
@@ -256,7 +256,7 @@ const checkStock = async (req, res) => {
 
 
 
-const removeCartItem = async (req, res) => {
+const removeCartItem = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     const { productId } = req.body;
@@ -278,7 +278,7 @@ const removeCartItem = async (req, res) => {
   }
 };
 
-const loadCheckout = async (req, res) => {
+const loadCheckout = async (req, res, next) => {
   try {
     const userId = req.session.userId;
 
@@ -330,7 +330,7 @@ const loadCheckout = async (req, res) => {
   }
 }
 
-const addNewAddress = async (req, res) => {
+const addNewAddress = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     if (!userId) {
@@ -346,7 +346,7 @@ const addNewAddress = async (req, res) => {
 };
 
 
-const insertCheckoutAddress = async (req, res) => {
+const insertCheckoutAddress = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     const { name,pincode, locality, address, city, state, addresstype } = req.body;
@@ -412,7 +412,7 @@ const insertCheckoutAddress = async (req, res) => {
   }
 };
 
-const removeAddress = async (req, res) => {
+const removeAddress = async (req, res, next) => {
   try {
     const addressId = req.params.id;
     await Address.findByIdAndDelete(addressId);
@@ -422,7 +422,7 @@ const removeAddress = async (req, res) => {
   }
 };
 
-const placeOrder = async (req, res) => {
+const placeOrder = async (req, res, next) => {
   try {
     const userId = req.session.userId;
 
@@ -531,7 +531,7 @@ const placeOrder = async (req, res) => {
 };
 
 
-const renderOrderPlaced = async (req, res) => {
+const renderOrderPlaced = async (req, res, next) => {
   try {
     res.render("orderplaced");
   } catch (error) {

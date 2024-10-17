@@ -67,19 +67,29 @@
 								<div class="col-md-6 col-lg-5 p-b-30">
 									<div class="p-r-50 p-t-5 p-lr-0-lg">
 										<h4 class="mtext-105 cl2 js-name-detail p-b-14">
-											<%= product.product_name %>
+										  <%= product.product_name %>
 										</h4>
-
-										<span class="mtext-106 cl2 d-block mb-4">
-											₹ <%= product.price.toFixed(2) %>
-										</span>
-
-										<span class="mtext-106 cl2 d-block mb-4" style="color: red">
-											<%= product.discount %>% off
-											<p style="color: rgb(29, 119, 12)">
-												now at <%= (product.price-(product.price*product.discount/100)).toFixed(2) %>
-											</p>
-										</span>
+									  
+										<% if (product.hasDiscount) { %>
+										  <span class="mtext-106 cl2 d-block mb-4" style="text-decoration: line-through; color: #888;">
+											₹<%= formatPriceWithCommas(product.originalPrice) %>
+										  </span>
+										  <span class="mtext-110 cl2 d-block mb-4" style="color: #e95a5c;">
+											₹<%= formatPriceWithCommas(product.discountedPrice) %> 
+											(<%= Math.round(((product.originalPrice - product.discountedPrice) / product.originalPrice) * 100) %>% off)
+										  </span>
+										<% } else { %>
+										  <span class="mtext-106 cl2 d-block mb-4">
+											₹<%= formatPriceWithCommas(product.price) %>
+										  </span>
+										<% } %>
+										<% function formatPriceWithCommas(price) {
+											price=price.toString(); let
+											lastThree=price.substring(price.length-3); let
+											otherNumbers=price.substring(0, price.length-3); if
+											(otherNumbers !='' ) lastThree=',' + lastThree; let
+											formattedPrice=otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ","
+											) + lastThree; return formattedPrice; } %>
 
 										<div class="product-details">
 											<div class="detail-row">
