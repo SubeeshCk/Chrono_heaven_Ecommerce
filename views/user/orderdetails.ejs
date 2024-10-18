@@ -375,7 +375,8 @@
                       <!-- Display order ID, status, and other details -->
                       <p><strong>Order ID:</strong>
                         <%= orderData._id %>
-                      </p><br>
+                      </p>
+                      <br>
                       <p><strong>Status:</strong>
                         <strong class="status-label <%= specificProduct.status.toLowerCase() %>">
                           <% if(orderData.paymentMethod==="cashOnDelivery" ){ %>
@@ -396,10 +397,10 @@
                     <!-- Display other order details such as total amount, payment method, delivery address -->
                     <div class="col-md-6">
                       <p><strong>Total Amount:</strong>
-                        <% // Calculate base total price (price * quantity) let Total=specificProduct.priceAtPurchase *
-                          specificProduct.quantity; // Apply discount if available if (specificProduct.discountedPrice)
-                          { Total=specificProduct.discountedPrice * specificProduct.quantity; } // Add delivery charge
-                          if available if (orderData.deliveryCharge) { Total=Total + orderData.deliveryCharge; } %>
+                        <% let Total=specificProduct.priceAtPurchase * specificProduct.quantity; if
+                          (specificProduct.discountedPrice) { Total=specificProduct.discountedPrice *
+                          specificProduct.quantity; } if (orderData.deliveryCharge) { Total +=orderData.deliveryCharge;
+                          } %>
                           <%= Total %>
                       </p>
                       <p><strong>Payment Method:</strong>
@@ -415,9 +416,8 @@
                       </p>
                     </div>
                   </div>
-                  <br>
                   <!-- Display product details -->
-                  <h5 style="margin-top: 20px; font-weight: bold;">Product Details</h5><br>
+                  <h5 style="margin-top: 20px; font-weight: bold;">Product Details</h5>
                   <table class="table table-bordered">
                     <thead>
                       <tr>
@@ -437,7 +437,7 @@
                             alt="Product Image" class="product-image" style="width: 100px;height: 125px;">
                         </td>
                         <td>
-                          <%= specificProduct.productId.product_name %>
+                          <%= specificProduct.productId.name %>
                         </td>
                         <td>
                           <%= specificProduct.quantity %>
@@ -449,9 +449,8 @@
                         </td>
                         <td>₹<%= orderData.deliveryCharge %>
                         </td>
-                        <td>₹<%=
-                            (specificProduct.priceAtPurchase-specificProduct.discountedPrice)*specificProduct.quantity
-                            %>
+                        <td>₹<%= (specificProduct.priceAtPurchase - specificProduct.discountedPrice).toFixed(2)*
+                            specificProduct.quantity%>
                         </td>
 
                       </tr>
@@ -461,13 +460,20 @@
                     <tfoot>
                       <tr>
                         <td colspan="3" style="text-align: right; font-weight: bold;">Total Order Amount:</td>
-                        <td colspan="3" style="font-weight: bold;">₹
-                          <% // Calculate base total price (price * quantity) let
-                            totalPrice=specificProduct.priceAtPurchase * specificProduct.quantity; // Apply discount if
-                            available if (specificProduct.discountedPrice) { totalPrice=specificProduct.discountedPrice
-                            * specificProduct.quantity; } // Add delivery charge if available if
-                            (orderData.deliveryCharge) { totalPrice=totalPrice + orderData.deliveryCharge; } %>
-                            <%= totalPrice %>
+                        <td colspan="3" style="font-weight: bold;">
+                          <% 
+                          let totalPrice = specificProduct.priceAtPurchase * specificProduct.quantity; 
+                          
+                          if (specificProduct.discountedPrice) { 
+                              totalPrice = specificProduct.discountedPrice * specificProduct.quantity; 
+                          } 
+                          
+                          if (orderData.deliveryCharge) { 
+                              totalPrice = totalPrice + orderData.deliveryCharge; 
+                          } 
+                          %>
+                          <%= totalPrice %>
+                          
                         </td>
                       </tr>
                     </tfoot>
@@ -475,8 +481,8 @@
 
 
                   <div class="row">
-                    <div class="col-md-6 p-b-100"></div>
-                    <div class="col-md-6 text-right">
+                    <div class="col-md-6"></div>
+                    <div class="col-md-6 text-right" >
                       <% if (orderData && specificProduct) { %>
                         <% // Get the status of the specific product const
                           productStatus=specificProduct.status.toLowerCase(); %>
@@ -511,6 +517,7 @@
 
               </div>
             </div>
+
           </div>
         </form>
       </div>

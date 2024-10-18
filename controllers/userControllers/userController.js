@@ -1,7 +1,7 @@
 const User = require("../../models/userModel");
 const Category = require("../../models/category");
 const Products = require("../../models/product");
-const WishlistItem = require("../../models/wishListModel"); // Assuming you have this model
+const WishlistItem = require("../../models/wishListModel");
 const { StatusCode } = require("../../config/StatusCode");
 const { applyOffers, calculateDiscountedPrice } = require("../../config/offerUtils");
 

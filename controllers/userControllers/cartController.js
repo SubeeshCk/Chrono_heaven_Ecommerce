@@ -25,7 +25,7 @@ const addToCart = async (req, res, next) => {
     }
 
     const price = product.price;
-    const discount = product.discount || 0;
+    const discount = product.activeOffer.discountValue || 0;
     const discountPrice = Math.round(price * (discount / 100));
     const discountedPrice = Math.round(price - price * (discount / 100));
 
@@ -196,7 +196,7 @@ const updateCartItem = async (req, res, next) => {
     }
 
     const price = currentProduct.price;
-    const discount = currentProduct.discount || 0;
+    const discount = currentProduct.activeOffer.discountValue || 0;
     const discountPrice = Math.round(price * (discount / 100));
     const discountedPrice = Math.round(price - price * (discount / 100));
 
@@ -481,7 +481,7 @@ const placeOrder = async (req, res, next) => {
           })
         }
 
-        const discountOnProduct = product.price - (product.price * (product.discount/100));
+        const discountOnProduct = product.price - (product.price * (product.activeOffer.discountValue/100));
         
     orderedItems.push({
       productId: productItem.productId,
@@ -522,7 +522,7 @@ const placeOrder = async (req, res, next) => {
     });
 
   } catch (error) {
-    console.log(error.message);
+    console.log(error);
     return res.status(500).json({
       success: false,
       message: "An error occurred while placing the order.",

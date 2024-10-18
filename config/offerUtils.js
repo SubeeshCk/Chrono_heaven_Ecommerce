@@ -1,5 +1,8 @@
+const mongoose = require('mongoose');
+const cron = require('node-cron');
 const ProductOffer = require("../models/productOffer");
 const CategoryOffer = require("../models/categoryOffer");
+const Product = require("../models/product"); 
 
 const getOfferTime = (startDate, endDate) => {
   const now = new Date();
@@ -62,8 +65,8 @@ const applyOffers = async (products, categories) => {
 
   const allActiveOffers = new Set();
 
-  const productsWithOffers = products.map(product => {
-    const categoryId = product.category._id.toString(); // Access _id from populated category
+  const productsWithOffers = await Promise.all(products.map(async (product) => {
+    const categoryId = product.category._id.toString();
     const productId = product._id.toString();
     let bestOffer = null;
     let discountedPrice = product.price;
@@ -88,6 +91,20 @@ const applyOffers = async (products, categories) => {
       discountedPrice = calculateDiscountedPrice(product.price, bestOffer.discountValue);
       bestOffer.imageSource = `/adminAssets/uploads/product_images/${product.images[0]}`;
       allActiveOffers.add(bestOffer);
+
+      // Update product with active offer
+      await Product.findByIdAndUpdate(productId, {
+        $set: {
+          activeOffer: {
+            type: bestOffer.type,
+            discountValue: bestOffer.discountValue,
+            endDate: bestOffer.endDate
+          }
+        }
+      });
+    } else {
+      // Remove active offer if no offer is applicable
+      await Product.findByIdAndUpdate(productId, { $unset: { activeOffer: "" } });
     }
 
     return {
@@ -96,9 +113,22 @@ const applyOffers = async (products, categories) => {
       originalPrice: product.price,
       hasDiscount: !!bestOffer
     };
-  });
+  }));
   
   return { productsWithOffers, allActiveOffers: Array.from(allActiveOffers) };
 };
 
-module.exports = { applyOffers, calculateDiscountedPrice };
+// Function to remove expired offers
+const removeExpiredOffers = async () => {
+  const currentDate = new Date();
+  
+  await Product.updateMany(
+    { 'activeOffer.endDate': { $lt: currentDate } },
+    { $unset: { activeOffer: "" } }
+  );
+};
+
+// Schedule job to run every day at midnight
+cron.schedule('0 0 * * *', removeExpiredOffers);
+
+module.exports = { applyOffers, calculateDiscountedPrice, removeExpiredOffers };

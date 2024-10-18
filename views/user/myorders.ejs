@@ -201,8 +201,8 @@
                         
                         let finalPrice = item.productId.price*item.quantity;
 
-                        if (item.productId.discount){
-                          finalPrice -= finalPrice * item.productId.discount/100;
+                        if (item.productId.activeOffer.discountValue){
+                          finalPrice -= finalPrice * item.productId.activeOffer.discountValue/100;
                         }
 
                         if(order.deliveryCharge){

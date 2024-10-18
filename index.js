@@ -49,6 +49,8 @@ app.use(errorHandler);
 // MongoDB connection
 connectDB();
 
+const { removeExpiredOffers } = require('./config/offerUtils');
+
 // Start server
 const port = process.env.PORT || 4000;
 app.listen(port, () => {

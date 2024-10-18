@@ -69,9 +69,13 @@ const productSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
-    discount: {
-      type: Number,
-      default:0,
+    activeOffer: {
+      type: {
+        type: String,
+        enum: ['product', 'category']
+      },
+      discountValue: Number,
+      endDate: Date
     },
     sales_count: {
       type: Number,

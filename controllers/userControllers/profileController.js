@@ -368,6 +368,7 @@ const renderOrderDetails = async (req, res, next) => {
 
       res.render("orderdetails", { orderData, specificProduct });
   } catch (error) {
+    console.log(error)
     return next(error);
   }
 };
