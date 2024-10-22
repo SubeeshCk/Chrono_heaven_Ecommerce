@@ -174,17 +174,15 @@
 														  </span>
 														<% } %>
 													  </div>
-													<div class="block2-txt-child2 flex-r p-t-3">
-														<a href="#"
-															class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-															<img class="icon-heart1 dis-block trans-04"
-																src="/userAssets/images/icons/icon-heart-01.png"
-																alt="ICON" />
-															<img class="icon-heart2 dis-block trans-04 ab-t-l"
-																src="/userAssets/images/icons/icon-heart-02.png"
-																alt="ICON" />
+													  <div class="block2-txt-child2 flex-r p-t-3">
+														<a href="#" class="btn-addwish-b2 dis-block" data-product-id="<%= product._id %>">
+														  <% if (locals.wishlistProductIds && locals.wishlistProductIds.has(product._id.toString())) { %>
+															<img class="icon-heart1 dis-block trans-04" src="/userAssets/images/icons/icon-heart-02.png" alt="ICON" />
+														  <% } else { %>
+															<img class="icon-heart1 dis-block trans-04" src="/userAssets/images/icons/icon-heart-01.png" alt="ICON" />
+														  <% } %>
 														</a>
-													</div>
+													  </div>
 												</div>
 											</div>
 										</div>

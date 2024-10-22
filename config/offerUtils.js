@@ -35,7 +35,6 @@ const applyOffers = async (products, categories) => {
   const categoryOffers = {};
   const productOffers = {};
 
-  // Process category offers
   for (const offer of currentCategoryOffers) {
     const offerTime = getOfferTime(offer.startDate, offer.endDate);
     if (offerTime.status === "active") {
@@ -44,13 +43,12 @@ const applyOffers = async (products, categories) => {
         discountValue: offer.discountValue, 
         endDate: offerTime.endDate, 
         name: categories.find(cat => cat._id.toString() === offer.categoryId.toString())?.name,
-        link: `/products/${offer.categoryId}`, 
+        link: `/products/${categories.find(cat => cat._id.toString() === offer.categoryId.toString())?.name}s`, 
         offerTime 
       };
     }
   }
 
-  // Process product offers
   currentProductOffers.forEach(offer => {
     const offerTime = getOfferTime(offer.startDate, offer.endDate);
     if (offerTime.status === "active") {
@@ -71,12 +69,10 @@ const applyOffers = async (products, categories) => {
     let bestOffer = null;
     let discountedPrice = product.price;
 
-    // Check for category offer
     if (categoryOffers[categoryId]) {
       bestOffer = categoryOffers[categoryId];
     }
 
-    // Check for product offer
     if (productOffers[productId]) {
       if (!bestOffer || productOffers[productId].discountValue > bestOffer.discountValue) {
         bestOffer = { 
@@ -92,7 +88,6 @@ const applyOffers = async (products, categories) => {
       bestOffer.imageSource = `/adminAssets/uploads/product_images/${product.images[0]}`;
       allActiveOffers.add(bestOffer);
 
-      // Update product with active offer
       await Product.findByIdAndUpdate(productId, {
         $set: {
           activeOffer: {
@@ -103,7 +98,6 @@ const applyOffers = async (products, categories) => {
         }
       });
     } else {
-      // Remove active offer if no offer is applicable
       await Product.findByIdAndUpdate(productId, { $unset: { activeOffer: "" } });
     }
 
@@ -118,7 +112,6 @@ const applyOffers = async (products, categories) => {
   return { productsWithOffers, allActiveOffers: Array.from(allActiveOffers) };
 };
 
-// Function to remove expired offers
 const removeExpiredOffers = async () => {
   const currentDate = new Date();
   
@@ -128,7 +121,7 @@ const removeExpiredOffers = async () => {
   );
 };
 
-// Schedule job to run every day at midnight
+
 cron.schedule('0 0 * * *', removeExpiredOffers);
 
 module.exports = { applyOffers, calculateDiscountedPrice, removeExpiredOffers };

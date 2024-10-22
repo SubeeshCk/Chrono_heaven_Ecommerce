@@ -65,16 +65,12 @@
                             Remove
                           </a>
                         </td>
-                        <% } else { %>
-                          <td colspan="5">No product information available</td>
-                          <% } %>
+                        <% } %>
                     </tr>
                     <% }); %>
-                      <% } else { %>
-                        <tr>
-                          <td colspan="5">No products in the cart <br> <a href="/products">Add products</a> </td>
-                        </tr>
-                        <% } %>
+                    <% }else {  %>
+                      <td colspan="5" style="color: red; padding-top: 5%; padding-bottom: 5%;">No product information available</td>
+                      <% } %>
               </table>
             </div>
 
@@ -94,6 +90,11 @@
                 Update Cart
               </button>
             </div>
+            <br>
+            <a href="/products" class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
+              Add products
+            </a>
+            
           </div>
         </div>
 

@@ -10,12 +10,6 @@ const wishlistSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Products'
         },
-        discountedPrice: {
-            type: Number
-        },
-        discountPercent: {
-            type: Number
-        }
     }]
 },{timestamps:true})
 

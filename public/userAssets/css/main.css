@@ -1989,6 +1989,37 @@ input.num-product::-webkit-inner-spin-button {
   text-align: right;
 }
 
+
+  .discount {
+      background-color: #fff;
+      padding: 50px 0;
+  }
+  .discount__pic img {
+      width: 50%;
+      height: 50%;
+      object-fit: cover;
+  }
+  .discount__text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f5f5;
+      height: 100%;
+      padding: 40px;
+  }
+  .discount__text__title {
+      text-align: center;
+  }
+  .discount__countdown {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+  }
+  .countdown__item {
+      margin: 0 10px;
+      text-align: center;
+  }
+
 /*//////////////////////////////////////////////////////////////////
 [ Block1 ]*/
 .block1 {
@@ -2079,25 +2110,6 @@ input.num-product::-webkit-inner-spin-button {
   width: 30px;
 }
 
-.btn-addwish-b2 .icon-heart2 {
-  opacity: 0;
-}
-
-.btn-addwish-b2:hover .icon-heart2 {
-  opacity: 1;
-}
-
-.btn-addwish-b2:hover .icon-heart1 {
-  opacity: 0;
-}
-
-.js-addedwish-b2 .icon-heart2 {
-  opacity: 1;
-}
-
-.js-addedwish-b2 .icon-heart1 {
-  opacity: 0;
-}
 
 /*---------------------------------------------*/
 .label-new {

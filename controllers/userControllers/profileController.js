@@ -4,6 +4,7 @@ const { StatusCode } = require("../../config/StatusCode");
 const Address = require("../../models/userAddress");
 const bcrypt = require("bcrypt");
 const Order = require("../../models/orderModel");
+const Wallet = require ("../../models/walletModel");
 
 //For bcrypting the password
 const securePassword = async (password) => {
@@ -203,7 +204,6 @@ const renderEditAddress = async (req, res, next) => {
     const addressId = req.query.id;
 
     const address = await Address.findById(addressId);
-    console.log(address);
 
     if (!address || address.userId !== userId) {
       return res.status(StatusCode.NOT_FOUND).send("Address not found");
@@ -384,6 +384,7 @@ const cancelOrder = async (req, res, next) => {
       }
 
       const order = await Order.findOne({ 'orderedItem._id': orderItemId, userId }).populate("orderedItem.productId");
+      const orderlength = order.orderedItem.length;
 
       if (!order) {
           console.log("Order not found or does not belong to the user");
@@ -403,9 +404,14 @@ const cancelOrder = async (req, res, next) => {
       }
 
       
+      let refundAmount = 0;
       const baseRefundAmount = orderedItem.discountedPrice ? orderedItem.discountedPrice * orderedItem.quantity: orderedItem.totalProductAmount* orderedItem.quantity;
-      const refundAmount = order.deliveryCharge ? baseRefundAmount + order.deliveryCharge : baseRefundAmount;
-
+      
+      if( orderlength > 1 ){
+        refundAmount = baseRefundAmount;
+      }else{
+        refundAmount = order.deliveryCharge ? baseRefundAmount + order.deliveryCharge : baseRefundAmount;
+      }
 
       orderedItem.status = "Cancelled";
       orderedItem.reason = cancelReason;
@@ -420,10 +426,67 @@ const cancelOrder = async (req, res, next) => {
       product.quantity += orderedItem.quantity;
       await product.save();
 
+      if (order.paymentMethod !== "cashOnDelivery") {
+        const userWallet = await Wallet.findOne({ userId });
+        if (!userWallet) {
+            console.log("Wallet not found for user");
+            return res.status(404).json({ error: "Wallet not found" });
+        }
+
+        userWallet.balance += refundAmount;
+        userWallet.transactions.push({
+            amount: refundAmount,
+            transactionMethod: "Refund",
+            date: new Date(),
+        });
+        await userWallet.save();
+    }
+
       res.status(200).json({ success: "Order cancelled successfully"});
 
   } catch (error) {
     return next(error);
+  }
+};
+
+const returnOrderRequest = async (req, res) => {
+  try {
+      const userId = req.session.userId;
+      const { orderItemId, productId, returnReason } = req.body;
+
+      if (!userId) {
+          return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const order = await Order.findOne({ 'orderedItem._id': orderItemId, userId }).populate("orderedItem.productId");
+
+      if (!order) {
+          return res.status(404).json({ error: "Order not found or does not belong to the user" });
+      }
+
+
+      const orderedItem = order.orderedItem.find(item => item._id.toString() === orderItemId && item.productId._id.toString() === productId);
+
+      if (!orderedItem) {
+          return res.status(404).json({ error: "Ordered item not found" });
+      }
+
+      if (orderedItem.status === "Returned") {
+          return res.status(400).json({ error: "Product is already Returned" });
+      }
+
+     
+      orderedItem.status = "returnrequested";
+      orderedItem.reason = returnReason;
+
+
+      await order.save();
+
+      res.status(200).json({ success: "Return request submitted successfully" });
+
+  } catch (error) {
+      console.error("Error returning order:", error.message);
+      res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -450,5 +513,6 @@ module.exports = {
   renderMyOrder,
   renderOrderDetails,
   cancelOrder,
-  renderRefferal
+  renderRefferal,
+  returnOrderRequest
 };

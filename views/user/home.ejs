@@ -1,36 +1,5 @@
 <%- include("../layouts/user/header")-%>
-<style>
-  .discount {
-      background-color: #fff;
-      padding: 50px 0;
-  }
-  .discount__pic img {
-      width: 50%;
-      height: 50%;
-      object-fit: cover;
-  }
-  .discount__text {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #f5f5f5;
-      height: 100%;
-      padding: 40px;
-  }
-  .discount__text__title {
-      text-align: center;
-  }
-  .discount__countdown {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-  }
-  .countdown__item {
-      margin: 0 10px;
-      text-align: center;
-  }
 
-  </style>
 
     <!-- Slider -->
     <section class="section-slide">
@@ -396,11 +365,12 @@
                       <% } %>
                     </div>
                     <div class="block2-txt-child2 flex-r p-t-3">
-                      <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-                        <img class="icon-heart1 dis-block trans-04" src="/userAssets/images/icons/icon-heart-01.png"
-                          alt="ICON" />
-                        <img class="icon-heart2 dis-block trans-04 ab-t-l"
-                          src="/userAssets/images/icons/icon-heart-02.png" alt="ICON" />
+                      <a href="#" class="btn-addwish-b2 dis-block" data-product-id="<%= product._id %>">
+                        <% if (locals.wishlistProductIds && locals.wishlistProductIds.has(product._id.toString())) { %>
+                          <img class="icon-heart1 dis-block trans-04" src="/userAssets/images/icons/icon-heart-02.png" alt="ICON" />
+                        <% } else { %>
+                          <img class="icon-heart1 dis-block trans-04" src="/userAssets/images/icons/icon-heart-01.png" alt="ICON" />
+                        <% } %>
                       </a>
                     </div>
                   </div>
