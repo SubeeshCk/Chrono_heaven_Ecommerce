@@ -49,10 +49,38 @@
 
   .status-label {
     color: #fff;
+    height: 45%;
+    width: 60%;
     padding: 5px;
     border-radius: 3px;
     font-weight: bold;
     display: inline-block;
+    display: flex;
+    justify-content: center;
+  }
+
+  .paymentStatus-label.true{
+    background-color: #198754;
+    color: #fff;
+    width: 20%;
+    padding: 5px;
+    border-radius: 3px;
+    font-weight: bold;
+    display: inline-block;
+    display: flex;
+    justify-content: center;
+  }
+
+  .paymentStatus-label.false{
+    background-color: #ffc107;
+    color: #333;
+    width: 20%;
+    padding: 5px;
+    border-radius: 3px;
+    font-weight: bold;
+    display: inline-block;
+    display: flex;
+    justify-content: center;
   }
 
   .status-label.pending {
@@ -77,10 +105,41 @@
     color: #fff;
   }
 
-  .status-label.returnrequested,
-  .status-label.returned {
+  .status-label.returnrequested{
     background-color: #dc6435;
     color: #fff;
+  }
+  .order-summary {
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+  }
+
+  .product-list {
+    margin-top: 15px;
+  }
+
+  .product-item {
+    border-bottom: 1px solid #dee2e6;
+    padding: 10px 0;
+  }
+
+  .product-item:last-child {
+    border-bottom: none;
+  }
+
+  .product-images {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .product-images img {
+    max-width: 100px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 4px;
   }
 </style>
 </head>
@@ -191,56 +250,58 @@
         <div class="orders">
           <% if (orderData && orderData.length > 0) { %>
             <% orderData.forEach(order => { %>
-              <% order.orderedItem.forEach(item => { %>
-                <div class="order-item border rounded p-3 mb-3">
-                  <div class="row">
-                    <div class="col-md-3">
-                      <img src="<%= '/adminAssets/uploads/product_images/' + item.productId.images[0] %>" alt="<%= item.productId.name %>" class="img-fluid">
-                    </div>
-                    <div class="col-md-9">
-                      <h4><%= item.productId.product_name %></h4>
-                      <p>Price: ₹
-                        <% 
-                        
-                        let finalPrice = item.productId.price*item.quantity;
-
-                        if (item.productId.activeOffer.discountValue){
-                          finalPrice -= finalPrice * item.productId.activeOffer.discountValue/100;
-                        }
-
-                        if(order.deliveryCharge){
-                          finalPrice += order.deliveryCharge;
-                        }
-
-                      %>
-                      <%= finalPrice %>
-                      </p>
-                      <p>
-                        <span class="badge status-label <%= item.status.toLowerCase()%>">
-                          <% if(order.paymentMethod === "cashOnDelivery"){ %>
-                            <%=item.status%>
-                            <% }else{ %>
-                              <%= order.paymentStatus ? item.status : 'Payment Pending' %>
-                            <%}%>
-                        </span>
-                      </p>
-                      <p>
-                        <strong>Order Date:</strong> <%= order.orderDate.toLocaleDateString() %>
-                      </p>
-                      <% if (order.deliveryAddress) { %>
-                        <p>
-                          <strong>Delivery Address:</strong> <%= order.deliveryAddress.address %>, <%= order.deliveryAddress.locality %>, <%= order.deliveryAddress.city %> - <%= order.deliveryAddress.pincode %>
-                        </p>
-                      <% } else { %>
-                        <p>
-                          <strong>Delivery Address:</strong> Not provided
-                        </p>
-                      <% } %>
-                      <a href="/user-profile/myorders/orderDetails/?productId=<%= item.productId._id %>&orderItemId=<%= item._id %>" class="btn btn-primary">View Details</a>
-                    </div>
+              <div class="order-item border rounded p-3 mb-3">
+                <div class="order-summary">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h5>Order #<%= order._id.toString().slice(-6) %></h5>
+                    <span class="badge paymentStatus-label <%= order.paymentStatus %>">
+                      <%= order.paymentStatus ? 'Payment completed' : 'Payment Pending' %>
+                    </span>
                   </div>
+                  <p><strong>Order Date:</strong> <%= order.orderDate.toLocaleDateString() %></p>
+                  <p><strong>Total Amount:</strong> ₹<%= order.orderAmount.toFixed(2) %></p>
+                  <% if (order.deliveryAddress) { %>
+                    <p>
+                      <strong>Delivery Address:</strong> 
+                      <%= order.deliveryAddress.name %>,<%= order.deliveryAddress.address %>, 
+                      <%= order.deliveryAddress.locality %>, <%= order.deliveryAddress.city %> - 
+                      <%= order.deliveryAddress.pincode %>
+                    </p>
+                  <% } %>
                 </div>
-              <% }); %>
+      
+                <div class="product-list">
+                  <h6>Products in this order:</h6>
+                  <div class="product-images">
+                    <% order.orderedItem.forEach(item => { %>
+                      <img src="<%= '/adminAssets/uploads/product_images/' + item.productId.images[0] %>" 
+                           alt="<%= item.productId.product_name %>"
+                           title="<%= item.productId.product_name %>">
+                    <% }); %>
+                  </div>
+      
+                  <% order.orderedItem.forEach(item => { %>
+                    <div class="product-item">
+                      <div class="row align-items-center">
+                        <div class="col-md-8">
+                          <h6><%= item.productId.product_name %></h6>
+                          <p class="mb-0">Quantity: <%= item.quantity %></p>
+                        </div>
+                        <div class="col-md-4" style="display:flex; flex-direction: column; align-items: flex-end;">
+                          <span class="status-badge status-label <%= item.status.toLowerCase() %>">
+                            <%= item.status %>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  <% }); %>
+                </div>
+      
+                <div class="mt-3">
+                  <a href="/user-profile/myorders/orderDetails/?orderId=<%= order._id %>" 
+                     class="btn btn-primary">View Order Details</a>
+                </div>
+              </div>
             <% }); %>
           <% } else { %>
             <div class="alert alert-warning" role="alert">

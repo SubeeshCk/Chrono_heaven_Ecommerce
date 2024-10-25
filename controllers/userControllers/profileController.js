@@ -332,8 +332,11 @@ const renderMyOrder = async (req, res, next) => {
     if (req.session.userId) {
       const userId = req.session.userId;
       const orderData = await Order.find({ userId })
-        .sort({createdAt:-1})
-        .populate('orderedItem.productId')
+        .sort({ createdAt: -1 })
+        .populate({
+          path: 'orderedItem.productId',
+          select: 'product_name price images' 
+        })
         .populate('deliveryAddress');
 
       res.render('myorders', { orderData });
@@ -345,33 +348,33 @@ const renderMyOrder = async (req, res, next) => {
   }
 };
 
-
 const renderOrderDetails = async (req, res, next) => {
   try {
-      const userId = req.session.userId;
-      const { productId, orderItemId } = req.query;
+    const userId = req.session.userId;
+    const { orderId } = req.query;
 
-      const orderData = await Order.findOne({
-          userId: userId,
-          'orderedItem.productId': productId,
-          'orderedItem._id': orderItemId
-      })
-      .populate('orderedItem.productId')
-      .populate('userId')
-      .populate('deliveryAddress');
+    const orderData = await Order.findOne({
+      userId: userId,
+      _id: orderId
+    })
+    .populate({
+      path: 'orderedItem.productId',
+      select: 'product_name images price'
+    })
+    .populate('userId')
+    .populate('deliveryAddress');
 
+    if (!orderData) {
+      return res.render("orderdetails", { message: "Order not found." });
+    }
 
-      if (!orderData) {
-          return res.render("orderdetails", { message: "Order details not found." });
-      }
-      const specificProduct = orderData.orderedItem.find(item => item._id.toString() === orderItemId);
-
-      res.render("orderdetails", { orderData, specificProduct });
+    res.render("orderdetails", { orderData });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return next(error);
   }
 };
+
 
 const cancelOrder = async (req, res, next) => {
   try {
@@ -392,7 +395,7 @@ const cancelOrder = async (req, res, next) => {
       }
 
       const orderedItem = order.orderedItem.find(item => item._id.toString() === orderItemId);
-
+      
       if (!orderedItem) {
           console.log("Ordered item not found");
           return res.status(404).json({ error: "Ordered item not found" });

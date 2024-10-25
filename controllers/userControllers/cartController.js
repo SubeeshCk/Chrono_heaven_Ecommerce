@@ -477,7 +477,6 @@ const placeOrder = async (req, res, next) => {
     let orderAmount = totalAmount;
     const orderedItems = [];
 
-    // Validate products and prepare ordered items
     for (const cartItem of cartItems) {
       for (const productItem of cartItem.product) {
         const product = await Products.findById(productItem.productId).populate('category');
@@ -506,7 +505,8 @@ const placeOrder = async (req, res, next) => {
           priceAtPurchase: product.price,
           discountedPrice: discountOnProduct,
           totalProductAmount: orderAmount,
-          status: paymentMethod === 'wallet' ? 'confirmed' : 'pending'
+          status: paymentMethod === 'wallet' ? 'confirmed' : 
+                 paymentMethod === 'cashOnDelivery' ? 'confirmed' : 'pending'
         });
       }
     }
@@ -522,12 +522,12 @@ const placeOrder = async (req, res, next) => {
       paymentMethod,
       discount,
       couponDiscount,
-      paymentStatus: paymentMethod === 'wallet',
+      paymentStatus: paymentMethod === 'wallet' ? true : 
+                    paymentMethod === 'cashOnDelivery' ? false : false,
     });
 
     await orderData.save();
 
-    // Handle different payment methods
     if (paymentMethod === "wallet") {
       const userWallet = await Wallet.findOne({ userId });
 
@@ -547,7 +547,6 @@ const placeOrder = async (req, res, next) => {
         });
       }
 
-      // Process wallet payment
       userWallet.balance -= orderAmount;
       userWallet.transactions.push({
         amount: -orderAmount,
@@ -556,7 +555,6 @@ const placeOrder = async (req, res, next) => {
       });
       await userWallet.save();
 
-      // Update product quantities after successful wallet payment
       for (const item of orderedItems) {
         const product = await Products.findById(item.productId);
         if (product) {
@@ -566,7 +564,6 @@ const placeOrder = async (req, res, next) => {
         }
       }
 
-      // Clear cart after successful payment
       await CartItem.deleteMany({ _id: { $in: cartId } });
 
       return res.json({
@@ -600,11 +597,30 @@ const placeOrder = async (req, res, next) => {
           key_id: RAZOPAY_ID_KEY,
         });
       });
+
+    } else if (paymentMethod === "cashOnDelivery") {
+      
+      for (const item of orderedItems) {
+        const product = await Products.findById(item.productId);
+        if (product) {
+          product.quantity -= item.quantity;
+          product.sales_count = (product.sales_count || 0) + item.quantity;
+          await product.save();
+        }
+      }
+
+      await CartItem.deleteMany({ _id: { $in: cartId } });
+
+      return res.json({
+        success: true,
+        orderId: orderData._id,
+        message: "Order placed successfully with Cash on Delivery",
+      });
     }
 
   } catch (error) {
     console.error(error);
-    // Clean up order if it was created
+
     if (orderData && orderData._id) {
       await Order.findByIdAndDelete(orderData._id);
     }
@@ -631,7 +647,6 @@ const verifyRazorpayPayment = async (req, res) => {
       .digest("hex");
 
     if (razorpay_signature === expectedSign) {
-      // Find order and include ordered items
       const order = await Order.findById(orderId);
       
       if (!order) {
@@ -641,13 +656,13 @@ const verifyRazorpayPayment = async (req, res) => {
         });
       }
 
-      // Update order with payment details and status
       order.paymentStatus = true;
-      order.orderedItem.status = "confirmed";
+      order.orderedItem.forEach(item => {
+        item.status = "confirmed";
+      });
       order.razorpayPaymentId = razorpay_payment_id;
       order.razorpayOrderId = razorpay_order_id;
       
-      // Update product quantities
       for (const item of order.orderedItem) {
         const product = await Products.findById(item.productId);
         if (product) {
@@ -657,10 +672,7 @@ const verifyRazorpayPayment = async (req, res) => {
         }
       }
 
-      // Save the updated order
       await order.save();
-
-      // Clear the cart
       await CartItem.deleteMany({ userId: order.userId });
 
       res.json({
@@ -669,7 +681,6 @@ const verifyRazorpayPayment = async (req, res) => {
         orderId: orderId,
       });
     } else {
-      // If payment verification fails, delete the order
       await Order.findByIdAndDelete(orderId);
       
       res.status(400).json({
@@ -680,7 +691,6 @@ const verifyRazorpayPayment = async (req, res) => {
   } catch (error) {
     console.error("Error in verifyRazorpayPayment:", error);
     
-    // If there's an error, attempt to delete the order
     if (orderId) {
       try {
         await Order.findByIdAndDelete(orderId);
@@ -810,14 +820,12 @@ const removeCoupon = async (req, res) => {
           });
       }
 
-      // Remove coupon from used coupons array
       const couponIndex = userData.usedCoupons.indexOf(coupon._id);
       if (couponIndex > -1) {
           userData.usedCoupons.splice(couponIndex, 1);
           await userData.save();
       }
 
-      // Get cart items for total calculation
       const cartItems = await CartItem.find({ userId }).populate("product.productId");
 
       let orderAmount = 0;
@@ -827,10 +835,8 @@ const removeCoupon = async (req, res) => {
           });
       });
 
-      // Add delivery charge to the final total
       const newTotal = orderAmount + parseFloat(deliveryCharge);
 
-      // Remove coupon from session if it exists
       if (req.session.appliedCoupon === couponCode) {
           delete req.session.appliedCoupon;
       }

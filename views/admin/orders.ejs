@@ -227,11 +227,39 @@
                                                     item.productId.product_name : 'No Product Name' %>
                                             </td>
                                             <td>
-                                                <% if(order.deliveryCharge){%>
-                                                    <%= item.discountedPrice * item.quantity + order.deliveryCharge%>
-                                                <%}else{%>
-                                                    <%= item.discountedPrice * item.quantity %>
-                                                <%}%>
+                                                <% 
+                                                try {
+                                                  let finalPrice = 0;
+                                                  
+                                                  if (order.orderedItem.length === 1) {
+                                                    finalPrice = order.orderAmount;
+                                                  } else {
+                                                    // Base price calculation
+                                                    finalPrice = item?.productId?.price * item?.quantity || 0;
+                                                    
+                                                    // Apply product discount if exists
+                                                    if (item?.productId?.activeOffer?.discountValue) {
+                                                      finalPrice -= finalPrice * (item.productId.activeOffer.discountValue/100);
+                                                    }
+                                                    
+                                                    // Apply coupon discount if exists
+                                                    if (order.couponDiscount) {
+                                                      const total = (order.orderAmount + order.couponDiscount) - (order.deliveryCharge || 0);
+                                                      const discountPercent = (order.couponDiscount / total) * 100;
+                                                      finalPrice -= (finalPrice * discountPercent / 100);
+                                                    }
+                        
+                                                    // Add delivery charge if exists
+                                                    if (order.deliveryCharge) {
+                                                      finalPrice += order.deliveryCharge;
+                                                    }
+                        
+                                                  }
+                                                %>
+                                                <%= finalPrice.toFixed(2) %>
+                                                <% } catch (err) { %>
+                                                  <span class="error">Error calculating price</span>
+                                                <% } %>
                                             </td>
                                             <td><span
                                                     class="badge rounded-pill  <%= item.status ? item.status.toLowerCase() : '' %>">

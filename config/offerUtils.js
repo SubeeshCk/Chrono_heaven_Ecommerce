@@ -35,17 +35,23 @@ const applyOffers = async (products, categories) => {
   const categoryOffers = {};
   const productOffers = {};
 
+  // Group category offers by categoryId and find the one with highest discount
   for (const offer of currentCategoryOffers) {
     const offerTime = getOfferTime(offer.startDate, offer.endDate);
     if (offerTime.status === "active") {
-      categoryOffers[offer.categoryId.toString()] = { 
-        type: 'category', 
-        discountValue: offer.discountValue, 
-        endDate: offerTime.endDate, 
-        name: categories.find(cat => cat._id.toString() === offer.categoryId.toString())?.name,
-        link: `/products/${categories.find(cat => cat._id.toString() === offer.categoryId.toString())?.name}s`, 
-        offerTime 
-      };
+      const categoryId = offer.categoryId.toString();
+      const category = categories.find(cat => cat._id.toString() === categoryId);
+      
+      if (!categoryOffers[categoryId] || offer.discountValue > categoryOffers[categoryId].discountValue) {
+        categoryOffers[categoryId] = { 
+          type: 'category', 
+          discountValue: offer.discountValue, 
+          endDate: offerTime.endDate, 
+          name: category?.name,
+          link: `/products/${category?.name}s`, 
+          offerTime 
+        };
+      }
     }
   }
 
@@ -120,7 +126,6 @@ const removeExpiredOffers = async () => {
     { $unset: { activeOffer: "" } }
   );
 };
-
 
 cron.schedule('0 0 * * *', removeExpiredOffers);
 
