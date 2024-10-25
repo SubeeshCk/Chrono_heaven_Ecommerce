@@ -206,75 +206,36 @@
                                     <th scope="col">Customer Name</th>
                                     <th scope="col">Product Name</th>
                                     <th scope="col">Total</th>
-                                    <th scope="col">Status</th>
+                                    <th scope="col">Payment Status</th>
                                     <th scope="col">Date</th>
                                     <th scope="col" class="text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <% orderData.forEach((order)=> { %>
-                                    <% order.orderedItem.forEach((item)=> { %>
-                                        <tr>
-                                            <td>
-                                                <%= order._id %>
-                                            </td>
-                                            <td><b>
-                                                    <%= order.userId && order.userId.name ? order.userId.name
-                                                        : 'Unknown' %>
-                                                </b></td>
-                                            <td>
-                                                <%= item.productId && item.productId.product_name ?
-                                                    item.productId.product_name : 'No Product Name' %>
-                                            </td>
-                                            <td>
-                                                <% 
-                                                try {
-                                                  let finalPrice = 0;
-                                                  
-                                                  if (order.orderedItem.length === 1) {
-                                                    finalPrice = order.orderAmount;
-                                                  } else {
-                                                    // Base price calculation
-                                                    finalPrice = item?.productId?.price * item?.quantity || 0;
-                                                    
-                                                    // Apply product discount if exists
-                                                    if (item?.productId?.activeOffer?.discountValue) {
-                                                      finalPrice -= finalPrice * (item.productId.activeOffer.discountValue/100);
-                                                    }
-                                                    
-                                                    // Apply coupon discount if exists
-                                                    if (order.couponDiscount) {
-                                                      const total = (order.orderAmount + order.couponDiscount) - (order.deliveryCharge || 0);
-                                                      const discountPercent = (order.couponDiscount / total) * 100;
-                                                      finalPrice -= (finalPrice * discountPercent / 100);
-                                                    }
-                        
-                                                    // Add delivery charge if exists
-                                                    if (order.deliveryCharge) {
-                                                      finalPrice += order.deliveryCharge;
-                                                    }
-                        
-                                                  }
-                                                %>
-                                                <%= finalPrice.toFixed(2) %>
-                                                <% } catch (err) { %>
-                                                  <span class="error">Error calculating price</span>
-                                                <% } %>
-                                            </td>
-                                            <td><span
-                                                    class="badge rounded-pill  <%= item.status ? item.status.toLowerCase() : '' %>">
-                                                    <%= item.status %>
-                                                </span></td>
-                                            <td>
-                                                <%= order.orderDate.toLocaleDateString()%>
-                                            </td>
-                                            <td class="text-end">
-                                                <a href="/admin/orders/orderDetails/?productId=<%= item.productId._id %>&userId=<%= order.userId._id %>&orderId=<%=order._id%>"
-                                                    class="btn btn-md rounded font-sm">Detail</a>
-                                            </td>
-                                        </tr>
-                                        <% }); %>
-                                            <% }); %>
+                                <% orderData.forEach((order) => { %>
+                                    <tr>
+                                        <td><%= order._id %></td>
+                                        <td><b><%= order.userId?.name || 'Unknown' %></b></td>
+                                        <td>
+                                            <%= order.orderedItem.length %> items
+                                            <small class="text-muted d-block">
+                                                <%= order.orderedItem.map(item => item.productId?.product_name).join(', ').substring(0, 50) %>
+                                                <%= order.orderedItem.map(item => item.productId?.product_name).join(', ').length > 50 ? '...' : '' %>
+                                            </small>
+                                        </td>
+                                        <td>₹<%= order.orderAmount?.toFixed(2) || '0.00' %></td>
+                                        <td>
+                                            <span class="badge rounded-pill <%= order.paymentStatus %>">
+                                                <%= order.paymentStatus ? 'Payment Done' : 'Payment Pending' %>
+                                            </span>
+                                        </td>
+                                        <td><%= order.orderDate?.toLocaleDateString() %></td>
+                                        <td class="text-end">
+                                            <a href="/admin/orders/orderDetails/?orderId=<%= order._id %>" 
+                                               class="btn btn-md rounded font-sm">Detail</a>
+                                        </td>
+                                    </tr>
+                                <% }); %>
                             </tbody>
                         </table>
                     </div>
@@ -312,36 +273,13 @@
                 overflow-x: auto;
             }
 
-            .returned {
-                background-color: #dc3546b9;
-            }
-
-            .pending {
+            .false {
                 background-color: #ffc107be;
+                color: rgba(0, 0, 0, 0.829);
             }
 
-            .confirmed {
-                background-color: #0d6dfdc4;
-            }
-
-            .shipped {
+            .true {
                 background-color: #198754be;
-            }
-
-            .delivered {
-                background-color: #198754c7;
-            }
-
-            .cancelled {
-                background-color: #dc3546d3;
-            }
-
-            .returnrequested {
-                background-color: #e0435dd3;
-            }
-
-            .returnRequestCancelled {
-                background-color:blueviolet
             }
 
         </style>

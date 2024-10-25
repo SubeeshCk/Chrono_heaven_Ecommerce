@@ -8,40 +8,41 @@ const Wallet = require ("../../models/walletModel");
 const renderOrder = async (req, res, next) => {
     try {
         const orderData = await Order.find()
-        .sort({createdAt:-1})
-        .populate("orderedItem.productId")
-        .populate('userId');      
+            .sort({ orderDate: -1 })
+            .populate({
+                path: "orderedItem.productId",
+                select: "product_name price" 
+            })
+            .populate({
+                path: 'userId',
+                select: 'name email' 
+            });
 
-        res.render("orders",{orderData});
+        res.render("orders", { orderData });
     } catch (error) {
-      return next(error);  
+        next(error);
     }
 };
 
 
 const renderOrderDetails = async (req, res, next) => {
-    try {
-        const { productId, userId ,orderId} = req.query;
+  try {
+      const { orderId } = req.query;
 
-        const order = await Order.findOne({ _id: orderId, userId: userId })
-            .populate('orderedItem.productId')
-            .populate('userId')
-            .populate('deliveryAddress')
-            .populate('deliveryCharge')           
+      // Find the order and populate all necessary fields
+      const order = await Order.findById(orderId)
+          .populate('orderedItem.productId')
+          .populate('userId')
+          .populate('deliveryAddress');
 
-        if (!order) {
-            return res.status(404).send("Order not found");
-        }
+      if (!order) {
+          return res.status(404).send("Order not found");
+      }
 
-        const product = order.orderedItem.find(item => item.productId._id.toString() === productId);
-        if (!product) {
-            return res.status(404).send("Product not found in this order");
-        }
-
-        res.render('order-details', { order, product });
-    } catch (error) {
-      return next(error);
-    }
+      res.render('order-details', { order });
+  } catch (error) {
+      next(error);
+  }
 };
 
 const updateOrderStatus = async (req, res, next) => {
