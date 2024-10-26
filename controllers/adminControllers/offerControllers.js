@@ -21,7 +21,6 @@ const addCoupons = async (req, res, next) => {
     const { code, discountType, discountValue, minPurchaseAmount, validity } =
       req.body;
 
-    // Check if all required fields are present
     if (
       !code ||
       !discountType ||
@@ -70,6 +69,84 @@ const addCoupons = async (req, res, next) => {
     res
       .status(500)
       .json({ error: "An error occurred while adding the coupon" });
+  }
+};
+
+
+const getCoupon = async (req, res) => {
+  try {
+      const couponId = req.params.id;
+      const coupon = await Coupon.findById(couponId);
+      
+      if (!coupon) {
+          return res.status(404).json({ error: "Coupon not found" });
+      }
+
+      res.json(coupon);
+  } catch (error) {
+      console.error("Error fetching coupon:", error);
+      res.status(500).json({ error: "An error occurred while fetching the coupon" });
+  }
+};
+
+
+const updateCoupon = async (req, res) => {
+  try {
+      const couponId = req.params.id;
+      const { code, discountType, discountValue, minPurchaseAmount, validity } = req.body;
+
+      if (!code || !discountType || !discountValue || !minPurchaseAmount) {
+          return res.status(400).json({ error: "All fields are required" });
+      }
+
+      const coupon = await Coupon.findById(couponId);
+      if (!coupon) {
+          return res.status(404).json({ error: "Coupon not found" });
+      }
+
+      const existingCoupon = await Coupon.findOne({ 
+          code: code, 
+          _id: { $ne: couponId } 
+      });
+      
+      if (existingCoupon) {
+          return res.status(400).json({ error: "Coupon code already exists" });
+      }
+
+      if (parseFloat(discountValue) > parseFloat(minPurchaseAmount)) {
+          return res.status(400).json({ 
+              error: "Discount value cannot exceed minimum purchase amount" 
+          });
+      }
+
+      let newValidityDate = coupon.validity;
+      if (validity && !isNaN(parseInt(validity))) {
+          newValidityDate = new Date(
+              new Date().getTime() + parseInt(validity) * 24 * 60 * 60 * 1000
+          );
+      }
+
+      const updatedCoupon = await Coupon.findByIdAndUpdate(
+          couponId,
+          {
+              code,
+              discountType,
+              discountValue: parseFloat(discountValue),
+              minPurchaseAmount: parseFloat(minPurchaseAmount),
+              validity: newValidityDate
+          },
+          { new: true }
+      );
+
+      res.json({ 
+          message: "Coupon updated successfully", 
+          coupon: updatedCoupon 
+      });
+  } catch (error) {
+      console.error("Error updating coupon:", error);
+      res.status(500).json({ 
+          error: "An error occurred while updating the coupon" 
+      });
   }
 };
 
@@ -140,6 +217,75 @@ const addProductOffer = async (req, res, next) => {
   }
 };
 
+
+const renderEditOffer = async (req, res) => {
+  try {
+      const offerId = req.params.id;
+      
+      const offer = await ProductOffer.findById(offerId);
+      if (!offer) {
+          req.flash('error', 'Offer not found');
+          return res.redirect('/admin/product-offers');
+      }
+
+      const products = await productModel.find({ is_listed: true });
+
+      res.render('editProductOffer', {
+          offer,
+          products,
+          messages: {
+              success: req.flash('success'),
+              error: req.flash('error')
+          }
+      });
+  } catch (error) {
+      console.error('Error in renderEditOffer:', error);
+      req.flash('error', 'Something went wrong while loading the edit page');
+      res.redirect('/admin/product-offers');
+  }
+};
+
+
+const updateProductOffer = async (req, res) => {
+  try {
+      const offerId = req.params.id;
+      const { description, selectedProduct, discountValue, startDate, endDate } = req.body;
+
+      if (!description || !selectedProduct || !discountValue || !startDate || !endDate) {
+          req.flash('error', 'All fields are required');
+          return res.redirect(`/admin/editProductOffer/${offerId}`);
+      }
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (end <= start) {
+          req.flash('error', 'End date must be after start date');
+          return res.redirect(`/admin/editProductOffer/${offerId}`);
+      }
+
+      if (discountValue <= 0 || discountValue > 100) {
+          req.flash('error', 'Discount value must be between 1 and 100');
+          return res.redirect(`/admin/editProductOffer/${offerId}`);
+      }
+
+      await ProductOffer.findByIdAndUpdate(offerId, {
+          description,
+          productId: selectedProduct,
+          discountValue,
+          startDate: start,
+          endDate: end
+      });
+
+      req.flash('success', 'Offer updated successfully');
+      res.redirect('/admin/product-offers');
+  } catch (error) {
+      console.error('Error in updateProductOffer:', error);
+      req.flash('error', 'Failed to update offer');
+      res.redirect(`/admin/editProductOffer/${offerId}`);
+  }
+};
+
 const removeProductOffer = async (req, res, next) => {
   try {
     const { offerId } = req.params;
@@ -197,6 +343,67 @@ const AddCategoryOffer = async (req, res, next) => {
   }
 };
 
+
+const renderEditCategoryOffer = async (req, res, next) => {
+  try {
+      const offerId = req.params.id;
+      
+      const offer = await CategoryOffer.findById(offerId);
+      if (!offer) {
+          req.flash('error', 'Category offer not found');
+          return res.redirect('/admin/category-offers');
+      }
+      const categories = await categoryModel.find({ is_listed: true });
+
+      res.render('editCategoryOffer', {
+          offer,
+          categories,
+          messages: {
+              success: req.flash('success'),
+              error: req.flash('error')
+          }
+      });
+  } catch (error) {
+      next(error);
+  }
+};
+
+
+const updateCategoryOffer = async (req, res, next) => {
+  try {
+      const offerId = req.params.id;
+      const { description, selectedCategory, discountValue, startDate, endDate } = req.body;
+
+      if (discountValue > 50) {
+          req.flash('error', 'Offer should be below 50%');
+          return res.redirect(`/admin/editCategoryOffer/${offerId}`);
+      }
+
+      const currentDate = new Date();
+      const startDateObj = new Date(startDate);
+      const endDateObj = new Date(endDate);
+
+      if (endDateObj <= startDateObj) {
+          req.flash('error', 'End date must be after start date');
+          return res.redirect(`/admin/editCategoryOffer/${offerId}`);
+      }
+
+      await CategoryOffer.findByIdAndUpdate(offerId, {
+          description,
+          categoryId: selectedCategory,
+          discountValue,
+          startDate,
+          endDate
+      });
+
+      req.flash('success', 'Category offer updated successfully');
+      res.redirect('/admin/category-offers');
+  } catch (error) {
+      next(error);
+  }
+};
+
+
 const removeCategoryOffer = async (req, res, next) => {
   try {
     const { offerId } = req.params;
@@ -216,10 +423,18 @@ module.exports = {
   renderCategoryOffer,
   renderAddCategoryOffer,
   AddCategoryOffer,
+  renderEditCategoryOffer,
+  updateCategoryOffer,
   removeCategoryOffer,
   addProductOffer,
+  renderEditOffer,
+  updateProductOffer,
   removeProductOffer,
   renderCoupons,
   addCoupons,
+  getCoupon,
+  updateCoupon,
   removeCoupon,
+
+
 };

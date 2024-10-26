@@ -172,7 +172,19 @@
                 <div id="flash-messages"></div>
                 <button type="button" class="btn btn-primary mb-3" onclick="openAddOfferForm()">Add Offer</button>
             </div>
-
+            <% if (typeof messages !== 'undefined') { %>
+                <% if (messages.success && messages.success.length > 0) { %>
+                    <div class="alert alert-success flash-message" role="alert" style="color: green;" data-timeout="5">
+                        <%= messages.success %>
+                    </div>
+                <% } %>
+    
+                <% if (messages.error && messages.error.length > 0) { %>
+                    <div class="alert alert-danger flash-message" role="alert" style="color: red;" data-timeout="5">
+                        <%= messages.error %>
+                    </div>
+                <% } %>
+            <% } %>
 
             <div class="card">
                 <div class="card-body">
@@ -195,6 +207,10 @@
                                             </p>
                                             <button type="button" class="btn btn-danger"
                                                 onclick="confirmRemoveOffer('<%= offer._id %>')">Remove</button>
+                                                <button type="button" class="btn btn-primary">
+                                                    <a href="/admin/editProductOffer/<%=offer._id%>" style="color: inherit; text-decoration: none;">Edit</a>
+                                                  </button>
+                                                  
                                         </div>
                                     </div>
                                 </div>
@@ -299,6 +315,26 @@
             }
         });
     </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.flash-message');
+        
+        flashMessages.forEach(message => {
+            message.style.opacity = '1';
+            
+            setTimeout(() => {
+                message.style.transition = 'opacity 0.5s ease';
+                message.style.opacity = '0';
+                
+                setTimeout(() => {
+                    message.remove();
+                }, 500);
+            }, 4000);
+        });
+    });
+</script>
+
 </body>
 
 </html>

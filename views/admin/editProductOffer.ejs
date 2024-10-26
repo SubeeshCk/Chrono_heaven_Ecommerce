@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Admin dashboard - Add Category Offer</title>
+    <title>Admin dashboard - Edit Product Offer</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -17,8 +17,6 @@
     <link href="/adminAssets/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-    <!-- SweetAlert CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20/dist/sweetalert2.min.css">
 </head>
 
 <body>
@@ -165,173 +163,73 @@
                 </ul>
             </div>
         </header>
+
         <section class="content-main">
-            <div class="content-header">
-                <h2 class="content-title">Manage Category Offers</h2>
-                <div id="flash-messages"></div>
-                <button type="button" class="btn btn-primary mb-3" onclick="openAddOfferForm()">Add Offer</button>
-            </div>
-            <% if (typeof messages !== 'undefined') { %>
-                <% if (messages.success && messages.success.length > 0) { %>
-                    <div class="alert alert-success flash-message" role="alert" style="color: green;" data-timeout="5">
-                        <%= messages.success %>
-                    </div>
+        <div class="content-header">
+            <h2 class="content-title">Edit Product Offer</h2>
+            <p>Modify the existing product offer details below.</p>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <% if (typeof messages !== 'undefined') { %>
+                    <% if (messages.success && messages.success.length > 0) { %>
+                        <div class="alert alert-success flash-message" role="alert" style="color: green;" data-timeout="5">
+                            <%= messages.success %>
+                        </div>
+                    <% } %>
+        
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger flash-message" role="alert" style="color: red;" data-timeout="5">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
                 <% } %>
-    
-                <% if (messages.error && messages.error.length > 0) { %>
-                    <div class="alert alert-danger flash-message" role="alert" style="color: red;" data-timeout="5">
-                        <%= messages.error %>
-                    </div>
-                <% } %>
-            <% } %>
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title mb-4">Available Offers</h5>
-                    <div class="row" id="offersList">
-                        <% if (offers.length> 0) { %>
-                            <% offers.forEach(offer=> { %>
-                                <div class="col-md-4 mb-3">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h5 class="card-text">Category: <%= offer.categoryId ? offer.categoryId.name
-                                                    : 'Category Not Available' %>
-                                            </h5>
-                                            <p class="card-title">Description: <%= offer.description %>
-                                            </p>
-                                            <p class="card-text">Discount Value: <%= offer.discountValue %>%</p>
-                                            <p class="card-text">Start Date: <%= offer.startDate.toLocaleDateString() %>
-                                            </p>
-                                            <p class="card-text">End Date: <%= offer.endDate.toLocaleDateString() %>
-                                            </p>
-                                            <button type="button" class="btn btn-danger"
-                                                onclick="confirmRemoveOffer('<%= offer._id %>')">Remove
-                                            </button>
-                                            <button type="button" class="btn btn-primary">
-                                                <a href="/admin/editCategoryOffer/<%=offer._id%>" style="color: inherit; text-decoration: none;">Edit</a>
-                                            </button>
-                                                
-                                        </div>
-                                    </div>
-                                </div>
-                                <% }); %>
-                                    <% } else { %>
-                                        <p>No offers available.</p>
-                                        <% } %>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="/adminAssets/js/main.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20/dist/sweetalert2.min.js"></script>
-    <script>
-        function openAddOfferForm() {
-            window.location.href = '/admin/addCategoryOffer';
-        }
-
-        function confirmRemoveOffer(offerId) {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "Once deleted, you will not be able to recover this offer!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, delete it!",
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    removeOffer(offerId);
-                }
-            });
-        }
-
-        async function removeOffer(offerId) {
-            try {
-                const response = await fetch(`/admin/removeCategoryOffer/${offerId}`, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: 'Offer removed successfully!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    const errorData = await response.json();
-                    displayFlashMessage('danger', errorData.error || 'Failed to remove offer');
-                }
-            } catch (error) {
-                console.error('Error removing offer:', error);
-                displayFlashMessage('danger', 'An error occurred while removing the offer');
-            }
-        }
-
-        function displayFlashMessage(type, message) {
-            const flashMessage = `<div class="alert alert-${type}" role="alert">${message}</div>`;
-            document.getElementById('flash-messages').innerHTML = flashMessage;
-            setTimeout(() => {
-                document.getElementById('flash-messages').innerHTML = '';
-            }, 3000);
-        }
-
-        document.getElementById('addOfferForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-            try {
-                const response = await fetch('/admin/addCategoryOffer', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: 'Offer added successfully!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    const errorData = await response.json();
-                    displayFlashMessage('danger', errorData.error || 'Failed to add offer');
-                }
-            } catch (error) {
-                console.error('Error adding offer:', error);
-                displayFlashMessage('danger', 'An error occurred while adding the offer');
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const flashMessages = document.querySelectorAll('.flash-message');
-            
-            flashMessages.forEach(message => {
-                message.style.opacity = '1';
                 
-                setTimeout(() => {
-                    message.style.transition = 'opacity 0.5s ease';
-                    message.style.opacity = '0';
+                <form method="POST" action="/admin/updateProductOffer/<%= offer._id %>">
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="description" name="description" 
+                               value="<%= offer.description %>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="selectedProduct" class="form-label">Select Product</label>
+                        <select class="form-select" id="selectedProduct" name="selectedProduct" required>
+                            <% products.forEach(product => { %>
+                                <option value="<%= product._id %>" 
+                                        <%= product._id.toString() === offer.productId.toString() ? 'selected' : '' %>>
+                                    <%= product.product_name %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="discountValue" class="form-label">Discount Value</label>
+                        <input type="number" class="form-control" id="discountValue" name="discountValue" 
+                               value="<%= offer.discountValue %>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate" 
+                               value="<%= offer.startDate.toISOString().split('T')[0] %>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate" 
+                               value="<%= offer.endDate.toISOString().split('T')[0] %>" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Update Offer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
 
-                    setTimeout(() => {
-                        message.remove();
-                    }, 500);
-                }, 4000);
-            });
-        });
-    </script>
+        <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+        <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+        <script src="/adminAssets/js/main.js"></script>
+    </main>
 </body>
 
 </html>

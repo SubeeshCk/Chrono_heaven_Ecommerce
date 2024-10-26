@@ -175,6 +175,8 @@
                                             <%}%>
                                             <p class="card-text">Minimum Purchase Amount: ₹<%= coupon.minPurchaseAmount %></p>
                                             <p class="card-text">Validity: <%= coupon.validity.toLocaleDateString() %> </p>
+                                            <!-- Edit and Remove buttons -->
+                                            <button type="button" class="btn btn-primary me-2" onclick="openEditCouponModal('<%= coupon._id %>')">Edit</button>
                                             <button type="button" class="btn btn-danger" onclick="confirmRemoveCoupon('<%= coupon._id %>')">Remove</button>
                                         </div>
                                     </div>
@@ -228,6 +230,47 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Coupon Modal -->
+<div class="modal fade" id="editCouponModal" tabindex="-1" aria-labelledby="editCouponModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCouponModalLabel">Edit Coupon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCouponForm" method="POST">
+                    <input type="hidden" id="editCouponId" name="couponId">
+                    <div class="mb-3">
+                        <label for="editCouponCode" class="form-label">Coupon Code</label>
+                        <input type="text" class="form-control" id="editCouponCode" name="code" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDiscountType" class="form-label">Discount Type</label>
+                        <select class="form-control" id="editDiscountType" name="discountType" required>
+                            <option value="fixed">Fixed Amount</option>
+                            <option value="percentage">Percentage</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDiscountValue" class="form-label">Discount Value</label>
+                        <input type="number" class="form-control" id="editDiscountValue" name="discountValue" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMinPurchaseAmount" class="form-label">Minimum Purchase Amount</label>
+                        <input type="number" class="form-control" id="editMinPurchaseAmount" name="minPurchaseAmount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editValidity" class="form-label">Extend Validity (in days)</label>
+                        <input type="number" class="form-control" id="editValidity" name="validity" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Coupon</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
     <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
@@ -325,7 +368,78 @@
         });
     }
 });
-    </script>
+
+
+async function openEditCouponModal(couponId) {
+    try {
+        const response = await fetch(`/admin/getCoupon/${couponId}`);
+        if (!response.ok) throw new Error('Failed to fetch coupon details');
+        
+        const coupon = await response.json();
+        
+        document.getElementById('editCouponId').value = coupon._id;
+        document.getElementById('editCouponCode').value = coupon.code;
+        document.getElementById('editDiscountType').value = coupon.discountType;
+        document.getElementById('editDiscountValue').value = coupon.discountValue;
+        document.getElementById('editMinPurchaseAmount').value = coupon.minPurchaseAmount;
+        document.getElementById('editValidity').value = 0; 
+        
+        const editModal = new bootstrap.Modal(document.getElementById('editCouponModal'));
+        editModal.show();
+    } catch (error) {
+        console.error('Error fetching coupon details:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to fetch coupon details'
+        });
+    }
+}
+
+
+document.getElementById('editCouponForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const formDataObject = Object.fromEntries(formData.entries());
+    const couponId = formDataObject.couponId;
+
+    try {
+        const response = await fetch(`/admin/updateCoupon/${couponId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formDataObject)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: result.message,
+                showConfirmButton: false,
+                timer: 1500
+            });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        console.error('Error updating coupon:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: error.message || 'An error occurred while updating the coupon'
+        });
+    }
+});
+</script>
+
 </body>
 
 </html>
