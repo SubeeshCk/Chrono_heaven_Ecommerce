@@ -181,23 +181,27 @@ const renderReturnRequest = async (req, res, next) => {
     const returnRequests = await Order.find({
       $or: [
         { orderStatus: "returnrequested" },
-        { "orderedItem.status": "returnrequested" }
-      ]
+        { "orderedItem.status": "returnrequested" },
+      ],
     })
       .populate("userId")
       .populate("orderedItem.productId");
 
     // Separate orders into complete returns and partial returns
-    const completeReturns = returnRequests.filter(order => 
-      order.orderStatus === "returnrequested" && 
-      order.orderedItem.every(item => 
-        item.status !== "cancelled" && item.status !== "returnRequestCancelled"
-      )
+    const completeReturns = returnRequests.filter(
+      (order) =>
+        order.orderStatus === "returnrequested" &&
+        order.orderedItem.every(
+          (item) =>
+            item.status !== "cancelled" &&
+            item.status !== "returnRequestCancelled"
+        )
     );
 
-    const partialReturns = returnRequests.filter(order => 
-      order.orderStatus !== "returnrequested" && 
-      order.orderedItem.some(item => item.status === "returnrequested")
+    const partialReturns = returnRequests.filter(
+      (order) =>
+        order.orderStatus !== "returnrequested" &&
+        order.orderedItem.some((item) => item.status === "returnrequested")
     );
 
     res.render("return", { completeReturns, partialReturns });
@@ -217,7 +221,9 @@ const acceptCompleteReturn = async (req, res, next) => {
     }
 
     if (order.orderStatus !== "returnrequested") {
-      return res.status(400).json({ error: "Order is not in return requested status" });
+      return res
+        .status(400)
+        .json({ error: "Order is not in return requested status" });
     }
 
     // Update order status
@@ -226,9 +232,12 @@ const acceptCompleteReturn = async (req, res, next) => {
     // Update all non-cancelled items to Returned
     let totalRefundAmount = 0;
     for (const item of order.orderedItem) {
-      if (item.status !== "cancelled" && item.status !== "returnRequestCancelled") {
+      if (
+        item.status !== "cancelled" &&
+        item.status !== "returnRequestCancelled"
+      ) {
         item.status = "Returned";
-        
+
         const product = await Products.findById(item.productId);
         if (product) {
           product.quantity += item.quantity;
@@ -248,14 +257,14 @@ const acceptCompleteReturn = async (req, res, next) => {
     userWallet.transactions.push({
       amount: totalRefundAmount,
       transactionMethod: "Refund",
-      date: new Date()
+      date: new Date(),
     });
 
     await Promise.all([order.save(), userWallet.save()]);
 
-    res.status(200).json({ 
-      success: "Complete order return accepted successfully", 
-      refundAmount: totalRefundAmount 
+    res.status(200).json({
+      success: "Complete order return accepted successfully",
+      refundAmount: totalRefundAmount,
     });
   } catch (error) {
     console.error("Error accepting complete return:", error);
@@ -274,7 +283,7 @@ const acceptPartialReturn = async (req, res, next) => {
     }
 
     const orderedItem = order.orderedItem.find(
-      item => item.productId.toString() === productId
+      (item) => item.productId.toString() === productId
     );
 
     if (!orderedItem) {
@@ -282,7 +291,9 @@ const acceptPartialReturn = async (req, res, next) => {
     }
 
     if (orderedItem.status !== "returnrequested") {
-      return res.status(400).json({ error: "Product is not in return requested status" });
+      return res
+        .status(400)
+        .json({ error: "Product is not in return requested status" });
     }
 
     // Update item status
@@ -310,14 +321,14 @@ const acceptPartialReturn = async (req, res, next) => {
     userWallet.transactions.push({
       amount: refundAmount,
       transactionMethod: "Refund",
-      date: new Date()
+      date: new Date(),
     });
 
     await Promise.all([order.save(), userWallet.save()]);
 
-    res.status(200).json({ 
-      success: "Partial return accepted successfully", 
-      refundAmount 
+    res.status(200).json({
+      success: "Partial return accepted successfully",
+      refundAmount,
     });
   } catch (error) {
     console.error("Error accepting partial return:", error);
@@ -338,7 +349,7 @@ const declineReturn = async (req, res, next) => {
     if (productId) {
       // Partial return decline
       const orderedItem = order.orderedItem.find(
-        item => item.productId.toString() === productId
+        (item) => item.productId.toString() === productId
       );
 
       if (!orderedItem) {
@@ -346,18 +357,22 @@ const declineReturn = async (req, res, next) => {
       }
 
       if (orderedItem.status !== "returnrequested") {
-        return res.status(400).json({ error: "Product is not in return requested status" });
+        return res
+          .status(400)
+          .json({ error: "Product is not in return requested status" });
       }
 
       orderedItem.status = "returnRequestCancelled";
     } else {
       // Complete order return decline
       if (order.orderStatus !== "returnrequested") {
-        return res.status(400).json({ error: "Order is not in return requested status" });
+        return res
+          .status(400)
+          .json({ error: "Order is not in return requested status" });
       }
 
       order.orderStatus = "returnRequestCancelled";
-      order.orderedItem.forEach(item => {
+      order.orderedItem.forEach((item) => {
         if (item.status === "returnrequested") {
           item.status = "returnRequestCancelled";
         }
@@ -366,8 +381,10 @@ const declineReturn = async (req, res, next) => {
 
     await order.save();
 
-    res.status(200).json({ 
-      success: `Return request ${productId ? 'partially' : 'completely'} declined successfully` 
+    res.status(200).json({
+      success: `Return request ${
+        productId ? "partially" : "completely"
+      } declined successfully`,
     });
   } catch (error) {
     console.error("Error declining return:", error);
@@ -383,5 +400,5 @@ module.exports = {
   renderReturnRequest,
   acceptCompleteReturn,
   acceptPartialReturn,
-  declineReturn
+  declineReturn,
 };

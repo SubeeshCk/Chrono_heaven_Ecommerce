@@ -400,18 +400,26 @@ const cancelOrder = async (req, res, next) => {
 
     if (!order) {
       console.log("Order not found or does not belong to the user");
-      return res.status(404).json({ error: "Order not found or does not belong to the user" });
+      return res
+        .status(404)
+        .json({ error: "Order not found or does not belong to the user" });
     }
 
     // Check if order is already cancelled or in a state that can't be cancelled
-    if (order.orderStatus.toLowerCase() === 'cancelled') {
+    if (order.orderStatus.toLowerCase() === "cancelled") {
       console.log("Order is already cancelled");
       return res.status(400).json({ error: "Order is already cancelled" });
     }
 
-    if (['delivered', 'returned', 'returnrequested'].includes(order.orderStatus.toLowerCase())) {
+    if (
+      ["delivered", "returned", "returnrequested"].includes(
+        order.orderStatus.toLowerCase()
+      )
+    ) {
       console.log("Order cannot be cancelled in current state");
-      return res.status(400).json({ error: "Order cannot be cancelled in current state" });
+      return res
+        .status(400)
+        .json({ error: "Order cannot be cancelled in current state" });
     }
 
     // Calculate total refund amount including delivery charge
@@ -420,22 +428,28 @@ const cancelOrder = async (req, res, next) => {
     // Process each ordered item
     for (const item of order.orderedItem) {
       // Skip items that are already cancelled, delivered, or returned
-      if (['cancelled', 'delivered', 'returned'].includes(item.status.toLowerCase())) {
+      if (
+        ["cancelled", "delivered", "returned"].includes(
+          item.status.toLowerCase()
+        )
+      ) {
         continue;
       }
 
       // Calculate refund amount for this item
-      const itemRefund = item.discountedPrice 
+      const itemRefund = item.discountedPrice
         ? item.discountedPrice * item.quantity
         : item.totalProductAmount * item.quantity;
       refundAmount += itemRefund;
 
       // Update item status
-      item.status = 'Cancelled';
+      item.status = "Cancelled";
       item.cancelReason = cancelReason;
 
       // Update product quantity if payment is not pending
-      if (!(order.paymentMethod === "razorpay" && order.paymentStatus === false)) {
+      if (
+        !(order.paymentMethod === "razorpay" && order.paymentStatus === false)
+      ) {
         const product = await Products.findById(item.productId._id);
         if (product) {
           product.quantity += item.quantity;
@@ -445,7 +459,7 @@ const cancelOrder = async (req, res, next) => {
     }
 
     // Update order status
-    order.orderStatus = 'Cancelled';
+    order.orderStatus = "Cancelled";
     await order.save();
 
     // Process refund if not Cash on Delivery
@@ -465,12 +479,11 @@ const cancelOrder = async (req, res, next) => {
       await userWallet.save();
     }
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       message: "Order cancelled successfully",
-      refundAmount: refundAmount
+      refundAmount: refundAmount,
     });
-
   } catch (error) {
     console.error("Error in cancelEntireOrder:", error);
     return next(error);
@@ -607,7 +620,10 @@ const returnOrder = async (req, res) => {
     if (hasReturnedItems) {
       return res
         .status(400)
-        .json({ error: "Some items in this order are already returned or have pending return requests" });
+        .json({
+          error:
+            "Some items in this order are already returned or have pending return requests",
+        });
     }
 
     // Update status for all non-cancelled products
@@ -624,9 +640,9 @@ const returnOrder = async (req, res) => {
 
     await order.save();
 
-    res.status(200).json({ 
-      success: true, 
-      message: "Return request for complete order submitted successfully" 
+    res.status(200).json({
+      success: true,
+      message: "Return request for complete order submitted successfully",
     });
   } catch (error) {
     console.error("Error returning complete order:", error.message);
@@ -656,13 +672,16 @@ const returnProduct = async (req, res) => {
 
     // Check if any item in the order has a status of "Returned" or "returnrequested"
     const hasReturnedOrRequested = order.orderedItem.some(
-      item => item.status === "Returned" || item.status === "returnrequested"
+      (item) => item.status === "Returned" || item.status === "returnrequested"
     );
 
     if (hasReturnedOrRequested) {
       return res
         .status(400)
-        .json({ error: "A product in this order has already been marked as Returned or returnrequested" });
+        .json({
+          error:
+            "A product in this order has already been marked as Returned or returnrequested",
+        });
     }
 
     const orderedItem = order.orderedItem.find(
@@ -690,7 +709,6 @@ const returnProduct = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 const renderRefferal = async (req, res) => {
   try {
@@ -820,7 +838,8 @@ const generateInvoice = async (req, res) => {
 
     generateHr(invoiceTableTop + 20 + order.orderedItem.length * 20);
 
-    const subtotalPosition = invoiceTableTop + 30 + order.orderedItem.length * 20;
+    const subtotalPosition =
+      invoiceTableTop + 30 + order.orderedItem.length * 20;
     generateTableRow(
       doc,
       subtotalPosition,
@@ -831,7 +850,9 @@ const generateInvoice = async (req, res) => {
     );
 
     // Handle coupon discount
-    const couponDiscount = order.couponDiscount ? order.couponDiscount * 100 : 0;
+    const couponDiscount = order.couponDiscount
+      ? order.couponDiscount * 100
+      : 0;
     const discountPosition = subtotalPosition + 20;
     generateTableRow(
       doc,
@@ -862,9 +883,7 @@ const generateInvoice = async (req, res) => {
       "",
       "",
       "Total",
-      formatCurrency(
-        totalAmount - couponDiscount + deliveryCharge 
-      )
+      formatCurrency(totalAmount - couponDiscount + deliveryCharge)
     );
     doc.font("Helvetica");
 
