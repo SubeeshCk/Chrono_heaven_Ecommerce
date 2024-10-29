@@ -105,6 +105,11 @@
     color: #fff;
   }
 
+  .status-label.returnrequestcancelled {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
   .status-label.returnrequested{
     background-color: #dc6435;
     color: #fff;
@@ -254,9 +259,10 @@
                 <div class="order-summary">
                   <div class="d-flex justify-content-between align-items-center">
                     <h5>Order #<%= order._id.toString().slice(-6) %></h5>
-                    <span class="badge paymentStatus-label <%= order.paymentStatus %>">
-                      <%= order.paymentStatus ? 'Payment completed' : 'Payment Pending' %>
+                    <span class="status-badge status-label <%= order.orderStatus.toLowerCase() %>">
+                      Order <%= order.orderStatus %>
                     </span>
+
                   </div>
                   <p><strong>Order Date:</strong> <%= order.orderDate.toLocaleDateString() %></p>
                   <p><strong>Total Amount:</strong> ₹<%= order.orderAmount.toFixed(2) %></p>
@@ -286,11 +292,6 @@
                         <div class="col-md-8">
                           <h6><%= item.productId.product_name %></h6>
                           <p class="mb-0">Quantity: <%= item.quantity %></p>
-                        </div>
-                        <div class="col-md-4" style="display:flex; flex-direction: column; align-items: flex-end;">
-                          <span class="status-badge status-label <%= item.status.toLowerCase() %>">
-                            <%= item.status %>
-                          </span>
                         </div>
                       </div>
                     </div>

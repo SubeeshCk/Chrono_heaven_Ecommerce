@@ -45,8 +45,16 @@
       /* White text */
       border-color: #28a745;
       /* Green border */
-      width: 100%;
+      width: 20%;
 
+    }
+
+    .cancel-entire-order-btn {
+      width: 20%;
+    }
+
+    .return-entire-order-btn {
+      width: 20%;
     }
 
 
@@ -85,6 +93,12 @@
       /* Red */
       color: #fff;
       /* White text color */
+    }
+    
+    .status-label.returnrequestcancelled {
+      background-color: #dc3545;
+      /* Red */
+      color: #fff;
     }
 
     .status-label.returned {
@@ -177,7 +191,7 @@
   <body>
     <% if (typeof orderData !=='undefined' && orderData && orderData.orderedItem) { %>
       <% orderData.orderedItem.forEach((item, index)=> { %>
-        <!-- Modal for returnOrder -->
+        <!-- Modal for return procuct -->
         <div class="modal fade" id="returnOrderModal<%= item._id %>" tabindex="-1" role="dialog"
           aria-labelledby="returnOrderModalLabel<%= item._id %>" aria-hidden="true">
           <div class="modal-dialog" role="document">
@@ -206,6 +220,37 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="submit" form="returnOrderForm<%= item._id %>" class="btn btn-danger">Confirm
                   Return</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal for return order -->
+        <div class="modal fade" id="returnCompleteOrderModal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Return Complete Order</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form id="returnCompleteOrderForm">
+                  <input type="hidden" name="orderId" id="returnOrderId">
+                  <div class="form-group">
+                    <label for="completeOrderReturnReason" class="form-label">Return Reason</label>
+                    <select class="form-control" id="completeOrderReturnReason" name="returnReason">
+                      <option value="Defective item received">Defective item received</option>
+                      <option value="Wrong item received">Wrong item received</option>
+                      <option value="Delayed delivery">Delayed delivery</option>
+                    </select>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit Return Request</button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -251,7 +296,40 @@
           </div>
         </div>
 
-
+        <!-- Cancel Entire Order Modal -->
+        <div class="modal fade" id="cancelEntireOrderModal<%= orderData._id %>" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Cancel Entire Order</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form id="cancelEntireOrderForm<%= orderData._id %>" data-order-id="<%= orderData._id %>">
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="cancelReason">Reason for cancellation:</label>
+                    <select class="form-control" name="cancelReason" id="cancelReason" required>
+                      <option value="">Select a reason</option>
+                      <option value="Changed my mind">Changed my mind</option>
+                      <option value="Found better price elsewhere">Found better price elsewhere</option>
+                      <option value="Ordered by mistake">Ordered by mistake</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-danger confirm-cancel-order"
+                    data-order-id="<%= orderData._id %>">
+                    Cancel Order
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
 
         <!-- Modal for cancelOrder -->
         <div class="modal fade" id="cancelOrderModal<%= item._id %>" tabindex="-1" role="dialog"
@@ -316,6 +394,8 @@
 
               </div>
             </div>
+            <br>
+
             <!-- Breadcrumb End -->
 
             <!-- Change Password Modal -->
@@ -396,12 +476,12 @@
                     </div>
 
 
-                    <div class="order-details-section">
+                    <div class="order-details-section "
+                      style="background-color: rgba(238, 238, 238, 0.493); border-radius: 15px;margin-bottom: 50px;">
                       <div class="container mt-5">
                         <h5 class="text-center font-weight-bold">Order Details</h5>
                         <br><br>
-
-                        <% if (orderData) { %>
+                        <% if (typeof orderData !=='undefined' && orderData && orderData.orderedItem) { %>
                           <!-- Order Summary Section -->
                           <div class="row">
                             <div class="col-md-6">
@@ -413,6 +493,12 @@
                               </p>
                               <p><strong>Payment Method:</strong>
                                 <%= orderData.paymentMethod %>
+                              </p>
+                              <br>
+                              <p><strong>Order Status:</strong>
+                                <span class="status-label <%= orderData.orderStatus.toLowerCase() %>">
+                                  <%= orderData.orderStatus %>
+                                </span>
                               </p>
                               <br>
                               <p><strong>Payment Status:</strong>
@@ -486,30 +572,39 @@
                                     </td>
                                     <td>
                                       <% if (orderData && item) { %>
-                                        <% const productStatus = item.status.toLowerCase(); %>
-                                        
-                                        <div class="d-flex flex-column align-items-end">
-                                          <% if (productStatus !== 'delivered' && productStatus !== 'cancelled' && productStatus !== 'returned' && productStatus !== 'returnrequested') { %>
-                                            <button type="button" class="btn btn-danger btn-custom cancel-order-btn mb-2" data-toggle="modal" data-target="#cancelOrderModal<%= item._id %>">
-                                              Cancel Order
-                                            </button>
+                                        <% const productStatus=item.status.toLowerCase(); %>
+
+                                          <div class="d-flex flex-column align-items-end">
+                                            <% if (productStatus !=='delivered' && productStatus !=='cancelled' &&
+                                              productStatus !=='returned' && productStatus !=='returnrequested' &&
+                                              orderData.orderedItem.length> 1 ) { %>
+                                              <button type="button"
+                                                class="btn btn-danger btn-custom cancel-order-btn mb-2"
+                                                data-toggle="modal" data-target="#cancelOrderModal<%= item._id %>">
+                                                Cancel
+                                              </button>
+                                              <% } %>
+
+                                                <% if ( productStatus==='delivered' && orderData.orderedItem.length> 1 )
+                                                  { %>
+                                                  <button type="button"
+                                                    class="btn btn-danger btn-custom return-order-btn mb-2"
+                                                    data-toggle="modal" data-target="#returnOrderModal<%= item._id %>">
+                                                    Return
+                                                  </button>
+                                                  <% } %>
+
+                                                    <% if (productStatus==='delivered' ){ %>
+                                                      <button type="button"
+                                                        class="btn btn-primary btn-custom add-review-btn mb-2"
+                                                        data-toggle="modal"
+                                                        data-target="#addReviewModal<%= item._id %>">
+                                                        Add Review
+                                                      </button>
+
+                                                      <% } %>
+                                          </div>
                                           <% } %>
-                                    
-                                          <% if (productStatus === 'delivered') { %>
-                                            <button type="button" class="btn btn-danger btn-custom return-order-btn mb-2" data-toggle="modal" data-target="#returnOrderModal<%= item._id %>">
-                                              Return Order
-                                            </button>
-                                            
-                                            <button type="button" class="btn btn-primary btn-custom add-review-btn mb-2" data-toggle="modal" data-target="#addReviewModal<%= item._id %>">
-                                              Add Review
-                                            </button>
-                                            
-                                            <a href="/invoice/<%= orderData._id %>/<%= item.productId._id %>" class="btn btn-primary btn-custom download-invoice-btn">
-                                              Download Invoice
-                                            </a>
-                                          <% } %>
-                                        </div>
-                                      <% } %>
                                     </td>
                                   </tr>
                                   <% }); %>
@@ -523,7 +618,8 @@
                               <table class="table table-bordered">
                                 <tr>
                                   <td>Subtotal:</td>
-                                  <td>₹<%= (orderData.orderAmount + orderData.couponDiscount)- orderData.deliveryCharge %>
+                                  <td>₹<%= (orderData.orderAmount + orderData.couponDiscount)- orderData.deliveryCharge
+                                      %>
                                   </td>
                                 </tr>
                                 <% if (orderData.couponDiscount) { %>
@@ -546,14 +642,39 @@
                               </table>
                             </div>
                           </div>
+                          <br>
+                          <% const orderStatus=orderData.orderStatus.toLowerCase(); %>
 
-                          <% } else { %>
-                            <div class="alert alert-warning">Order details not available.</div>
-                            <% } %>
+                            <div class="d-flex flex-column align-items-end">
+                              <% if (orderStatus !=='delivered' && orderStatus !=='cancelled' && orderStatus
+                                !=='returned' && orderStatus !=='returnrequested' ) { %>
+                                <button type="button" class="btn btn-danger btn-custom cancel-entire-order-btn mb-2"
+                                  data-order-id="<%= orderData._id %>">
+                                  Cancel Order
+                                </button>
+                                <%}%>
+
+                                  <% if(orderStatus==='delivered' ){ %>
+                                    <button type="button" class="btn btn-danger btn-custom return-entire-order-btn mb-2"
+                                      data-order-id="<%= orderData._id %>" data-bs-toggle="modal"
+                                      data-bs-target="#returnCompleteOrderModal">
+                                      Return order
+                                    </button>
+
+                                    <a href="/invoice/<%= orderData._id %>"
+                                      class="btn btn-primary btn-custom download-invoice-btn mb-2">
+                                      Download Invoice
+                                    </a>
+                                    <%}%>
+                                      <br>
+
+                                      <% } else { %>
+                                        <div class="alert alert-warning">Order details not available.</div>
+                                        <% } %>
+                            </div>
                       </div>
-                    </div>
 
-                  </div>
+                    </div>
                 </form>
               </div>
             </section>
@@ -581,7 +702,7 @@
                   const formData = $(this).serialize();
                   const modalId = $(this).closest('.modal').attr('id');
 
-                  $.post('/returnOrder', formData)
+                  $.post('/orders/returnProduct', formData)
                     .done(function (response) {
                       // Close the specific modal that was used
                       $(`#${modalId}`).modal('hide');
@@ -597,9 +718,12 @@
                     })
                     .fail(function (error) {
                       console.error('Error returning order:', error);
+                      const errorMessage = error.responseJSON?.error ||
+                        'An error occurred while processing your return request. Please try again later.';
+
                       Swal.fire({
                         title: 'Error!',
-                        text: 'An error occurred while processing your return request. Please try again later.',
+                        text: errorMessage,
                         icon: 'error'
                       });
                     });
@@ -652,36 +776,98 @@
                 });
 
 
-                $(document).ready(function () {
-                  // Handle form submission for any cancel order form
-                  $('[id^=cancelOrderForm]').submit(function (event) {
-                    event.preventDefault();
+                // Individual Product Cancellation Handler
+                $('[id^=cancelOrderForm]').submit(function (event) {
+                  event.preventDefault();
 
-                    const formData = $(this).serialize();
-                    const modalId = $(this).closest('.modal').attr('id');
+                  const formData = $(this).serialize();
+                  const modalId = $(this).closest('.modal').attr('id');
 
-                    $.post('/cancelOrder', formData)
-                      .done(function (response) {
-                        // Close the specific modal that was used
-                        $(`#${modalId}`).modal('hide');
+                  $.post('/orders/cancelProduct', formData)
+                    .done(function (response) {
+                      $(`#${modalId}`).modal('hide');
+                      showSuccessMessage('Product cancelled successfully');
+                    })
+                    .fail(function (error) {
+                      console.error('Error cancelling product:', error);
+                      showErrorMessage('Failed to cancel product');
+                    });
+                });
 
-                        // Show success message
-                        Swal.fire({
-                          title: 'Success!',
-                          text: 'Order cancelled successfully',
-                          icon: 'success'
-                        }).then(() => {
-                          location.reload();
-                        });
-                      })
-                      .fail(function (error) {
-                        console.error('Error cancelling order:', error);
-                        Swal.fire({
-                          title: 'Error!',
-                          text: 'An error occurred while cancelling the order. Please try again later.',
-                          icon: 'error'
-                        });
-                      });
+                // Entire Order Cancellation Handler
+                $('[id^=cancelEntireOrderForm]').submit(function (event) {
+                  event.preventDefault();
+
+                  const formData = $(this).serialize();
+                  const modalId = $(this).closest('.modal').attr('id');
+                  const orderId = $(this).data('order-id');
+
+                  $.ajax({
+                    url: '/orders/cancelOrder',
+                    method: 'POST',
+                    data: {
+                      orderId: orderId,
+                      cancelReason: $('#cancelReason').val()
+                    },
+                    success: function (response) {
+                      $(`#${modalId}`).modal('hide');
+                      showSuccessMessage('Order cancelled successfully');
+                    },
+                    error: function (error) {
+                      console.error('Error cancelling order:', error);
+                      showErrorMessage(error.responseJSON?.error || 'Failed to cancel order');
+                    }
+                  });
+                });
+
+                // Show Cancel Order Modal
+                $('.cancel-entire-order-btn').click(function () {
+                  const orderId = $(this).data('order-id');
+                  $(`#cancelEntireOrderModal${orderId}`).modal('show');
+                });
+
+                // Utility Functions for Messages
+                function showSuccessMessage(message) {
+                  Swal.fire({
+                    title: 'Success!',
+                    text: message,
+                    icon: 'success',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      location.reload();
+                    }
+                  });
+                }
+
+                function showErrorMessage(message) {
+                  Swal.fire({
+                    title: 'Error!',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'OK'
+                  });
+                }
+
+                // Confirm Cancel Order
+                $('.confirm-cancel-order').click(function () {
+                  const orderId = $(this).data('order-id');
+
+                  Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This will cancel the entire order. This action cannot be undone!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, cancel order',
+                    cancelButtonText: 'No, keep order'
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      $(`#cancelEntireOrderForm${orderId}`).submit();
+                    }
                   });
                 });
 
@@ -699,6 +885,79 @@
                 if (orderStatus === 'cancelled' || orderStatus === 'returned' || orderStatus === 'returnrequested') {
                   $('.btn-danger').hide(); // Hide cancel and return buttons
                 }
+              });
+            </script>
+
+            <script>
+              $(document).ready(function () {
+                // When return button is clicked, set the orderId in the modal
+                $('.return-entire-order-btn').click(function () {
+                  const orderId = $(this).data('order-id');
+                  $('#returnOrderId').val(orderId);
+                  $('#returnCompleteOrderModal').modal('show');
+                });
+
+                // Return Complete Order Form Handler
+                $('#returnCompleteOrderForm').submit(function (event) {
+                  event.preventDefault();
+
+                  const orderId = $('#returnOrderId').val();
+                  const returnReason = $('#completeOrderReturnReason').val();
+
+                  if (!orderId) {
+                    Swal.fire({
+                      title: 'Error!',
+                      text: 'Order ID is missing',
+                      icon: 'error'
+                    });
+                    return;
+                  }
+
+                  if (!returnReason.trim()) {
+                    Swal.fire({
+                      title: 'Error!',
+                      text: 'Please provide a reason for return',
+                      icon: 'error'
+                    });
+                    return;
+                  }
+
+                  $.ajax({
+                    url: '/orders/returnOrder',
+                    method: 'POST',
+                    data: JSON.stringify({
+                      orderId: orderId,
+                      returnReason: returnReason
+                    }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                      $('#returnCompleteOrderModal').modal('hide');
+
+                      Swal.fire({
+                        title: 'Success!',
+                        text: 'Return request for complete order submitted successfully',
+                        icon: 'success'
+                      }).then(() => {
+                        location.reload();
+                      });
+                    },
+                    error: function (xhr, status, error) {
+                      const errorMessage = xhr.responseJSON?.error || 'An error occurred while processing your return request';
+
+                      Swal.fire({
+                        title: 'Error!',
+                        text: errorMessage,
+                        icon: 'error'
+                      });
+                    }
+                  });
+                });
+
+                // Reset form when modal is closed
+                $('#returnCompleteOrderModal').on('hidden.bs.modal', function () {
+                  $('#returnCompleteOrderForm')[0].reset();
+                  $('#returnOrderId').val(''); // Clear the hidden input
+                });
               });
             </script>
 

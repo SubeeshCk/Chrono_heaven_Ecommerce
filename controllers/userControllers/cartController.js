@@ -522,6 +522,8 @@ const placeOrder = async (req, res, next) => {
       paymentMethod,
       discount,
       couponDiscount,
+      orderStatus: paymentMethod === 'wallet' ? 'confirmed' : 
+                   paymentMethod === 'cashOnDelivery' ? 'confirmed' : 'pending',
       paymentStatus: paymentMethod === 'wallet' ? true : 
                     paymentMethod === 'cashOnDelivery' ? false : false,
     });
@@ -657,6 +659,7 @@ const verifyRazorpayPayment = async (req, res) => {
       }
 
       order.paymentStatus = true;
+      order.orderStatus = "confirmed";
       order.orderedItem.forEach(item => {
         item.status = "confirmed";
       });

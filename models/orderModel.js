@@ -33,7 +33,10 @@ const orderSchema = new mongoose.Schema({
       type: String,
       default: 'pending'
     },
-    reason: {
+    cancelReason: {
+      type: String
+    },
+    returnReason: {
       type: String
     },
     discountedPrice: {
@@ -78,9 +81,19 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  orderStatus: {
+    type: String,
+    default: 'pending'
+  },
   paymentStatus: {
     type: Boolean,
     default: false
+  },
+  cancelReason: {
+    type: String
+  },
+  returnReason: {
+    type: String
   },
   razorpayPaymentId: String,
   razorpayOrderId: String

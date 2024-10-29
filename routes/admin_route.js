@@ -51,10 +51,12 @@ adminRoute.get("/products/list-products/:id?", adminAuth.is_login, productContro
 //*****************************   Orders  **************************************//
 adminRoute.get("/orders", adminAuth.is_login, orderController.renderOrder);
 adminRoute.get("/orders/orderDetails", adminAuth.is_login, orderController.renderOrderDetails);
-adminRoute.post('/orders/orderDetails/updateProductStatus', adminAuth.is_login, orderController.updateOrderStatus);
+adminRoute.post('/orders/orderDetails/updateOrderStatus', adminAuth.is_login, orderController.updateOrderStatus);
+adminRoute.post('/orders/orderDetails/updateProductStatus', adminAuth.is_login, orderController.updateProductStatus);
 adminRoute.get('/return', adminAuth.is_login, orderController.renderReturnRequest)
-adminRoute.post('/acceptReturn', adminAuth.is_login, orderController.acceptReturn);
-adminRoute.post("/declineReturn", adminAuth.is_login, orderController.cancelReturnRequest);
+adminRoute.post('/acceptCompleteReturn', adminAuth.is_login, orderController.acceptCompleteReturn);
+adminRoute.post('/acceptPartialReturn', adminAuth.is_login, orderController.acceptPartialReturn);
+adminRoute.post("/declineReturn", adminAuth.is_login, orderController.declineReturn);
 
 
 //*****************************   customer  ************************************//

@@ -4,7 +4,8 @@ const { StatusCode } = require("../../config/StatusCode");
 const Address = require("../../models/userAddress");
 const bcrypt = require("bcrypt");
 const Order = require("../../models/orderModel");
-const Wallet = require ("../../models/walletModel");
+const Wallet = require("../../models/walletModel");
+const PDFDocument = require("pdfkit");
 
 //For bcrypting the password
 const securePassword = async (password) => {
@@ -120,7 +121,8 @@ const renderAddNewAddress = async (req, res, next) => {
 const insertNewAddress = async (req, res, next) => {
   try {
     const userId = req.session.userId;
-    const { name,pincode, locality, address, city, state, addresstype } = req.body;
+    const { name, pincode, locality, address, city, state, addresstype } =
+      req.body;
 
     const trimmedName = name.trim();
     const trimmedPincode = pincode.trim();
@@ -225,7 +227,8 @@ const updateAddress = async (req, res, next) => {
     }
 
     const addressId = req.body.addressId;
-    const { name, pincode, locality, address, city, state, addresstype } = req.body;
+    const { name, pincode, locality, address, city, state, addresstype } =
+      req.body;
 
     const pincodeRegex = /^\d+$/;
     if (!pincodeRegex.test(pincode)) {
@@ -252,7 +255,9 @@ const updateAddress = async (req, res, next) => {
       return res.redirect("/user-profile/address");
     } else {
       req.flash("error", "Failed to update address");
-      return res.status(StatusCode.INTERNAL_SERVER_ERROR).send("Failed to update address");
+      return res
+        .status(StatusCode.INTERNAL_SERVER_ERROR)
+        .send("Failed to update address");
     }
   } catch (error) {
     console.log(error.message);
@@ -287,45 +292,47 @@ const deleteAddress = async (req, res, next) => {
   }
 };
 
-const resetPassword = async ( req,res ) => {
-  try {    
+const resetPassword = async (req, res) => {
+  try {
     const { current_password, new_password, confirm_password } = req.body;
     const userData = res.locals.userData;
     console.log(userData);
-    
-    if(!userData){
+
+    if (!userData) {
       return res.redirect("/login");
     }
-      
-    const passwordMatch = await bcrypt.compare(current_password, userData.password);
-      
-    if(!passwordMatch){
-         req.flash("error","You entered a wrong password");
-         return res.redirect("/user-profile");
-      }
 
-      if (new_password !== confirm_password) {
-        req.flash("error", "Passwords do not match");
-        return res.redirect("/user-profile");
-      }
+    const passwordMatch = await bcrypt.compare(
+      current_password,
+      userData.password
+    );
 
-      const hashedPassword = await securePassword(new_password);
-      
-      const updateResult = await User.findOneAndUpdate(
-        { email: userData.email },
-        { $set: { password: hashedPassword } },
-        { new: true }
-      );
+    if (!passwordMatch) {
+      req.flash("error", "You entered a wrong password");
+      return res.redirect("/user-profile");
+    }
 
-      if(updateResult){
-        req.flash("success","Your password updated successfully");
-        return res.redirect("/user-profile");
-      }
+    if (new_password !== confirm_password) {
+      req.flash("error", "Passwords do not match");
+      return res.redirect("/user-profile");
+    }
 
+    const hashedPassword = await securePassword(new_password);
+
+    const updateResult = await User.findOneAndUpdate(
+      { email: userData.email },
+      { $set: { password: hashedPassword } },
+      { new: true }
+    );
+
+    if (updateResult) {
+      req.flash("success", "Your password updated successfully");
+      return res.redirect("/user-profile");
+    }
   } catch (error) {
     return next(error);
   }
-}
+};
 
 const renderMyOrder = async (req, res, next) => {
   try {
@@ -334,14 +341,14 @@ const renderMyOrder = async (req, res, next) => {
       const orderData = await Order.find({ userId })
         .sort({ createdAt: -1 })
         .populate({
-          path: 'orderedItem.productId',
-          select: 'product_name price images' 
+          path: "orderedItem.productId",
+          select: "product_name price images",
         })
-        .populate('deliveryAddress');
+        .populate("deliveryAddress");
 
-      res.render('myorders', { orderData });
+      res.render("myorders", { orderData });
     } else {
-      res.redirect('/login');
+      res.redirect("/login");
     }
   } catch (error) {
     return next(error);
@@ -355,14 +362,14 @@ const renderOrderDetails = async (req, res, next) => {
 
     const orderData = await Order.findOne({
       userId: userId,
-      _id: orderId
+      _id: orderId,
     })
-    .populate({
-      path: 'orderedItem.productId',
-      select: 'product_name images price'
-    })
-    .populate('userId')
-    .populate('deliveryAddress');
+      .populate({
+        path: "orderedItem.productId",
+        select: "product_name images price",
+      })
+      .populate("userId")
+      .populate("deliveryAddress");
 
     if (!orderData) {
       return res.render("orderdetails", { message: "Order not found." });
@@ -375,132 +382,517 @@ const renderOrderDetails = async (req, res, next) => {
   }
 };
 
-
 const cancelOrder = async (req, res, next) => {
   try {
-      const userId = req.session.userId;
-      const { orderItemId, cancelReason } = req.body;
+    const userId = req.session.userId;
+    const { orderId, cancelReason } = req.body;
 
-      if (!userId) {
-          console.log("Unauthorized: No user ID found in session");
-          return res.status(401).json({ error: "Unauthorized" });
-      }
-
-      const order = await Order.findOne({ 'orderedItem._id': orderItemId, userId }).populate("orderedItem.productId");
-      const orderlength = order.orderedItem.length;
-
-      if (!order) {
-          console.log("Order not found or does not belong to the user");
-          return res.status(404).json({ error: "Order not found or does not belong to the user" });
-      }
-
-      const orderedItem = order.orderedItem.find(item => item._id.toString() === orderItemId);
-      
-      if (!orderedItem) {
-          console.log("Ordered item not found");
-          return res.status(404).json({ error: "Ordered item not found" });
-      }
-
-      if (orderedItem.status === "Cancelled") {
-          console.log("Product is already cancelled");
-          return res.status(400).json({ error: "Product is already cancelled" });
-      }
-
-      
-      let refundAmount = 0;
-      const baseRefundAmount = orderedItem.discountedPrice ? orderedItem.discountedPrice * orderedItem.quantity: orderedItem.totalProductAmount* orderedItem.quantity;
-      
-      if( orderlength > 1 ){
-        refundAmount = baseRefundAmount;
-      }else{
-        refundAmount = order.deliveryCharge ? baseRefundAmount + order.deliveryCharge : baseRefundAmount;
-      }
-
-      orderedItem.status = "Cancelled";
-      orderedItem.reason = cancelReason;
-      await order.save();
-
-      const product = await Products.findById(orderedItem.productId._id);
-      if (!product) {
-          console.log("Product not found");
-          return res.status(404).json({ error: "Product not found" });
-      }
-
-      product.quantity += orderedItem.quantity;
-      await product.save();
-
-      if (order.paymentMethod !== "cashOnDelivery") {
-        const userWallet = await Wallet.findOne({ userId });
-        if (!userWallet) {
-            console.log("Wallet not found for user");
-            return res.status(404).json({ error: "Wallet not found" });
-        }
-
-        userWallet.balance += refundAmount;
-        userWallet.transactions.push({
-            amount: refundAmount,
-            transactionMethod: "Refund",
-            date: new Date(),
-        });
-        await userWallet.save();
+    if (!userId) {
+      console.log("Unauthorized: No user ID found in session");
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-      res.status(200).json({ success: "Order cancelled successfully"});
+    // Find the order and populate product details
+    const order = await Order.findOne({
+      _id: orderId,
+      userId,
+    }).populate("orderedItem.productId");
 
+    if (!order) {
+      console.log("Order not found or does not belong to the user");
+      return res.status(404).json({ error: "Order not found or does not belong to the user" });
+    }
+
+    // Check if order is already cancelled or in a state that can't be cancelled
+    if (order.orderStatus.toLowerCase() === 'cancelled') {
+      console.log("Order is already cancelled");
+      return res.status(400).json({ error: "Order is already cancelled" });
+    }
+
+    if (['delivered', 'returned', 'returnrequested'].includes(order.orderStatus.toLowerCase())) {
+      console.log("Order cannot be cancelled in current state");
+      return res.status(400).json({ error: "Order cannot be cancelled in current state" });
+    }
+
+    // Calculate total refund amount including delivery charge
+    let refundAmount = order.deliveryCharge || 0;
+
+    // Process each ordered item
+    for (const item of order.orderedItem) {
+      // Skip items that are already cancelled, delivered, or returned
+      if (['cancelled', 'delivered', 'returned'].includes(item.status.toLowerCase())) {
+        continue;
+      }
+
+      // Calculate refund amount for this item
+      const itemRefund = item.discountedPrice 
+        ? item.discountedPrice * item.quantity
+        : item.totalProductAmount * item.quantity;
+      refundAmount += itemRefund;
+
+      // Update item status
+      item.status = 'Cancelled';
+      item.cancelReason = cancelReason;
+
+      // Update product quantity if payment is not pending
+      if (!(order.paymentMethod === "razorpay" && order.paymentStatus === false)) {
+        const product = await Products.findById(item.productId._id);
+        if (product) {
+          product.quantity += item.quantity;
+          await product.save();
+        }
+      }
+    }
+
+    // Update order status
+    order.orderStatus = 'Cancelled';
+    await order.save();
+
+    // Process refund if not Cash on Delivery
+    if (order.paymentMethod !== "cashOnDelivery") {
+      const userWallet = await Wallet.findOne({ userId });
+      if (!userWallet) {
+        console.log("Wallet not found for user");
+        return res.status(404).json({ error: "Wallet not found" });
+      }
+
+      userWallet.balance += refundAmount;
+      userWallet.transactions.push({
+        amount: refundAmount,
+        transactionMethod: "Refund",
+        date: new Date(),
+      });
+      await userWallet.save();
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Order cancelled successfully",
+      refundAmount: refundAmount
+    });
+
+  } catch (error) {
+    console.error("Error in cancelEntireOrder:", error);
+    return next(error);
+  }
+};
+
+const cancelProduct = async (req, res, next) => {
+  try {
+    const userId = req.session.userId;
+    const { orderItemId, cancelReason } = req.body;
+
+    if (!userId) {
+      console.log("Unauthorized: No user ID found in session");
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const order = await Order.findOne({
+      "orderedItem._id": orderItemId,
+      userId,
+    }).populate("orderedItem.productId");
+    const orderlength = order.orderedItem.length;
+
+    if (!order) {
+      console.log("Order not found or does not belong to the user");
+      return res
+        .status(404)
+        .json({ error: "Order not found or does not belong to the user" });
+    }
+
+    const orderedItem = order.orderedItem.find(
+      (item) => item._id.toString() === orderItemId
+    );
+
+    if (!orderedItem) {
+      console.log("Ordered item not found");
+      return res.status(404).json({ error: "Ordered item not found" });
+    }
+
+    if (orderedItem.status === "Cancelled") {
+      console.log("Product is already cancelled");
+      return res.status(400).json({ error: "Product is already cancelled" });
+    }
+
+    let refundAmount = 0;
+    const baseRefundAmount = orderedItem.discountedPrice
+      ? orderedItem.discountedPrice * orderedItem.quantity
+      : orderedItem.totalProductAmount * orderedItem.quantity;
+
+    if (orderlength > 1) {
+      refundAmount = baseRefundAmount;
+    } else {
+      refundAmount = order.deliveryCharge
+        ? baseRefundAmount + order.deliveryCharge
+        : baseRefundAmount;
+    }
+
+    let cancelCount = order.orderedItem.filter(
+      (item) => item.status !== "Cancelled"
+    ).length;
+
+    if (order.orderedItem.length < 1 || cancelCount <= 1) {
+      order.orderStatus = "Cancelled";
+    }
+    orderedItem.status = "Cancelled";
+    orderedItem.cancelReason = cancelReason;
+    await order.save();
+
+    const product = await Products.findById(orderedItem.productId._id);
+    if (!product) {
+      console.log("Product not found");
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    if (order.paymentMethod === "razorpay" && order.paymentStatus === false) {
+    } else {
+      product.quantity += orderedItem.quantity;
+    }
+
+    await product.save();
+
+    if (order.paymentMethod !== "cashOnDelivery") {
+      const userWallet = await Wallet.findOne({ userId });
+      if (!userWallet) {
+        console.log("Wallet not found for user");
+        return res.status(404).json({ error: "Wallet not found" });
+      }
+
+      userWallet.balance += refundAmount;
+      userWallet.transactions.push({
+        amount: refundAmount,
+        transactionMethod: "Refund",
+        date: new Date(),
+      });
+      await userWallet.save();
+    }
+
+    res.status(200).json({ success: "Order cancelled successfully" });
   } catch (error) {
     return next(error);
   }
 };
 
-const returnOrderRequest = async (req, res) => {
+const returnOrder = async (req, res) => {
   try {
-      const userId = req.session.userId;
-      const { orderItemId, productId, returnReason } = req.body;
+    const userId = req.session.userId;
+    const { orderId, returnReason } = req.body;
 
-      if (!userId) {
-          return res.status(401).json({ error: "Unauthorized" });
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const order = await Order.findOne({
+      _id: orderId,
+      userId,
+    }).populate("orderedItem.productId");
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ error: "Order not found or does not belong to the user" });
+    }
+
+    // Check if order status is delivered
+    if (order.orderStatus !== "delivered") {
+      return res
+        .status(400)
+        .json({ error: "Only delivered orders can be returned" });
+    }
+
+    const hasReturnedItems = order.orderedItem.some(
+      (item) => item.status === "Returned" || item.status === "returnrequested"
+    );
+
+    if (hasReturnedItems) {
+      return res
+        .status(400)
+        .json({ error: "Some items in this order are already returned or have pending return requests" });
+    }
+
+    // Update status for all non-cancelled products
+    order.orderedItem.forEach((item) => {
+      if (item.status !== "Cancelled") {
+        item.status = "returnrequested";
+        item.returnReason = returnReason;
       }
+    });
 
-      const order = await Order.findOne({ 'orderedItem._id': orderItemId, userId }).populate("orderedItem.productId");
+    // Update main order status
+    order.orderStatus = "returnrequested";
+    order.returnReason = returnReason;
 
-      if (!order) {
-          return res.status(404).json({ error: "Order not found or does not belong to the user" });
-      }
+    await order.save();
 
-
-      const orderedItem = order.orderedItem.find(item => item._id.toString() === orderItemId && item.productId._id.toString() === productId);
-
-      if (!orderedItem) {
-          return res.status(404).json({ error: "Ordered item not found" });
-      }
-
-      if (orderedItem.status === "Returned") {
-          return res.status(400).json({ error: "Product is already Returned" });
-      }
-
-     
-      orderedItem.status = "returnrequested";
-      orderedItem.reason = returnReason;
-
-
-      await order.save();
-
-      res.status(200).json({ success: "Return request submitted successfully" });
-
+    res.status(200).json({ 
+      success: true, 
+      message: "Return request for complete order submitted successfully" 
+    });
   } catch (error) {
-      console.error("Error returning order:", error.message);
-      res.status(500).json({ error: "Internal server error" });
+    console.error("Error returning complete order:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-const renderRefferal = async(req,res)=>{
-  try{
-      res.render('refferal')
-  }catch(error){
-      return next(error);
-  }
-}
+const returnProduct = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const { orderItemId, productId, returnReason } = req.body;
 
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const order = await Order.findOne({
+      "orderedItem._id": orderItemId,
+      userId,
+    }).populate("orderedItem.productId");
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ error: "Order not found or does not belong to the user" });
+    }
+
+    // Check if any item in the order has a status of "Returned" or "returnrequested"
+    const hasReturnedOrRequested = order.orderedItem.some(
+      item => item.status === "Returned" || item.status === "returnrequested"
+    );
+
+    if (hasReturnedOrRequested) {
+      return res
+        .status(400)
+        .json({ error: "A product in this order has already been marked as Returned or returnrequested" });
+    }
+
+    const orderedItem = order.orderedItem.find(
+      (item) =>
+        item._id.toString() === orderItemId &&
+        item.productId._id.toString() === productId
+    );
+
+    if (!orderedItem) {
+      return res.status(404).json({ error: "Ordered item not found" });
+    }
+
+    if (orderedItem.status === "Returned") {
+      return res.status(400).json({ error: "Product is already Returned" });
+    }
+
+    orderedItem.status = "returnrequested";
+    orderedItem.returnReason = returnReason;
+
+    await order.save();
+
+    res.status(200).json({ success: "Return request submitted successfully" });
+  } catch (error) {
+    console.error("Error returning order:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+const renderRefferal = async (req, res) => {
+  try {
+    res.render("refferal");
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const generateInvoice = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId)
+      .populate("orderedItem.productId")
+      .populate("deliveryAddress")
+      .populate("coupon");
+
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+
+    const doc = new PDFDocument({ margin: 50 });
+    let filename = `Invoice-${order._id}.pdf`;
+    filename = encodeURIComponent(filename);
+
+    res.setHeader("Content-disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-type", "application/pdf");
+
+    const generateHr = (y) => {
+      doc
+        .strokeColor("#aaaaaa")
+        .lineWidth(1)
+        .moveTo(50, y)
+        .lineTo(550, y)
+        .stroke();
+    };
+
+    const formatCurrency = (amount) => {
+      return "Rs. " + (amount / 100).toFixed(2);
+    };
+
+    const formatDate = (date) => {
+      return new Date(date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    };
+
+    let pageNumber = 1;
+    doc.on("pageAdded", () => {
+      pageNumber++;
+      doc.text(`Page ${pageNumber}`, 50, 750, { align: "center" });
+    });
+
+    doc
+      .fillColor("#444444")
+      .fontSize(28)
+      .text("CHRONO HEAVEN", 50, 50, { align: "center" })
+      .fontSize(14)
+      .text("Invoice", 50, 80, { align: "center" })
+      .moveDown();
+
+    doc.fontSize(20).text("Invoice", 50, 160);
+
+    generateHr(185);
+
+    const customerInformationTop = 200;
+    doc
+      .fontSize(10)
+      .text("Invoice Number:", 50, customerInformationTop)
+      .font("Helvetica-Bold")
+      .text(order._id, 150, customerInformationTop)
+      .font("Helvetica")
+      .text("Invoice Date:", 50, customerInformationTop + 15)
+      .text(formatDate(order.createdAt), 150, customerInformationTop + 15)
+      .font("Helvetica-Bold")
+      .text("Shipping Address:", 300, customerInformationTop)
+      .font("Helvetica")
+      .text(order.deliveryAddress.address, 300, customerInformationTop + 15)
+      .text(
+        `${order.deliveryAddress.locality}, ${order.deliveryAddress.city}`,
+        300,
+        customerInformationTop + 30
+      )
+      .text(
+        `${order.deliveryAddress.state} - ${order.deliveryAddress.pincode}`,
+        300,
+        customerInformationTop + 45
+      );
+
+    generateHr(customerInformationTop + 70);
+
+    const invoiceTableTop = 330;
+
+    doc.font("Helvetica-Bold");
+    generateTableRow(
+      doc,
+      invoiceTableTop,
+      "Item",
+      "Quantity",
+      "Unit Price",
+      "Total"
+    );
+    generateHr(invoiceTableTop + 20);
+    doc.font("Helvetica");
+
+    let totalAmount = 0;
+    let totalDiscount = 0;
+
+    order.orderedItem.forEach((item, index) => {
+      const position = invoiceTableTop + 30 + index * 20;
+      generateTableRow(
+        doc,
+        position,
+        item.productId.product_name,
+        item.quantity,
+        formatCurrency(item.discountedPrice * 100),
+        formatCurrency(item.discountedPrice * item.quantity * 100)
+      );
+
+      totalAmount += item.discountedPrice * item.quantity * 100;
+      totalDiscount +=
+        (item.priceAtPurchase - item.discountedPrice) * item.quantity * 100;
+    });
+
+    generateHr(invoiceTableTop + 20 + order.orderedItem.length * 20);
+
+    const subtotalPosition = invoiceTableTop + 30 + order.orderedItem.length * 20;
+    generateTableRow(
+      doc,
+      subtotalPosition,
+      "",
+      "",
+      "Subtotal",
+      formatCurrency(totalAmount)
+    );
+
+    // Handle coupon discount
+    const couponDiscount = order.couponDiscount ? order.couponDiscount * 100 : 0;
+    const discountPosition = subtotalPosition + 20;
+    generateTableRow(
+      doc,
+      discountPosition,
+      "",
+      "",
+      "Coupon Discount",
+      formatCurrency(couponDiscount)
+    );
+
+    // Handle delivery charge
+    const deliveryCharge = order.deliveryCharge * 100 || 0;
+    const deliveryChargePosition = discountPosition + 20;
+    generateTableRow(
+      doc,
+      deliveryChargePosition,
+      "",
+      "",
+      "Delivery Charge",
+      formatCurrency(deliveryCharge)
+    );
+
+    const totalPosition = deliveryChargePosition + 25;
+    doc.font("Helvetica-Bold");
+    generateTableRow(
+      doc,
+      totalPosition,
+      "",
+      "",
+      "Total",
+      formatCurrency(
+        totalAmount - couponDiscount + deliveryCharge 
+      )
+    );
+    doc.font("Helvetica");
+
+    doc
+      .fontSize(10)
+      .text(
+        "Thank you for your business. For any queries, please contact support@yourcompany.com",
+        50,
+        700,
+        { align: "center", width: 500 }
+      );
+
+    doc.pipe(res);
+    doc.end();
+  } catch (error) {
+    console.error("Error generating invoice:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+function generateTableRow(doc, y, item, quantity, unitCost, total) {
+  doc
+    .fontSize(10)
+    .text(item, 50, y)
+    .text(quantity, 280, y, { width: 90, align: "right" })
+    .text(unitCost, 370, y, { width: 90, align: "right" })
+    .text(total, 0, y, { align: "right" });
+}
 
 module.exports = {
   renderProfile,
@@ -515,7 +907,10 @@ module.exports = {
   resetPassword,
   renderMyOrder,
   renderOrderDetails,
+  cancelProduct,
   cancelOrder,
   renderRefferal,
-  returnOrderRequest
+  returnProduct,
+  returnOrder,
+  generateInvoice,
 };

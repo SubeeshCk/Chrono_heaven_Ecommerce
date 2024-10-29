@@ -71,12 +71,14 @@ userRoute.delete('/user-profile/address/delete-address/:id?',userAuth.is_login, 
 userRoute.post('/user-profile/change-password',setUserData,userAuth.is_login, profileController.resetPassword);
 userRoute.get('/user-profile/myorders',setUserData, userAuth.is_login, setCartCount,setWishlistData, profileController.renderMyOrder);
 userRoute.get('/user-profile/myorders/orderDetails',setUserData, userAuth.is_login,setCartCount, setWishlistData, profileController.renderOrderDetails)
-userRoute.post('/cancelOrder', userAuth.is_login,profileController.cancelOrder);
-userRoute.post('/returnOrder',userAuth.is_login,profileController.returnOrderRequest);
+userRoute.post('/orders/cancelProduct', userAuth.is_login,profileController.cancelProduct);
+userRoute.post('/orders/cancelOrder', userAuth.is_login,profileController.cancelOrder);
+userRoute.post('/orders/returnProduct',userAuth.is_login,profileController.returnProduct);
+userRoute.post('/orders/returnOrder',userAuth.is_login,profileController.returnOrder);
 userRoute.get('/refferal',userAuth.is_login, setUserData, setCartCount ,setWishlistData, profileController.renderRefferal);
+userRoute.get('/invoice/:orderId', userAuth.is_login,profileController.generateInvoice);
 
-
-userRoute.get('/Wallet',userAuth.is_login,setCartCount,setWishlistData, walletController.renderWallet);
+userRoute.get('/Wallet',userAuth.is_login,setUserData,setCartCount,setWishlistData, walletController.renderWallet);
 userRoute.post('/add-money',userAuth.is_login,walletController.addMoneyToWallet);
 
 

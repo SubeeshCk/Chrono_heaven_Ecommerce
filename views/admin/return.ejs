@@ -164,215 +164,240 @@
         </header>
 
         <section class="content-main">
-            <div class="content-header">
-                <div>
-                    <h2 class="content-title card-title">Return Requests</h2>
-                    <p>List of return requests</p>
-                </div>
-                <div>
-                    <input type="text" placeholder="Search order ID" class="form-control bg-white" />
-                </div>
-            </div>
-            <div class="card mb-4">
-                <header class="card-header">
-                    <div class="row gx-3">
-                        <div class="col-lg-4 col-md-6 me-auto">
-                            <input type="text" placeholder="Search..." class="form-control" />
-                        </div>
-                        <div class="col-lg-2 col-6 col-md-3">
-                            <select class="form-select">
-                                <option>Status</option>
-                                <option>Active</option>
-                                <option>Disabled</option>
-                                <option>Show all</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-2 col-6 col-md-3">
-                            <select class="form-select">
-                                <option>Show 20</option>
-                                <option>Show 30</option>
-                                <option>Show 40</option>
-                            </select>
-                        </div>
-                    </div>
-                </header>
-                <!-- card-header end// -->
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer Name</th>
-                                    <th>Product Image</th>
-                                    <th>Product Name</th>
-                                    <th>Return Reason</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (!returnRequests || returnRequests.length === 0) { %>
-                                    <tr>
-                                        <td colspan="7">No return requests yet.</td>
-                                    </tr>
-                                <% } else { %>
-                                    <% returnRequests.forEach((order) => { %>
-                                        <% order.orderedItem.forEach((item) => { %>
-                                            <% if (item.status === 'returnrequested') { %>
-                                                <tr>
-                                                    <td><%= order._id %></td>
-                                                    <td><b><%= order.userId ? order.userId.name : 'Unknown' %></b></td>
-                                                    <td>
-                                                        <div style="max-width: 100px; max-height: 100px; overflow: hidden; border: 1px solid #ccc; border-radius: 5px;">
-                                                            <% if (item.productId && item.productId.images[0]) { %>
-                                                                <img src="/adminAssets/uploads/product_images/<%= item.productId.images[0] %>" alt="<%= item.productId.name %> image" style="width: 100%; height: auto; object-fit: cover;">
-                                                            <% } else { %>
-                                                                <span>No image available</span>
-                                                            <% } %>
-                                                        </div>
-                                                    </td>
-                                                    <td><%= item.productId ? item.productId.product_name : 'No Product Name' %></td>
-                                                    <td><%= item.reason %></td>
-                                                    <td><span class="badge rounded-pill status-label return-requested"><%= item.status %></span></td>
-                                                    <td class="text-end">
-                                                        <div class="btn-group" role="group">
-                                                            <button onclick="handleAcceptReturn('<%= order._id %>', '<%= item.productId._id %>')" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Accept Return">
-                                                                <i class="material-icons md-check"></i>
-                                                            </button>
-                                                            <button onclick="handleDeclineReturn('<%= order._id %>', '<%= item.productId._id %>')" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Decline Return">
-                                                                <i class="material-icons md-close"></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            <% } %>
-                                        <% }); %>
-                                    <% }); %>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- table-responsive //end -->
-                </div>
-                <!-- card-body end// -->
-            </div>
-            <!-- card end// -->
-            <div class="pagination-area mt-15 mb-50">
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-start">
-                        <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                        <li class="page-item"><a class="page-link" href="#">02</a></li>
-                        <li class="page-item"><a class="page-link" href="#">03</a></li>
-                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                        <li class="page-item"><a class="page-link" href="#">16</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        </section>
-    </main>
+<!-- Inside section class="content-main" -->
+<div class="content-header">
+    <div>
+        <h2 class="content-title card-title">Return Requests</h2>
+        <p>List of complete and partial return requests</p>
+    </div>
+    <div>
+        <input type="text" placeholder="Search order ID" class="form-control bg-white" />
+    </div>
+</div>
 
-    <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="/adminAssets/js/vendors/select2.min.js"></script>
-    <script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
-    <script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
-    <!-- Main Script -->
-    <script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
+<!-- Complete Returns Section -->
+<div class="card mb-4">
+    <header class="card-header">
+        <h3 class="card-title">Complete Order Returns</h3>
+    </header>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer Name</th>
+                        <th>Total Items</th>
+                        <th>Order Total</th>
+                        <th>Return Reason</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (!completeReturns || completeReturns.length === 0) { %>
+                        <tr>
+                            <td colspan="7">No complete order returns pending.</td>
+                        </tr>
+                    <% } else { %>
+                        <% completeReturns.forEach((order) => { %>
+                            <tr>
+                                <td><%= order._id %></td>
+                                <td><b><%= order.userId ? order.userId.name : 'Unknown' %></b></td>
+                                <td><%= order.orderedItem.filter(item => 
+                                    item.status !== 'cancelled' && 
+                                    item.status !== 'returnRequestCancelled'
+                                ).length %></td>
+                                <td>₹<%= order.orderAmount %></td>
+                                <td><%= order.returnReason || 'Not specified' %></td>
+                                <td>
+                                    <span class="badge rounded-pill status-label return-requested">
+                                        Complete Return Requested
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <button onclick="handleCompleteReturn('<%= order._id %>', 'accept')" 
+                                                class="btn btn-success">
+                                            <i class="material-icons md-check"></i>
+                                        </button>
+                                        <button onclick="handleCompleteReturn('<%= order._id %>', 'decline')" 
+                                                class="btn btn-danger">
+                                            <i class="material-icons md-close"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Partial Returns Section -->
+<div class="card mb-4">
+    <header class="card-header">
+        <h3 class="card-title">Individual Product Returns</h3>
+    </header>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer Name</th>
+                        <th>Product Image</th>
+                        <th>Product Name</th>
+                        <th>Return Reason</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (!partialReturns || partialReturns.length === 0) { %>
+                        <tr>
+                            <td colspan="7">No individual product returns pending.</td>
+                        </tr>
+                    <% } else { %>
+                        <% partialReturns.forEach((order) => { %>
+                            <% order.orderedItem.forEach((item) => { %>
+                                <% if (item.status === 'returnrequested') { %>
+                                    <tr>
+                                        <td><%= order._id %></td>
+                                        <td><b><%= order.userId ? order.userId.name : 'Unknown' %></b></td>
+                                        <td>
+                                            <div style="max-width: 100px; max-height: 100px; overflow: hidden; border: 1px solid #ccc; border-radius: 5px;">
+                                                <% if (item.productId && item.productId.images[0]) { %>
+                                                    <img src="/adminAssets/uploads/product_images/<%= item.productId.images[0] %>" 
+                                                         alt="<%= item.productId.name %> image" 
+                                                         style="width: 100%; height: auto; object-fit: cover;">
+                                                <% } else { %>
+                                                    <span>No image available</span>
+                                                <% } %>
+                                            </div>
+                                        </td>
+                                        <td><%= item.productId ? item.productId.product_name : 'No Product Name' %></td>
+                                        <td><%= item.reason %></td>
+                                        <td>
+                                            <span class="badge rounded-pill status-label return-requested">
+                                                Return Requested
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <button onclick="handlePartialReturn('<%= order._id %>', '<%= item.productId._id %>', 'accept')" 
+                                                        class="btn btn-success">
+                                                    <i class="material-icons md-check"></i>
+                                                </button>
+                                                <button onclick="handlePartialReturn('<%= order._id %>', '<%= item.productId._id %>', 'decline')" 
+                                                        class="btn btn-danger">
+                                                    <i class="material-icons md-close"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            <% }); %>
+                        <% }); %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <script>
-  async function handleAcceptReturn(orderId, productId) {
-    const confirmation = await confirmAction('accept');
-    if (confirmation) {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', '/admin/acceptReturn', true);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          const data = JSON.parse(xhr.responseText);
-          if (data.success) {
-            swal('Success', data.success, 'success').then(() => {
-              window.location.reload(); // Reload page after successful operation
-            });
-          } else {
-            swal('Error', data.error, 'error');
-          }
-        } else {
-          swal('Error', 'Failed to accept return', 'error');
-          console.error('Failed to accept return:', xhr.status);
-        }
-      };
-
-      xhr.onerror = function () {
-        console.error('Error accepting return:', xhr.statusText);
-        swal('Error', 'An error occurred while accepting the return', 'error');
-      };
-
-      xhr.send(JSON.stringify({ orderId, productId }));
-    }
-  }
-
-  async function handleDeclineReturn(orderId, productId) {
-    const confirmation = await confirmAction('decline');
-    if (confirmation) {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', '/admin/declineReturn', true);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          const data = JSON.parse(xhr.responseText);
-          if (data.success) {
-            swal('Success', data.success, 'success').then(() => {
-              window.location.reload(); // Reload page after successful operation
-            });
-          } else {
-            swal('Error', data.error, 'error');
-          }
-        } else {
-          swal('Error', 'Failed to decline return', 'error');
-          console.error('Failed to decline return:', xhr.status);
-        }
-      };
-
-      xhr.onerror = function () {
-        console.error('Error declining return:', xhr.statusText);
-        swal('Error', 'An error occurred while declining the return', 'error');
-      };
-
-      xhr.send(JSON.stringify({ orderId, productId }));
-    }
-  }
-
-  async function confirmAction(action) {
-    let confirmationText;
-    switch (action) {
-      case 'accept':
-        confirmationText = 'accept this return';
-        break;
-      case 'decline':
-        confirmationText = 'decline this return';
-        break;
-      default:
-        confirmationText = 'perform this action';
-    }
-
-    return new Promise((resolve) => {
-      swal({
-        title: `Are you sure you want to ${confirmationText}?`,
-        text: 'Once confirmed, the action cannot be undone.',
-        icon: 'warning',
-        buttons: ['Cancel', 'Confirm'],
-        dangerMode: true,
-      }).then((confirmed) => {
-        resolve(confirmed);
-      });
+async function confirmAction(action, returnType) {
+    const title = `${action.charAt(0).toUpperCase() + action.slice(1)} Return`;
+    const text = `Are you sure you want to ${action} this ${returnType} return request?`;
+    
+    const result = await swal({
+        title: title,
+        text: text,
+        icon: "warning",
+        buttons: ["Cancel", "Yes"],
+        dangerMode: action === 'decline'
     });
-  }
+    
+    return result;
+}
+
+async function handleCompleteReturn(orderId, action) {
+    const confirmation = await confirmAction(action, 'complete');
+    if (confirmation) {
+        const endpoint = action === 'accept' ? '/admin/acceptCompleteReturn' : '/admin/declineReturn';
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', endpoint, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                if (data.success) {
+                    swal('Success', data.success, 'success').then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    swal('Error', data.error, 'error');
+                }
+            } else {
+                swal('Error', `Failed to ${action} return`, 'error');
+            }
+        };
+
+        xhr.onerror = function() {
+            swal('Error', `An error occurred while ${action}ing the return`, 'error');
+        };
+
+        xhr.send(JSON.stringify({ orderId }));
+    }
+}
+
+async function handlePartialReturn(orderId, productId, action) {
+    const confirmation = await confirmAction(action, 'partial');
+    if (confirmation) {
+        const endpoint = action === 'accept' ? '/admin/acceptPartialReturn' : '/admin/declineReturn';
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', endpoint, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                if (data.success) {
+                    swal('Success', data.success, 'success').then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    swal('Error', data.error, 'error');
+                }
+            } else {
+                swal('Error', `Failed to ${action} return`, 'error');
+            }
+        };
+
+        xhr.onerror = function() {
+            swal('Error', `An error occurred while ${action}ing the return`, 'error');
+        };
+
+        xhr.send(JSON.stringify({ orderId, productId }));
+    }
+}
+
+// Add search functionality
+document.querySelector('input[placeholder="Search order ID"]').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const allRows = document.querySelectorAll('tbody tr');
+    
+    allRows.forEach(row => {
+        const orderId = row.querySelector('td:first-child')?.textContent.toLowerCase();
+        if (orderId) {
+            row.style.display = orderId.includes(searchTerm) ? '' : 'none';
+        }
+    });
+});
 </script>
 
 <style>
