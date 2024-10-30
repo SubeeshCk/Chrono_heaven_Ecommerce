@@ -1,24 +1,46 @@
 <%- include("../layouts/user/product-header")-%>
 
 <style>
-  .path a {
-    margin-bottom: 5px;
-    color: #000;
-    text-decoration: none;
-  }
-
-  .path a:hover {
-    color: red;
-    transition-duration: 0.6s;
-  }
-
-  .path {
-    font-family: Montserrat, sans-serif;
-    font-size: 19px;
-    text-align: left;
+      /* Container Styling */
+      .path {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    padding: 25px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    width: 300px; /* Increased width */
+    font-family: Arial, sans-serif;
     margin-right: auto;
     margin-top: 10px;
-    height: auto;
+    margin-bottom: 50px;
+    height: 500px;
+  }
+
+  /* Link Styling */
+  .path a {
+    color: #333;
+    text-decoration: none;
+    font-size: 20px; /* Increased font size */
+    font-weight: 300;
+    padding: 12px 0; /* Slightly larger padding */
+    transition: color 0.3s ease;
+  }
+
+  /* Hover and Active Link */
+  .path a:hover {
+    color: #007bff;
+  }
+  .path a[style*="color: red;"] {
+    color: #dc3545;
+  }
+
+  /* Separator Line Styling */
+  .path .separator {
+    width: 100%;
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 6px 0;
   }
 
   .checkout_form_input input[type="date"] {
@@ -106,33 +128,33 @@
     <div class="row">
       <div class="col-lg-3">
         <div class="path m-b-50">
-            <div class="l">
-              <a href="/user-profile" style="color: red;">Personal Information</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="/user-profile/myorders">My Orders</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="/user-profile/address">Address</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="/Wallet">Wallet</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="#" id="changePasswordBtn">Change Password</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
-            <div>
-              <a href="/refferal">Referral</a>
-            </div>
-            <p class="text-secondary text-muted">____________________________</p>
+          <div class="l">
+            <a href="/user-profile">Personal Information</a>
           </div>
+          <div class="separator"></div>
+          <div>
+            <a href="/user-profile/myorders" >My Orders</a>
+          </div>
+          <div class="separator"></div>
+          <div>
+            <a href="/user-profile/address" style="color: #dc3545;">Address</a>
+          </div>
+          <div class="separator"></div>
+          <div>
+            <a href="/Wallet">Wallet</a>
+          </div>
+          <div class="separator"></div>
+          <div>
+            <a href="#" id="changePasswordBtn">Change Password</a>
+          </div>
+          <div class="separator"></div>
+          <div>
+            <a href="/refferal">Referral</a>
+          </div>
+          <div class="separator"></div>
         </div>
-      <div class="col-lg-9">
+        </div>
+      <div class="col-lg-9" style="flex:1; margin-left: 40px; background-color: #f9f9f9; padding: 40px; border-radius: 10px;margin-bottom: 50px;">
         <div class="row">
           <div class="col-md-12 p-l-50 p-b-50">
             <h5 style="text-align: left; font-weight: bold;">Edit Address</h5>

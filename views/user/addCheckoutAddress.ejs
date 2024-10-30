@@ -281,13 +281,6 @@
               <p>No address available. Please add one.</p>
             <% } %>
         </div>
-
-          <!-- Coupon Code -->
-          <div class="checkout__coupon">
-            <input type="text" id="couponCode" placeholder="Enter your coupon code">
-            <button type="button" class="site-btn1" onclick="applyCoupon()">Apply</button>
-            <button type="button" class="site-btn1" style="background-color: grey;" onclick="removeCoupon()">Remove</button>
-          </div>
         </div>
 
         <!-- Right column: Order Summary -->
@@ -342,16 +335,3 @@
   </section>
 
   <%- include('../layouts/user/footer') %>
-
-    <!-- JS Script for Coupon and Address Handling -->
-    <script>
-
-      function applyCoupon() {
-        const couponCode = document.getElementById('couponCode').value;
-        // Fetch API to apply the coupon
-      }
-
-      function removeCoupon() {
-        // Logic to remove coupon
-      }
-    </script>

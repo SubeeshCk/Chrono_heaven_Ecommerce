@@ -289,7 +289,7 @@
                     <% } else { %>
                       <p>No address available. Please add one.</p>
                       <% } %>
-                        <button type="button" class="site-btn" onclick="navigateToAddAddress()">Add Address</button>
+                      <button type="button" class="site-btn" id="addAddressBtn">Add Address</button>
             </div>
             <br>
             <div class="checkout__coupon">
@@ -788,4 +788,63 @@ async function verifyPayment(response, orderId) {
     }
 }
 
+    </script>
+    <script>
+      function toggleActive(element) {
+    const addressDetails = document.querySelectorAll('.checkout__address__details');
+    addressDetails.forEach(function(addressDetail) {
+        addressDetail.classList.remove("active");
+        addressDetail.style.backgroundColor = "";
+        addressDetail.style.color = "";
+        addressDetail.querySelector('input[type=radio]').checked = false;
+    });
+
+    element.classList.add("active");
+    element.style.backgroundColor = "lightblue";
+    element.style.color = "black";
+    element.querySelector('input[type=radio]').checked = true;
+}
+
+function removeAddress(addressId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to remove this address?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, remove it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/cart/checkout/deleteAddress/' + addressId, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Removed!', 'Your address has been removed.', 'success');
+                    document.getElementById('address' + addressId).remove();
+                } else {
+                    Swal.fire('Failed!', 'Failed to remove address. Please try again.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error!', 'An error occurred. Please try again.', 'error');
+            });
+        }
+    });
+} 
+
+document.addEventListener('DOMContentLoaded', function() {
+    const addAddressBtn = document.getElementById('addAddressBtn');
+    if (addAddressBtn) {
+        addAddressBtn.addEventListener('click', function() {
+            window.location.href = '/cart/checkout/addNewAddress';
+        });
+    }
+});
     </script>

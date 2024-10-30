@@ -614,8 +614,8 @@ const returnOrder = async (req, res) => {
     }
 
     const hasReturnedItems = order.orderedItem.some(
-      (item) => item.status === "Returned" || item.status === "returnrequested"
-    );
+      (item) => item.status === "Returned" || item.status === "returnrequested" ||
+    item.status === "returnRequestCancelled" );
 
     if (hasReturnedItems) {
       return res
@@ -670,10 +670,9 @@ const returnProduct = async (req, res) => {
         .json({ error: "Order not found or does not belong to the user" });
     }
 
-    // Check if any item in the order has a status of "Returned" or "returnrequested"
     const hasReturnedOrRequested = order.orderedItem.some(
-      (item) => item.status === "Returned" || item.status === "returnrequested"
-    );
+      (item) => item.status === "Returned" || item.status === "returnrequested" ||
+      item.status === "returnRequestCancelled");
 
     if (hasReturnedOrRequested) {
       return res

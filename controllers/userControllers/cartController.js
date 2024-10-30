@@ -498,13 +498,15 @@ const placeOrder = async (req, res, next) => {
           discountOnProduct = product.price - (product.price * (product.activeOffer.discountValue / 100));
         }
         discountOnProduct = Math.max(0, discountOnProduct);
+
+        const totalProductAmount = discountOnProduct * productItem.quantity;
         
         orderedItems.push({
           productId: productItem.productId,
           quantity: productItem.quantity,
           priceAtPurchase: product.price,
           discountedPrice: discountOnProduct,
-          totalProductAmount: orderAmount,
+          totalProductAmount: totalProductAmount,
           status: paymentMethod === 'wallet' ? 'confirmed' : 
                  paymentMethod === 'cashOnDelivery' ? 'confirmed' : 'pending'
         });
@@ -602,6 +604,12 @@ const placeOrder = async (req, res, next) => {
 
     } else if (paymentMethod === "cashOnDelivery") {
       
+      if ( orderAmount > 2000 ){
+        return res.status(400).json({
+          success: false,
+          message: "Order above 2000 should not be allowed for COD",
+        });
+      }
       for (const item of orderedItems) {
         const product = await Products.findById(item.productId);
         if (product) {
@@ -769,10 +777,8 @@ const applyCoupon = async (req, res) => {
           discount = coupon.discountValue;
       }
 
-      // Add delivery charge to the final total
       const newTotal = (orderAmount - discount) + parseFloat(deliveryCharge);
 
-      // Store coupon in session for removal later
       req.session.appliedCoupon = couponCode;
       
       userData.usedCoupons.push(coupon._id);
