@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Sales Report - Admin dashboard</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="" />
+    <meta property="og:type" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="" />
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="/logo-title.png" />
+    <!-- Template CSS -->
+    <link href="/adminAssets/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
+    <style>
+        .table-container {
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .status-label.pending {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .status-label.confirmed {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+        .status-label.shipped,
+        .status-label.delivered {
+            background-color: #198754;
+            color: #fff;
+        }
+
+        .status-label.cancelled,
+        .status-label.returnrequestcancelled ,
+        .status-label.returned {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .status-label.returnrequested {
+            background-color: #dc6435;
+            color: #fff;
+        }
+
+        .custom-date-range {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="screen-overlay"></div>
+    <aside class="navbar-aside" id="offcanvas_aside">
+        <div class="aside-top">
+            <a href="index.html" class="brand-wrap">
+                <img src="/userAssets/images/icons/logo-01.png" class="logo" alt="Nest Dashboard" />
+            </a>
+            <div>
+                <button class="btn btn-icon btn-aside-minimize"><i
+                        class="text-muted material-icons md-menu_open"></i></button>
+            </div>
+        </div>
+        <nav>
+            <ul class="menu-aside">
+                <li class="menu-item active">
+                    <a class="menu-link" href="/admin/Dashboard">
+                        <i class="icon material-icons md-home"></i>
+                        <span class="text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item ">
+                    <a class="menu-link" href="/admin/sales-report">
+                        <i class="icon material-icons md-account_balance_wallet"></i>
+                        <span class="text">Sales report</span>
+                    </a>
+                </li>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link">
+                        <i class="icon material-icons md-shopping_bag"></i>
+                        <span class="text">Categories</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="/admin/categories">Categories</a>
+                    </div>
+                </li>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link">
+                        <i class="icon material-icons md-shopping_bag"></i>
+                        <span class="text">Products</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="/admin/products">Products list</a>
+                        <a href="/admin/products/add-products">Add product</a>
+                    </div>
+                </li>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link">
+                        <i class="icon material-icons md-shopping_cart"></i>
+                        <span class="text">Orders</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="/admin/orders">Orders</a>
+                        <a href="/admin/return">Return requests</a>
+                    </div>
+                </li>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link" href="/admin/users">
+                        <i class="icon material-icons md-person"></i>
+                        <span class="text">Customers</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="/admin/customers">Customers</a>
+                    </div>
+                </li>
+                <li class="menu-item has-submenu ">
+                    <a class="menu-link" href="#">
+                        <i class="icon material-icons md-monetization_on"></i>
+                        <span class="text">Offers & Coupons</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="/admin/category-offers">Category offers</a>
+                        <a href="/admin/product-offers">Product offers</a>
+                        <a href="/admin/coupons">Manage Coupons</a>
+                    </div>
+                </li>
+            </ul>
+                <br />
+                <br />
+        </nav>
+</aside>
+
+    <main class="main-wrap">
+        <header class="main-header navbar">
+            <div class="col-search">
+                <form class="searchform">
+                    <div class="input-group">
+                        <input list="search_terms" type="text" class="form-control" placeholder="Search term" />
+                        <button class="btn btn-light bg" type="button">
+                            <i class="material-icons md-search"></i>
+                        </button>
+                    </div>
+                    <datalist id="search_terms">
+                        <option value="Products"></option>
+                        <option value="New orders"></option>
+                        <option value="Apple iphone"></option>
+                        <option value="Ahmed Hassan"></option>
+                    </datalist>
+                </form>
+            </div>
+            <div class="col-nav">
+                <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside">
+                    <i class="material-icons md-apps"></i>
+                </button>
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a class="nav-link btn-icon" href="#">
+                            <i class="material-icons md-notifications animation-shake"></i>
+                            <span class="badge rounded-pill">3</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn-icon darkmode" href="#">
+                            <i class="material-icons md-nights_stay"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="requestfullscreen nav-link btn-icon">
+                            <i class="material-icons md-cast"></i>
+                        </a>
+                    </li>
+                    <li class="dropdown nav-item">
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
+                            aria-expanded="false">
+                            <img class="img-xs rounded-circle" src="/adminAssets/imgs/people/avatar-2.png" alt="User" />
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+                            <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit Profile</a>
+                            <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account Settings</a>
+                            <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
+                            <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
+                            <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help center</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger" href="/admin/logOut">
+                                <i class="material-icons md-exit_to_app"></i>Logout
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </header>
+
+        <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h2 class="content-title card-title">Sales Report</h2>
+                    <p>Comprehensive overview of sales data and analytics</p>
+                </div>
+                <div>
+                    <button id="downloadPdfBtn" class="btn btn-primary">
+                        <i class="material-icons md-file_download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+    
+            <!-- Stats Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="stats-value" id="totalOrders">0</div>
+                        <div class="stats-label">Total Orders</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="stats-value" id="totalRevenue">₹0</div>
+                        <div class="stats-label">Total Revenue</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="stats-value" id="avgOrderValue">₹0</div>
+                        <div class="stats-label">Average Order Value</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="stats-value" id="successRate">0%</div>
+                        <div class="stats-label">Success Rate</div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="card mb-4">
+                <header class="card-header">
+                    <div class="row gx-3">
+                        <div class="col-lg-4 col-md-6 me-auto">
+                            <input type="text" id="searchInput" placeholder="Search..." class="form-control" />
+                        </div>
+                        <div class="col-lg-2 col-6 col-md-3">
+                            <select class="form-select" id="dateRange">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                                <option value="custom">Custom Date Range</option>
+                            </select>
+                        </div>
+                    </div>
+    
+                    <div id="customDateRange" class="custom-date-range row gx-3 mt-3">
+                        <div class="col-lg-3 col-md-6">
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <input type="date" id="endDate" class="form-control">
+                        </div>
+                        <div class="col-lg-2 col-md-6">
+                            <button id="applyCustomDates" class="btn btn-secondary">Apply</button>
+                        </div>
+                    </div>
+                </header>
+    
+                <div id="loadingSpinner" class="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+    
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer Name</th>
+                                    <th>Items</th>
+                                    <th>Total Amount</th>
+                                    <th>Payment Method</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesTableBody">
+                                <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="pagination-area mt-15 mb-50">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-start" id="pagination">
+                        <!-- Pagination will be populated by JavaScript -->
+                    </ul>
+                </nav>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/adminAssets/js/vendors/select2.min.js"></script>
+    <script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    
+    
+ <script>
+$(document).ready(function() {
+    const dateRangeSelect = $('#dateRange');
+    const customDateRange = $('#customDateRange');
+    const applyCustomDatesBtn = $('#applyCustomDates');
+    const downloadPdfBtn = $('#downloadPdfBtn');
+    const loadingSpinner = $('#loadingSpinner');
+    const searchInput = $('#searchInput');
+    let currentDateRange = 'daily';
+    let currentStartDate = null;
+    let currentEndDate = null;
+
+    // Handle date range selection
+    dateRangeSelect.on('change', function() {
+        const selectedRange = $(this).val();
+        currentDateRange = selectedRange;
+        
+        if (selectedRange === 'custom') {
+            customDateRange.show();
+        } else {
+            customDateRange.hide();
+            fetchAndDisplaySalesReport(selectedRange);
+        }
+    });
+
+    // Handle custom date range
+    applyCustomDatesBtn.click(function() {
+        const startDate = $('#startDate').val();
+        const endDate = $('#endDate').val();
+        
+        if (!startDate || !endDate) {
+            alert('Please select both start and end dates');
+            return;
+        }
+        
+        currentStartDate = startDate;
+        currentEndDate = endDate;
+        fetchAndDisplaySalesReport('custom', startDate, endDate);
+    });
+
+    // Handle search functionality
+    let searchTimeout;
+    searchInput.on('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const searchValue = $(this).val().toLowerCase();
+            filterTableRows(searchValue);
+        }, 300);
+    });
+
+    function filterTableRows(searchValue) {
+        const rows = $('#salesTableBody tr');
+        rows.each(function() {
+            const row = $(this);
+            const text = row.text().toLowerCase();
+            row.toggle(text.includes(searchValue));
+        });
+    }
+
+    // Handle PDF download
+    downloadPdfBtn.click(function() {
+        const button = $(this);
+        button.prop('disabled', true).html('<i class="material-icons md-file_download"></i> Generating...');
+        
+        fetch('/admin/downloadsalesreport')
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `salesReport_${moment().format('YYYYMMDD_HHmmss')}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to download PDF. Please try again.');
+            })
+            .finally(() => {
+                button.prop('disabled', false).html('<i class="material-icons md-file_download"></i> Download Report');
+            });
+    });
+
+    // Update statistics
+    function updateStatistics(data) {
+        const totalOrders = data.length;
+        const totalRevenue = data.reduce((sum, order) => sum + order.totalAmount, 0);
+        const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+        const successfulOrders = data.filter(order => 
+            ['delivered', 'shipped', 'confirmed'].includes(order.orderStatus.toLowerCase())
+        ).length;
+        const successRate = totalOrders > 0 ? (successfulOrders / totalOrders) * 100 : 0;
+
+        $('#totalOrders').text(totalOrders);
+        $('#totalRevenue').text(`₹${totalRevenue.toFixed(2)}`);
+        $('#avgOrderValue').text(`₹${avgOrderValue.toFixed(2)}`);
+        $('#successRate').text(`${successRate.toFixed(1)}%`);
+    }
+
+    // Main function to fetch and display sales report
+    function fetchAndDisplaySalesReport(dateRange, startDate = null, endDate = null, page = 1) {
+        loadingSpinner.show();
+        
+        $.ajax({
+            url: '/admin/sortReport',
+            method: 'POST',
+            data: { dateRange, startDate, endDate, page },
+            success: function(response) {
+                const tbody = $('#salesTableBody');
+                tbody.empty();
+
+                if (!response.salesData || response.salesData.length === 0) {
+                    tbody.html('<tr><td colspan="8" class="text-center">No sales data available for the selected date range.</td></tr>');
+                } else {
+                    response.salesData.forEach(sale => {
+                        const row = `
+                            <tr>
+                                <td>${sale.orderId}</td>
+                                <td><b>${sale.customerName}</b></td>
+                                <td>
+                                    ${sale.itemCount} items
+                                    <small class="text-muted d-block">
+                                        ${sale.productNames}
+                                    </small>
+                                </td>
+                                <td>₹${sale.totalAmount.toFixed(2)}</td>
+                                <td>${sale.paymentMethod || 'N/A'}</td>
+                                <td>
+                                    <span class="badge rounded-pill status-label ${sale.orderStatus.toLowerCase()}">
+                                        ${sale.orderStatus}
+                                    </span>
+                                </td>
+                                <td>${moment(sale.orderDate).format('DD/MM/YYYY')}</td>
+                                <td class="text-end">
+                                    <a href="/admin/sales/details/${sale.orderId}" class="btn btn-sm btn-light">Details</a>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+
+                    updateStatistics(response.salesData);
+                    updatePagination(response.totalPages, response.currentPage);
+                }
+            },
+            error: function(err) {
+                console.error('Error fetching sales data:', err);
+                $('#salesTableBody').html('<tr><td colspan="8" class="text-center text-danger">Error fetching sales data. Please try again.</td></tr>');
+            },
+            complete: function() {
+                loadingSpinner.hide();
+            }
+        });
+    }
+
+    // Update pagination
+    function updatePagination(totalPages, currentPage) {
+        const pagination = $('#pagination');
+        pagination.empty();
+
+        if (totalPages > 1) {
+            // Previous button
+            pagination.append(`
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage - 1}">
+                        <i class="material-icons md-chevron_left"></i>
+                    </a>
+                </li>
+            `);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                pagination.append(`
+                    <li class="page-item ${currentPage === i ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${String(i).padStart(2, '0')}</a>
+                    </li>
+                `);
+            }
+
+            // Next button
+            pagination.append(`
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage + 1}">
+                        <i class="material-icons md-chevron_right"></i>
+                    </a>
+                </li>
+            `);
+
+            // Handle pagination clicks
+            pagination.find('.page-link').on('click', function(e) {
+                e.preventDefault();
+                const page = $(this).data('page');
+                if (page && page >= 1 && page <= totalPages) {
+                    fetchAndDisplaySalesReport(currentDateRange, currentStartDate, currentEndDate, page);
+                }
+            });
+        }
+    }
+
+    // Initial load of sales report
+    fetchAndDisplaySalesReport('daily');
+});
+ </script>
+
+    <!-- Main Script -->
+    <script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
+</body>
+
+</html>

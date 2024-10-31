@@ -43,22 +43,95 @@
     margin: 6px 0;
   }
 
-  .checkout_form_input input[type="date"] {
-      cursor: pointer;
-  }
-
-  /* Change cursor for gender radio buttons */
-  .gender-inputs input[type="radio"] {
-      cursor: pointer;
-  }
-
-  .align-right-btn {
-      float: right;
-  }
-
-  .d-flex h5 {
+  /* Profile Container Styling */
+  .profile-container {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
     margin-bottom: 30px;
   }
+
+  /* Personal Information Styling */
+  .personal-info h5 {
+    font-weight: 600;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+
+  .personal-info .info-group {
+    font-size: 16px;
+    color: #555;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  .personal-info .info-group h6 {
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* Button Styling */
+  .btn-edit-profile {
+    background-color: #dc3545;
+    color: #fff;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-edit-profile:hover {
+    background-color: #c82333;
+  }
+
+  /* Modal Content Styling */
+  .modal-content {
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  .modal-content .modal-title {
+    font-size: 20px;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .modal-content .form-group label {
+    font-weight: 500;
+    color: #555;
+  }
+
+  .flash-message {
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    position: relative;
+    animation: fadeOut 3s forwards; /* Adds a fade-out effect */
+}
+
+.flash-message.success {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+
+.flash-message.error {
+    background-color: #f2dede;
+    color: #a94442;
+}
+
+/* Fade out animation */
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    90% { opacity: 0.2; }
+    100% { opacity: 0; }
+}
 
 </style>
 </head>
@@ -66,7 +139,7 @@
 
 <!-- Breadcrumb Begin -->
 <div class="container">
-  <div class="bread-crumb flex-w  p-r-15 p-t-30 p-lr-0-lg">
+  <div class="bread-crumb flex-w  p-r-15 p-t-30 p-lr-0-lg ">
     <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
       Home
       <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
@@ -153,8 +226,9 @@
           </div>
           <div class="separator"></div>
         </div>
-        
-        <div class="col-lg-8" style="flex:1; margin-left: 40px; background-color: #f9f9f9; padding: 40px; border-radius: 10px;margin-bottom: 50px;">
+            
+          <!-- Personal Information Section -->
+          <div class="col-lg-8 personal-info" style="margin-left: 40px;">
           <br>
           <% if (messages.success) { %>
             <div class="alert alert-success flash-message" role="alert" style="color: green;" data-timeout="5">
@@ -167,36 +241,24 @@
               <%= messages.error %>
             </div>
           <% } %>
-          <h5 class="d-flex justify-content-start font-weight:bold">Personal Information</h5> 
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="checkout_form_input d-flex">
-                <h6 style="font-weight: bold;">Full Name : <%= userData.name %> </h6 style="font-weight: bold;">
-                <br>
-                <b class="pl-3" id="fullName"></b>
-              </div>
-              <br>
-              <div class="checkout_form_input d-flex">
-                <h6 style="font-weight: bold;">Email ID : <%= userData.email %> </h6 style="font-weight: bold;">
-                <br>
-                <b class="pl-3" id="email"></b>
-              </div>
-           
-              <br>
-              <div class="checkout_form_input d-flex">
-                <h6 style="font-weight: bold;">Mobile Number : <%= userData.mobile ? userData.mobile : 'Not Provided' %></h6>
-                <br>
-                <b class="pl-3" id="phoneNumber"></b>
-              </div>
-              <br>
-            </div>
-            <br><br>
-          </div>
-          <div class="d-flex justify-content-between mt-3">
-            <a href="/user-profile/edit-profile" class="btn text-white" style="background-color: red;">Edit Profile</a>
-            <!-- <button class="btn text-white" style="background-color: red;" id="changePasswordBtn">Change Password</button> -->
-          </div>
-        </div>
+
+      <h5>Personal Information</h5>
+      <div class="info-group">
+        <h6>Full Name:</h6>
+        <p><%= userData.name %></p>
+      </div>
+      <div class="info-group">
+        <h6>Email ID:</h6>
+        <p><%= userData.email %></p>
+      </div>
+      <div class="info-group">
+        <h6>Mobile Number:</h6>
+        <p><%= userData.mobile ? userData.mobile : 'Not Provided' %></p>
+      </div>
+      <div class="d-flex justify-content-between mt-3">
+        <a href="/user-profile/edit-profile" class="btn btn-edit-profile">Edit Profile</a>
+      </div>
+    </div>
       </div>
     </form>
   </div>

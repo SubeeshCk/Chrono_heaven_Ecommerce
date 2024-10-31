@@ -15,6 +15,7 @@ const productController = require("../controllers/adminControllers/productContro
 const orderController = require("../controllers/adminControllers/orderController");
 const customerController = require("../controllers/adminControllers/customerController");
 const offerController = require("../controllers/adminControllers/offerControllers");
+const salesReportController = require("../controllers/adminControllers/salesReportController");
 
 //authentication middleware
 const adminAuth = require("../middlewares/adminAuth");
@@ -84,6 +85,12 @@ adminRoute.delete('/removeCategoryOffer/:offerId', adminAuth.is_login, offerCont
 adminRoute.post('/addProductOffer', adminAuth.is_login, offerController.addProductOffer);
 adminRoute.post('/updateProductOffer/:id', adminAuth.is_login, offerController.updateProductOffer);
 adminRoute.delete('/removeProductOffer/:offerId', adminAuth.is_login, offerController.removeProductOffer);
+
+
+//*****************************   Sales report  ************************************//
+adminRoute.get('/sales-report',adminAuth.is_login,salesReportController.renderSalesReport)
+adminRoute.post('/sortReport',adminAuth.is_login,salesReportController.sortReport)
+adminRoute.get('/downloadsalesreport',salesReportController.downloadSalesReport)
 
 
 module.exports = adminRoute;
