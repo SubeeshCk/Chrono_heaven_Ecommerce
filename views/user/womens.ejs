@@ -138,60 +138,80 @@
 										<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
 											<!-- Block2 -->
 											<div class="block2">
-												<div class="block2-pic hov-img0">
-													<img src="/adminAssets/uploads/product_images/<%= product.images[0] %>"
-														alt="IMG-PRODUCT">
-													<a href="/product-details/<%= product._id %>"
-														class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 ">
-														Quick View
-													</a>
+											  <div class="block2-pic hov-img0">
+												<img src="/adminAssets/uploads/product_images/<%= product.images[0] %>" alt="IMG-PRODUCT" />
+												<a href="/product-details/<%= product._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+												  View
+												</a>
+											  </div>
+											  <div class="block2-txt flex-w flex-t p-t-14">
+												<div class="block2-txt-child1 flex-col-l">
+												  <a href="/product-details/<%= product._id %>" class="product-name stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" style="text-transform:capitalize;">
+													<%= product.product_name %>
+												  </a>
+												  
+												  <% function formatPriceWithCommas(price) {
+													  price = price.toString();
+													  let lastThree = price.substring(price.length-3);
+													  let otherNumbers = price.substring(0, price.length-3);
+													  if (otherNumbers != '') lastThree = ',' + lastThree;
+													  let formattedPrice = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+													  return formattedPrice;
+												  } %>
+									
+												  <!-- Price Section with Line Break for Consistent Layout -->
+												  <div class="price-section">
+													<% if (product.hasDiscount) { %>
+													  <!-- Original Price (Strikethrough) -->
+													  <span class="mtext-106 cl2" style="text-decoration: line-through; color: #888;">
+														₹<%= formatPriceWithCommas(product.originalPrice) %>
+													  </span>
+													  <!-- Discounted Price on New Line -->
+													  <span class="mtext-110 cl2" style="color: #e95a5c; display: block;">
+														₹<%= formatPriceWithCommas(product.discountedPrice) %> (<%= Math.round(((product.originalPrice - product.discountedPrice) / product.originalPrice) * 100) %>% off)
+													  </span>
+													<% } else { %>
+													  <!-- Price without discount -->
+													  <span class="mtext-110 cl2">
+														₹<%= formatPriceWithCommas(product.price) %>
+													  </span>
+													  <!-- Empty Placeholder Span for Consistency -->
+													  <span class="placeholder" style="visibility: hidden; display: block;">&nbsp;</span>
+													<% } %>
+												  </div>
+									
+												  <!-- Rating and Reviews Section on Consistent Fifth Line -->
+												  <div class="rating" style="margin-top: 5px; color: #d49311;">
+													<% for (let i = 1; i <= 5; i++) { %>
+													  <% if (i <= Math.floor(product.averageRating)) { %>
+														<i class="fa fa-star"></i>
+													  <% } else if (i === Math.ceil(product.averageRating) && product.averageRating % 1 !== 0) { %>
+														<i class="fa fa-star-half-o"></i>
+													  <% } else { %>
+														<i class="fa fa-star-o"></i>
+													  <% } %>
+													<% } %>
+													<span>(<%= product.totalReviews %> reviews)</span>
+												  </div>
 												</div>
-												<div class="block2-txt flex-w flex-t p-t-14">
-															<div class="block2-txt-child1 flex-col-l">
-														<a href="/product-details/<%= product._id %>" class="product-name stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" style="text-transform:capitalize;">
-														  <%= product.product_name %>
-														</a>                  
-														<% function formatPriceWithCommas(price) {
-															 price = price.toString();
-															 let lastThree = price.substring(price.length-3);
-															 let otherNumbers = price.substring(0, price.length-3);
-															 if (otherNumbers != '') lastThree = ',' + lastThree;
-															 let formattedPrice = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
-															 return formattedPrice;
-														   }
-														%>
-														<br>
-														<% if (product.hasDiscount) { %>
-														  <span class="mtext-106 cl2" style="text-decoration: line-through; color: #888;">
-															₹<%= formatPriceWithCommas(product.originalPrice) %>
-														  </span>
-														  <span class="mtext-110 cl2" style="color: #e95a5c;">
-															₹<%= formatPriceWithCommas(product.discountedPrice) %> (<%= Math.round(((product.originalPrice - product.discountedPrice) / product.originalPrice) * 100) %>% off)
-														  </span>
-														<% } else { %>
-														  <span class="mtext-110 cl2">
-															₹<%= formatPriceWithCommas(product.price) %>
-														  </span>
-														<% } %>
-													  </div>
-													  <div class="block2-txt-child2 flex-r p-t-3">
-														<a href="#" class="btn-addwish-b2 dis-block" data-product-id="<%= product._id %>">
-														  <% if (locals.wishlistProductIds && locals.wishlistProductIds.has(product._id.toString())) { %>
-															<img class="icon-heart1 dis-block trans-04" src="/userAssets/images/icons/icon-heart-02.png" alt="ICON" />
-														  <% } else { %>
-															<img class="icon-heart1 dis-block trans-04" src="/userAssets/images/icons/icon-heart-01.png" alt="ICON" />
-														  <% } %>
-														</a>
-													  </div>
+												<div class="block2-txt-child2 flex-r p-t-3">
+												  <a href="#" class="btn-addwish-b2 dis-block" data-product-id="<%= product._id %>">
+													<% if (locals.wishlistProductIds && locals.wishlistProductIds.has(product._id.toString())) { %>
+													  <img class="icon-heart1 dis-block trans-04" src="/userAssets/images/icons/icon-heart-02.png" alt="ICON" />
+													<% } else { %>
+													  <img class="icon-heart1 dis-block trans-04" src="/userAssets/images/icons/icon-heart-01.png" alt="ICON" />
+													<% } %>
+												  </a>
 												</div>
+											  </div>
 											</div>
-										</div>
+										  </div>
 										<% }); %>
-											<% } else { %>
-												<p>No products available.</p>
-												<% } %>
-							</div>
-
+									  <% } else { %>
+										<p>No products available.</p>
+									  <% } %>
+									</div>
+									
 							<!-- Load more -->
 							<div class="flex-c-m flex-w w-full p-t-45">
 								<a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">

@@ -537,7 +537,7 @@
                               </p>
                               <% if (!orderData.paymentStatus) { %>
                                 <div class="text-center mt-3">
-                                  <button id="retryPaymentBtn" class="btn btn-primary"
+                                  <button type="button" id="retryPaymentBtn" class="btn btn-primary"
                                     data-order-id="<%= orderData._id %>">
                                     Retry Payment
                                   </button>
@@ -646,7 +646,7 @@
                               <table class="table table-bordered">
                                 <tr>
                                   <td>Subtotal:</td>
-                                  <td>₹<%= (orderData.orderAmount + orderData.couponDiscount)- orderData.deliveryCharge
+                                  <td>₹<%= (orderData.orderAmount + orderData.couponDiscount)
                                       %>
                                   </td>
                                 </tr>
@@ -657,11 +657,6 @@
                                     </td>
                                   </tr>
                                   <% } %>
-                                    <tr>
-                                      <td>Delivery Charge:</td>
-                                      <td>₹<%= orderData.deliveryCharge %>
-                                      </td>
-                                    </tr>
                                     <tr class="font-weight-bold">
                                       <td>Total Amount:</td>
                                       <td>₹<%= orderData.orderAmount %>
@@ -1032,6 +1027,94 @@
                 });
               });
             </script>
+            <script>
+              document.getElementById('retryPaymentBtn').addEventListener('click', function(e) {
+                fetch('/initiatePayment', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ orderId: '<%= orderData._id %>' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.success) {
+                    var options = {
+                      "key": data.razorpayKey,
+                      "amount": data.amount,
+                      "currency": "INR",
+                      "name": "Your Company Name",
+                      "description": "Order Payment",
+                      "order_id": data.orderId,
+                      "handler": function(response) {
+                        verifyPayment(response, '<%= orderData._id %>'); 
+                      },
+                    };
+                    var rzp1 = new Razorpay(options);
+                    rzp1.open();
+                  } else {
+                    Toastify({
+                      text: 'Payment initiation failed. Please try again.',
+                      backgroundColor: 'linear-gradient(to right, #ff416c, #ff4b2b)',
+                      duration: 3000
+                    }).showToast();
+                  }
+                })
+                .catch(error => {
+                  console.error('Error initiating payment:', error);
+                  Toastify({
+                    text: 'Payment initiation failed. Please try again.',
+                    backgroundColor: 'linear-gradient(to right, #ff416c, #ff4b2b)',
+                    duration: 3000
+                  }).showToast();
+                });
+              });
+            
+              function verifyPayment(response, orderId) {
+              fetch('/verifyPayment', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  orderId: orderId 
+                })
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Payment Successful',
+                    text: 'Your payment has been successfully verified.',
+                    confirmButtonText: 'OK'
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      location.reload();
+                    }
+                  });
+                } else {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Verification Failed',
+                    text: 'There was an issue verifying your payment. Please contact support.'
+                  });
+                }
+              })
+              .catch(error => {
+                console.error('Error verifying payment:', error);
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'An error occurred while verifying payment. Please try again or contact support.'
+                });
+              });
+            }
+            
+            </script>
 
 
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -1039,5 +1122,6 @@
             <!-- Include Toastify library in your HTML head -->
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
             <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
             <%- include('../layouts/user/footer') %>

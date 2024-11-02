@@ -3,10 +3,8 @@ const Category = require("../../models/category");
 const Products = require("../../models/product");
 const WishlistItem = require("../../models/wishListModel");
 const { StatusCode } = require("../../config/StatusCode");
-const {
-  applyOffers,
-  calculateDiscountedPrice,
-} = require("../../config/offerUtils");
+const { applyOffers,calculateDiscountedPrice } = require("../../config/offerUtils");
+
 
 const renderHome = async (req, res, next) => {
   try {
@@ -22,10 +20,30 @@ const renderHome = async (req, res, next) => {
       categories
     );
 
+    const productsWithRatings = productsWithOffers.map(product => {
+      const productReviews = product.reviews || [];
+      const totalReviews = productReviews.length;
+      
+      const averageRating = totalReviews > 0
+        ? (
+            productReviews.reduce(
+              (acc, review) => acc + review.starRating,
+              0
+            ) / totalReviews
+          ).toFixed(1)
+        : '0.0';
+
+      return {
+        ...product,
+        totalReviews,
+        averageRating: parseFloat(averageRating)
+      };
+    });
+
     const renderData = {
-      productData: productsWithOffers,
+      productData: productsWithRatings,
       categories,
-      allActiveOffers,
+      allActiveOffers
     };
 
     res.render("home", { renderData });
@@ -51,11 +69,32 @@ const renderProducts = async (req, res, next) => {
 
     const { productsWithOffers } = await applyOffers(productData, categories);
 
-    res.render("products", { productData: productsWithOffers });
+    const productsWithRatings = productsWithOffers.map(product => {
+      const productReviews = product.reviews || [];
+      const totalReviews = productReviews.length;
+      
+      const averageRating = totalReviews > 0
+        ? (
+            productReviews.reduce(
+              (acc, review) => acc + review.starRating,
+              0
+            ) / totalReviews
+          ).toFixed(1)
+        : '0.0';
+
+      return {
+        ...product,
+        totalReviews,
+        averageRating: parseFloat(averageRating)
+      };
+    });
+
+    res.render("products", { productData: productsWithRatings });
   } catch (error) {
     return next(error);
   }
 };
+
 
 const productDetails = async (req, res, next) => {
   try {
@@ -70,7 +109,29 @@ const productDetails = async (req, res, next) => {
     const categories = await Category.find({ is_listed: true });
     const { productsWithOffers } = await applyOffers([product], categories);
 
-    res.render("product-details", { product: productsWithOffers[0] });
+    const productWithRating = productsWithOffers.map(product => {
+      const productReviews = product.reviews || [];
+      const totalReviews = productReviews.length;
+      
+      const averageRating = totalReviews > 0
+        ? (
+            productReviews.reduce(
+              (acc, review) => acc + review.starRating,
+              0
+            ) / totalReviews
+          ).toFixed(1)
+        : '0.0';
+
+      return {
+        ...product,
+        totalReviews,
+        averageRating: parseFloat(averageRating)
+      };
+    })[0];
+
+    res.render("product-details", { 
+      product: productWithRating
+    });
   } catch (error) {
     return next(error);
   }
@@ -96,8 +157,28 @@ const renderWomens = async (req, res, next) => {
       categories
     );
 
+    const productsWithRatings = productsWithOffers.map(product => {
+      const productReviews = product.reviews || [];
+      const totalReviews = productReviews.length;
+      
+      const averageRating = totalReviews > 0
+        ? (
+            productReviews.reduce(
+              (acc, review) => acc + review.starRating,
+              0
+            ) / totalReviews
+          ).toFixed(1)
+        : '0.0';
+
+      return {
+        ...product,
+        totalReviews,
+        averageRating: parseFloat(averageRating)
+      };
+    });
+
     res.render("womens", {
-      productData: productsWithOffers,
+      productData: productsWithRatings,
       categories,
       pageCategory: "women",
       allActiveOffers,
@@ -127,8 +208,28 @@ const renderMens = async (req, res, next) => {
       categories
     );
 
+    const productsWithRatings = productsWithOffers.map(product => {
+      const productReviews = product.reviews || [];
+      const totalReviews = productReviews.length;
+      
+      const averageRating = totalReviews > 0
+        ? (
+            productReviews.reduce(
+              (acc, review) => acc + review.starRating,
+              0
+            ) / totalReviews
+          ).toFixed(1)
+        : '0.0';
+
+      return {
+        ...product,
+        totalReviews,
+        averageRating: parseFloat(averageRating)
+      };
+    });
+
     res.render("mens", {
-      productData: productsWithOffers,
+      productData: productsWithRatings,
       categories,
       pageCategory: "men",
       allActiveOffers,
@@ -256,7 +357,7 @@ const addToWishlist = async (req, res, next) => {
 const renderWishlist = async (req, res, next) => {
   try {
     if (req.session.userId) {
-      const userData = await User.findById(req.session.userId);
+      const userData = res.locals.userData;
       let wishlistItems = await WishlistItem.find({
         userId: req.session.userId,
       }).populate("product.productId");

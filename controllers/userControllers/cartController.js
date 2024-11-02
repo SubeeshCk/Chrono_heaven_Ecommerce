@@ -296,6 +296,13 @@ const loadCheckout = async (req, res, next) => {
     }
 
     const cartItems = await CartItem.find({ userId }).populate("product.productId");
+
+    if( cartItems.length <= 0 ){
+      return res.status(400).json({
+        success: false,
+        message: "No cart items available.",
+      });
+    }
     
     const userData = await User.findById(userId);
     const addressData = await Address.find({ userId });
@@ -310,21 +317,9 @@ const loadCheckout = async (req, res, next) => {
     subtotal = cartItems.reduce((acc, item)=> acc + (item.product[0].totalPrice),0);
     const totalAmount = cartItems.reduce((acc, item)=> acc + (item.product[0].totalPriceWithOffer),0);
 
-    let deliveryCharge = 0;
-
-      if (totalAmount < 10000) {
-        deliveryCharge = 50;
-      } else if (totalAmount < 20000) {
-        deliveryCharge = 30;
-      } else if (totalAmount < 30000) {
-        deliveryCharge = 20;
-      }
-
-    const total = totalAmount + deliveryCharge ;
-
     const currentDate = new Date();
     const availableCoupons = await Coupon.find({
-      minPurchaseAmount: { $lte: total },
+      minPurchaseAmount: { $lte: totalAmount },
       validity: { $gte: currentDate }
     });
     
@@ -332,11 +327,10 @@ const loadCheckout = async (req, res, next) => {
     res.render("checkout", {
       cartItems,
       subtotal,
-      total,
+      total : totalAmount,
       userData,
       addressData,
       RAZOPAY_ID_KEY,
-      deliveryCharge,
       totalProductCount,
       availableCoupons,
     });
@@ -450,7 +444,7 @@ const placeOrder = async (req, res, next) => {
       });
     }
 
-    const { selectedAddress, paymentMethod, subtotal, deliveryCharge, totalAmount, discount, couponDiscount } = req.body;
+    const { selectedAddress, paymentMethod, subtotal , totalAmount, discount, couponDiscount } = req.body;
     
     if (!selectedAddress) {
       return res.status(400).json({
@@ -520,7 +514,6 @@ const placeOrder = async (req, res, next) => {
       orderAmount: orderAmount,
       orderDate: new Date(),
       deliveryAddress: selectedAddress,
-      deliveryCharge,
       paymentMethod,
       discount,
       couponDiscount,
@@ -732,7 +725,6 @@ const applyCoupon = async (req, res) => {
       const { couponCode } = req.body;
       const userId = req.session.userId;
       const userData = res.locals.userData;
-      const deliveryCharge = req.body.deliveryCharge || 0;
 
       if (!userData) return res.redirect("/login");
 
@@ -777,7 +769,7 @@ const applyCoupon = async (req, res) => {
           discount = coupon.discountValue;
       }
 
-      const newTotal = (orderAmount - discount) + parseFloat(deliveryCharge);
+      const newTotal = orderAmount - discount
 
       req.session.appliedCoupon = couponCode;
       
@@ -789,7 +781,6 @@ const applyCoupon = async (req, res) => {
           newTotal: newTotal,
           couponDiscount: discount,
           orderAmount: orderAmount,
-          deliveryCharge: deliveryCharge
       });
   } catch (error) {
       console.error('Error applying coupon:', error);
@@ -804,7 +795,7 @@ const removeCoupon = async (req, res) => {
   try {
       const userId = req.session.userId;
       const userData = res.locals.userData;
-      const { couponCode, deliveryCharge = 0, subtotal = 0 } = req.body;
+      const { couponCode,  subtotal = 0 } = req.body;
 
       if (!userData) {
           return res.status(401).json({
@@ -844,7 +835,7 @@ const removeCoupon = async (req, res) => {
           });
       });
 
-      const newTotal = orderAmount + parseFloat(deliveryCharge);
+      const newTotal = orderAmount ;
 
       if (req.session.appliedCoupon === couponCode) {
           delete req.session.appliedCoupon;

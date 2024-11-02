@@ -38,7 +38,7 @@
         }
 
         .status-label.cancelled,
-        .status-label.returnrequestcancelled ,
+        .status-label.returnrequestcancelled,
         .status-label.returned {
             background-color: #dc3545;
             color: #fff;
@@ -76,15 +76,15 @@
         </div>
         <nav>
             <ul class="menu-aside">
-                <li class="menu-item active">
+                <li class="menu-item ">
                     <a class="menu-link" href="/admin/Dashboard">
                         <i class="icon material-icons md-home"></i>
                         <span class="text">Dashboard</span>
                     </a>
                 </li>
-                <li class="menu-item ">
+                <li class="menu-item active">
                     <a class="menu-link" href="/admin/sales-report">
-                        <i class="icon material-icons md-account_balance_wallet"></i>
+                        <i class="icon material-icons md-home"></i>
                         <span class="text">Sales report</span>
                     </a>
                 </li>
@@ -138,10 +138,10 @@
                     </div>
                 </li>
             </ul>
-                <br />
-                <br />
+            <br />
+            <br />
         </nav>
-</aside>
+    </aside>
 
     <main class="main-wrap">
         <header class="main-header navbar">
@@ -188,11 +188,15 @@
                             <img class="img-xs rounded-circle" src="/adminAssets/imgs/people/avatar-2.png" alt="User" />
                         </a>
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
-                            <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit Profile</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account Settings</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
+                            <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit
+                                Profile</a>
+                            <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account
+                                Settings</a>
+                            <a class="dropdown-item" href="#"><i
+                                    class="material-icons md-account_balance_wallet"></i>Wallet</a>
                             <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help center</a>
+                            <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help
+                                center</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger" href="/admin/logOut">
                                 <i class="material-icons md-exit_to_app"></i>Logout
@@ -215,7 +219,7 @@
                     </button>
                 </div>
             </div>
-    
+
             <!-- Stats Summary Cards -->
             <div class="row mb-4">
                 <div class="col-lg-3 col-md-6">
@@ -243,7 +247,7 @@
                     </div>
                 </div>
             </div>
-    
+
             <div class="card mb-4">
                 <header class="card-header">
                     <div class="row gx-3">
@@ -260,7 +264,7 @@
                             </select>
                         </div>
                     </div>
-    
+
                     <div id="customDateRange" class="custom-date-range row gx-3 mt-3">
                         <div class="col-lg-3 col-md-6">
                             <input type="date" id="startDate" class="form-control">
@@ -273,13 +277,13 @@
                         </div>
                     </div>
                 </header>
-    
+
                 <div id="loadingSpinner" class="loading-spinner">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
-    
+
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -302,7 +306,7 @@
                     </div>
                 </div>
             </div>
-    
+
             <div class="pagination-area mt-15 mb-50">
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-start" id="pagination">
@@ -319,133 +323,135 @@
     <script src="/adminAssets/js/vendors/select2.min.js"></script>
     <script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
     <script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/adminAssets/js/vendors/chart.js"></script>
+    <!-- Main Script -->
     <script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
-    <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/adminAssets/js/custom-chart.js" type="text/javascript"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    
-    
- <script>
-$(document).ready(function() {
-    const dateRangeSelect = $('#dateRange');
-    const customDateRange = $('#customDateRange');
-    const applyCustomDatesBtn = $('#applyCustomDates');
-    const downloadPdfBtn = $('#downloadPdfBtn');
-    const loadingSpinner = $('#loadingSpinner');
-    const searchInput = $('#searchInput');
-    let currentDateRange = 'daily';
-    let currentStartDate = null;
-    let currentEndDate = null;
 
-    // Handle date range selection
-    dateRangeSelect.on('change', function() {
-        const selectedRange = $(this).val();
-        currentDateRange = selectedRange;
-        
-        if (selectedRange === 'custom') {
-            customDateRange.show();
-        } else {
-            customDateRange.hide();
-            fetchAndDisplaySalesReport(selectedRange);
-        }
-    });
 
-    // Handle custom date range
-    applyCustomDatesBtn.click(function() {
-        const startDate = $('#startDate').val();
-        const endDate = $('#endDate').val();
-        
-        if (!startDate || !endDate) {
-            alert('Please select both start and end dates');
-            return;
-        }
-        
-        currentStartDate = startDate;
-        currentEndDate = endDate;
-        fetchAndDisplaySalesReport('custom', startDate, endDate);
-    });
+    <script>
+        $(document).ready(function () {
+            const dateRangeSelect = $('#dateRange');
+            const customDateRange = $('#customDateRange');
+            const applyCustomDatesBtn = $('#applyCustomDates');
+            const downloadPdfBtn = $('#downloadPdfBtn');
+            const loadingSpinner = $('#loadingSpinner');
+            const searchInput = $('#searchInput');
+            let currentDateRange = 'daily';
+            let currentStartDate = null;
+            let currentEndDate = null;
 
-    // Handle search functionality
-    let searchTimeout;
-    searchInput.on('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            const searchValue = $(this).val().toLowerCase();
-            filterTableRows(searchValue);
-        }, 300);
-    });
+            // Handle date range selection
+            dateRangeSelect.on('change', function () {
+                const selectedRange = $(this).val();
+                currentDateRange = selectedRange;
 
-    function filterTableRows(searchValue) {
-        const rows = $('#salesTableBody tr');
-        rows.each(function() {
-            const row = $(this);
-            const text = row.text().toLowerCase();
-            row.toggle(text.includes(searchValue));
-        });
-    }
-
-    // Handle PDF download
-    downloadPdfBtn.click(function() {
-        const button = $(this);
-        button.prop('disabled', true).html('<i class="material-icons md-file_download"></i> Generating...');
-        
-        fetch('/admin/downloadsalesreport')
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.blob();
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `salesReport_${moment().format('YYYYMMDD_HHmmss')}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to download PDF. Please try again.');
-            })
-            .finally(() => {
-                button.prop('disabled', false).html('<i class="material-icons md-file_download"></i> Download Report');
-            });
-    });
-
-    // Update statistics
-    function updateStatistics(data) {
-        const totalOrders = data.length;
-        const totalRevenue = data.reduce((sum, order) => sum + order.totalAmount, 0);
-        const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-        const successfulOrders = data.filter(order => 
-            ['delivered', 'shipped', 'confirmed'].includes(order.orderStatus.toLowerCase())
-        ).length;
-        const successRate = totalOrders > 0 ? (successfulOrders / totalOrders) * 100 : 0;
-
-        $('#totalOrders').text(totalOrders);
-        $('#totalRevenue').text(`₹${totalRevenue.toFixed(2)}`);
-        $('#avgOrderValue').text(`₹${avgOrderValue.toFixed(2)}`);
-        $('#successRate').text(`${successRate.toFixed(1)}%`);
-    }
-
-    // Main function to fetch and display sales report
-    function fetchAndDisplaySalesReport(dateRange, startDate = null, endDate = null, page = 1) {
-        loadingSpinner.show();
-        
-        $.ajax({
-            url: '/admin/sortReport',
-            method: 'POST',
-            data: { dateRange, startDate, endDate, page },
-            success: function(response) {
-                const tbody = $('#salesTableBody');
-                tbody.empty();
-
-                if (!response.salesData || response.salesData.length === 0) {
-                    tbody.html('<tr><td colspan="8" class="text-center">No sales data available for the selected date range.</td></tr>');
+                if (selectedRange === 'custom') {
+                    customDateRange.show();
                 } else {
-                    response.salesData.forEach(sale => {
-                        const row = `
+                    customDateRange.hide();
+                    fetchAndDisplaySalesReport(selectedRange);
+                }
+            });
+
+            // Handle custom date range
+            applyCustomDatesBtn.click(function () {
+                const startDate = $('#startDate').val();
+                const endDate = $('#endDate').val();
+
+                if (!startDate || !endDate) {
+                    alert('Please select both start and end dates');
+                    return;
+                }
+
+                currentStartDate = startDate;
+                currentEndDate = endDate;
+                fetchAndDisplaySalesReport('custom', startDate, endDate);
+            });
+
+            // Handle search functionality
+            let searchTimeout;
+            searchInput.on('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const searchValue = $(this).val().toLowerCase();
+                    filterTableRows(searchValue);
+                }, 300);
+            });
+
+            function filterTableRows(searchValue) {
+                const rows = $('#salesTableBody tr');
+                rows.each(function () {
+                    const row = $(this);
+                    const text = row.text().toLowerCase();
+                    row.toggle(text.includes(searchValue));
+                });
+            }
+
+            // Handle PDF download
+            downloadPdfBtn.click(function () {
+                const button = $(this);
+                button.prop('disabled', true).html('<i class="material-icons md-file_download"></i> Generating...');
+
+                fetch('/admin/downloadsalesreport')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `salesReport_${moment().format('YYYYMMDD_HHmmss')}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to download PDF. Please try again.');
+                    })
+                    .finally(() => {
+                        button.prop('disabled', false).html('<i class="material-icons md-file_download"></i> Download Report');
+                    });
+            });
+
+            // Update statistics
+            function updateStatistics(data) {
+                const totalOrders = data.length;
+                const totalRevenue = data.reduce((sum, order) => sum + order.totalAmount, 0);
+                const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+                const successfulOrders = data.filter(order =>
+                    ['delivered', 'shipped', 'confirmed'].includes(order.orderStatus.toLowerCase())
+                ).length;
+                const successRate = totalOrders > 0 ? (successfulOrders / totalOrders) * 100 : 0;
+
+                $('#totalOrders').text(totalOrders);
+                $('#totalRevenue').text(`₹${totalRevenue.toFixed(2)}`);
+                $('#avgOrderValue').text(`₹${avgOrderValue.toFixed(2)}`);
+                $('#successRate').text(`${successRate.toFixed(1)}%`);
+            }
+
+            // Main function to fetch and display sales report
+            function fetchAndDisplaySalesReport(dateRange, startDate = null, endDate = null, page = 1) {
+                loadingSpinner.show();
+
+                $.ajax({
+                    url: '/admin/sortReport',
+                    method: 'POST',
+                    data: { dateRange, startDate, endDate, page },
+                    success: function (response) {
+                        const tbody = $('#salesTableBody');
+                        tbody.empty();
+
+                        if (!response.salesData || response.salesData.length === 0) {
+                            tbody.html('<tr><td colspan="8" class="text-center">No sales data available for the selected date range.</td></tr>');
+                        } else {
+                            response.salesData.forEach(sale => {
+                                const row = `
                             <tr>
                                 <td>${sale.orderId}</td>
                                 <td><b>${sale.customerName}</b></td>
@@ -468,31 +474,31 @@ $(document).ready(function() {
                                 </td>
                             </tr>
                         `;
-                        tbody.append(row);
-                    });
+                                tbody.append(row);
+                            });
 
-                    updateStatistics(response.salesData);
-                    updatePagination(response.totalPages, response.currentPage);
-                }
-            },
-            error: function(err) {
-                console.error('Error fetching sales data:', err);
-                $('#salesTableBody').html('<tr><td colspan="8" class="text-center text-danger">Error fetching sales data. Please try again.</td></tr>');
-            },
-            complete: function() {
-                loadingSpinner.hide();
+                            updateStatistics(response.salesData);
+                            updatePagination(response.totalPages, response.currentPage);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Error fetching sales data:', err);
+                        $('#salesTableBody').html('<tr><td colspan="8" class="text-center text-danger">Error fetching sales data. Please try again.</td></tr>');
+                    },
+                    complete: function () {
+                        loadingSpinner.hide();
+                    }
+                });
             }
-        });
-    }
 
-    // Update pagination
-    function updatePagination(totalPages, currentPage) {
-        const pagination = $('#pagination');
-        pagination.empty();
+            // Update pagination
+            function updatePagination(totalPages, currentPage) {
+                const pagination = $('#pagination');
+                pagination.empty();
 
-        if (totalPages > 1) {
-            // Previous button
-            pagination.append(`
+                if (totalPages > 1) {
+                    // Previous button
+                    pagination.append(`
                 <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" data-page="${currentPage - 1}">
                         <i class="material-icons md-chevron_left"></i>
@@ -500,17 +506,17 @@ $(document).ready(function() {
                 </li>
             `);
 
-            // Page numbers
-            for (let i = 1; i <= totalPages; i++) {
-                pagination.append(`
+                    // Page numbers
+                    for (let i = 1; i <= totalPages; i++) {
+                        pagination.append(`
                     <li class="page-item ${currentPage === i ? 'active' : ''}">
                         <a class="page-link" href="#" data-page="${i}">${String(i).padStart(2, '0')}</a>
                     </li>
                 `);
-            }
+                    }
 
-            // Next button
-            pagination.append(`
+                    // Next button
+                    pagination.append(`
                 <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
                     <a class="page-link" href="#" data-page="${currentPage + 1}">
                         <i class="material-icons md-chevron_right"></i>
@@ -518,24 +524,21 @@ $(document).ready(function() {
                 </li>
             `);
 
-            // Handle pagination clicks
-            pagination.find('.page-link').on('click', function(e) {
-                e.preventDefault();
-                const page = $(this).data('page');
-                if (page && page >= 1 && page <= totalPages) {
-                    fetchAndDisplaySalesReport(currentDateRange, currentStartDate, currentEndDate, page);
+                    // Handle pagination clicks
+                    pagination.find('.page-link').on('click', function (e) {
+                        e.preventDefault();
+                        const page = $(this).data('page');
+                        if (page && page >= 1 && page <= totalPages) {
+                            fetchAndDisplaySalesReport(currentDateRange, currentStartDate, currentEndDate, page);
+                        }
+                    });
                 }
-            });
-        }
-    }
+            }
 
-    // Initial load of sales report
-    fetchAndDisplaySalesReport('daily');
-});
- </script>
-
-    <!-- Main Script -->
-    <script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
+            // Initial load of sales report
+            fetchAndDisplaySalesReport('daily');
+        });
+    </script>
 </body>
 
 </html>

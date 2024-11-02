@@ -355,7 +355,6 @@
                       <input type="hidden" name="subtotal" value="<%= subtotal %>">
                       <input type="hidden" name="discount"
                         value="<%= cartItems.reduce((acc, item)=> acc + (item.product[0].offerDiscount), 0) %>">
-                      <input type="hidden" name="deliveryCharge" value="<%= deliveryCharge %>">
                       <input type="hidden" name="totalAmount" value="<%= total %>">
 
                       <div class="checkout__order__total">
@@ -370,16 +369,6 @@
                             <span class="price" id="discount">₹ <%= (cartItems.reduce((acc, item)=> acc +
                                 (item.product[0].offerDiscount), 0)).toLocaleString('en-IN', { maximumFractionDigits: 2
                                 }) %></span>
-                          </li>
-                          <li>
-                            <span class="label"><i class="fa fa-truck icon"></i>Delivery charge</span>
-                            <span class="price" id="deliveryCharge">
-                              <% if (deliveryCharge===0) { %>
-                                <span style="color: green;">Free Delivery</span>
-                                <% } else { %>
-                                  ₹ <%= deliveryCharge.toLocaleString('en-IN', { maximumFractionDigits: 2 }) %>
-                                    <% } %>
-                            </span>
                           </li>
                           <li>
                             <span class="label"><i class="fa fa-tag icon"></i>Coupon Discount</span>
@@ -446,7 +435,6 @@ let currentlyAppliedCoupon = null;
 
 function applyCoupon() {
     const couponCode = document.querySelector('input[name="couponCode"]:checked')?.value;
-    const deliveryCharge = parseFloat(document.querySelector('input[name="deliveryCharge"]').value) || 0;
     const subtotal = parseFloat(document.querySelector('input[name="subtotal"]').value) || 0;
     const existingDiscount = parseFloat(document.querySelector('input[name="discount"]').value) || 0;
 
@@ -462,7 +450,6 @@ function applyCoupon() {
         },
         body: JSON.stringify({ 
             couponCode: couponCode,
-            deliveryCharge: deliveryCharge,
             subtotal: subtotal
         })
     })
@@ -526,7 +513,6 @@ function removeCoupon() {
         return;
     }
 
-    const deliveryCharge = parseFloat(document.querySelector('input[name="deliveryCharge"]').value) || 0;
     const subtotal = parseFloat(document.querySelector('input[name="subtotal"]').value) || 0;
     const existingDiscount = parseFloat(document.querySelector('input[name="discount"]').value) || 0;
 
@@ -537,7 +523,6 @@ function removeCoupon() {
         },
         body: JSON.stringify({ 
             couponCode: currentlyAppliedCoupon,
-            deliveryCharge: deliveryCharge,
             subtotal: subtotal
         })
     })
@@ -548,7 +533,7 @@ function removeCoupon() {
             currentlyAppliedCoupon = null;
 
             // Calculate total without coupon
-            const totalWithoutCoupon = subtotal - existingDiscount + deliveryCharge;
+            const totalWithoutCoupon = subtotal - existingDiscount;
 
             // Reset displayed values
             document.getElementById('couponDiscount').innerText = 'No coupon applied';
@@ -607,7 +592,6 @@ function removeCoupon() {
     const formDataObject = {
         selectedAddress: formData.get('selectedAddress'),
         paymentMethod: formData.get('paymentMethod'),
-        deliveryCharge: parseFloat(formData.get('deliveryCharge')),
         subtotal: parseFloat(formData.get('subtotal')),
         discount: parseFloat(formData.get('discount')) || 0,
         couponDiscount: parseFloat(formData.get('couponDiscount')) || 0,
@@ -687,7 +671,7 @@ function removeCoupon() {
 });
 
 
-    async function handleRazorpayPayment(selectedAddress, deliveryCharge, subtotal, discount, couponDiscount, total) {
+    async function handleRazorpayPayment(selectedAddress, subtotal, discount, couponDiscount, total) {
     try {
         const response = await fetch('/placeOrder', {
             method: 'POST',
@@ -697,7 +681,6 @@ function removeCoupon() {
             body: JSON.stringify({
                 selectedAddress: selectedAddress,
                 paymentMethod: 'razorpay',
-                deliveryCharge: deliveryCharge,
                 subtotal: subtotal,
                 discount: discount,
                 couponDiscount: couponDiscount,

@@ -131,7 +131,7 @@ const downloadSalesReport = async (req, res) => {
       .populate('userId');
 
     const doc = new PDFDocument({ margin: 50, size: 'A4' });
-    const reportsDir = path.join(__dirname, '../public/reports');
+    const reportsDir = path.join(__dirname, '../../public/reports');
 
     await fsPromises.mkdir(reportsDir, { recursive: true });
 
@@ -205,9 +205,9 @@ const downloadSalesReport = async (req, res) => {
       doc.fontSize(9)
          .text(orderId, 50, y, { width: 80 })
          .text(customer, 130, y, { width: 100 })
-         .text(items, 230, y, { width: 100 })
-         .text(total, 350, y, { width: 60})
-         .text(status, 420, y, { width: 80 })
+         .text(items, 230, y, { width: 80 })
+         .text(total, 310, y, { width: 80})
+         .text(status, 390, y, { width: 80 })
          .text(date, 480, y, { width: 70 });
     };
 

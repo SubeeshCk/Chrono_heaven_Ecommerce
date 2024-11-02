@@ -343,6 +343,39 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 	</script>
+	    <script>
+			function showToast(message, isSuccess = true) {
+				Toastify({
+					text: message,
+					duration: 3000,
+					gravity: "top",
+					position: "center",
+					backgroundColor: isSuccess ? "#4CAF50" : "#f44336",
+					stopOnFocus: true,
+					style: {
+						borderRadius: '5px',
+					}
+				}).showToast();
+			}
+	
+			document.addEventListener('DOMContentLoaded', function() {
+				const wishlistButtons = document.querySelectorAll('.btn-addwish-b2');
+				
+				wishlistButtons.forEach(button => {
+					button.addEventListener('click', function(e) {
+						e.preventDefault();
+						const heartIcon = this.querySelector('.icon-heart1');
+						
+						// Check current state of the heart icon
+						if (heartIcon.src.includes('icon-heart-02.png')) {
+							showToast('Product removed from wishlist');
+						} else {
+							showToast('Product added to wishlist! ❤️');
+						}
+					});
+				});
+			});
+		</script>
 
 </body>
 

@@ -6,6 +6,16 @@ const bcrypt = require("bcrypt");
 const Order = require("../../models/orderModel");
 const Wallet = require("../../models/walletModel");
 const PDFDocument = require("pdfkit");
+const crypto = require('crypto');
+
+const Razorpay = require("razorpay");
+
+const { RAZOPAY_ID_KEY , RAZOPAY_SECRET_KEY } = process.env;
+
+const razorpayInstance = new Razorpay({
+  key_id: RAZOPAY_ID_KEY,
+  key_secret: RAZOPAY_SECRET_KEY,
+});
 
 //For bcrypting the password
 const securePassword = async (password) => {
@@ -422,12 +432,9 @@ const cancelOrder = async (req, res, next) => {
         .json({ error: "Order cannot be cancelled in current state" });
     }
 
-    // Calculate total refund amount including delivery charge
-    let refundAmount = order.deliveryCharge || 0;
-
-    // Process each ordered item
+    let totalRefundAmount = 0;
     for (const item of order.orderedItem) {
-      // Skip items that are already cancelled, delivered, or returned
+
       if (
         ["cancelled", "delivered", "returned"].includes(
           item.status.toLowerCase()
@@ -436,17 +443,15 @@ const cancelOrder = async (req, res, next) => {
         continue;
       }
 
-      // Calculate refund amount for this item
-      const itemRefund = item.discountedPrice
+      let refundAmount = item.discountedPrice
         ? item.discountedPrice * item.quantity
         : item.totalProductAmount * item.quantity;
-      refundAmount += itemRefund;
+        
+        totalRefundAmount += refundAmount;
 
-      // Update item status
       item.status = "Cancelled";
       item.cancelReason = cancelReason;
 
-      // Update product quantity if payment is not pending
       if (
         !(order.paymentMethod === "razorpay" && order.paymentStatus === false)
       ) {
@@ -458,21 +463,19 @@ const cancelOrder = async (req, res, next) => {
       }
     }
 
-    // Update order status
     order.orderStatus = "Cancelled";
     await order.save();
 
-    // Process refund if not Cash on Delivery
-    if (order.paymentMethod !== "cashOnDelivery") {
+    if (order.paymentStatus === true) {
       const userWallet = await Wallet.findOne({ userId });
       if (!userWallet) {
         console.log("Wallet not found for user");
         return res.status(404).json({ error: "Wallet not found" });
       }
 
-      userWallet.balance += refundAmount;
+      userWallet.balance += totalRefundAmount;
       userWallet.transactions.push({
-        amount: refundAmount,
+        amount: totalRefundAmount,
         transactionMethod: "Refund",
         date: new Date(),
       });
@@ -482,7 +485,7 @@ const cancelOrder = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Order cancelled successfully",
-      refundAmount: refundAmount,
+      refundAmount: totalRefundAmount,
     });
   } catch (error) {
     console.error("Error in cancelEntireOrder:", error);
@@ -527,18 +530,9 @@ const cancelProduct = async (req, res, next) => {
       return res.status(400).json({ error: "Product is already cancelled" });
     }
 
-    let refundAmount = 0;
-    const baseRefundAmount = orderedItem.discountedPrice
+    const refundAmount = orderedItem.discountedPrice
       ? orderedItem.discountedPrice * orderedItem.quantity
       : orderedItem.totalProductAmount * orderedItem.quantity;
-
-    if (orderlength > 1) {
-      refundAmount = baseRefundAmount;
-    } else {
-      refundAmount = order.deliveryCharge
-        ? baseRefundAmount + order.deliveryCharge
-        : baseRefundAmount;
-    }
 
     let cancelCount = order.orderedItem.filter(
       (item) => item.status !== "Cancelled"
@@ -717,6 +711,143 @@ const renderRefferal = async (req, res) => {
   }
 };
 
+const initiatePayment = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+
+    const orderDetails = await Order.findById(orderId);
+
+    if (!orderDetails) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+
+    if (orderDetails.paymentStatus) {
+      return res.status(400).json({ message: "This order has already been paid" });
+    }
+
+    const orderAmount = orderDetails.orderAmount;
+
+
+    if (orderAmount < 1) {
+      return res.status(400).json({ message: "Order amount must be at least ₹1" });
+    }
+
+
+    const options = {
+      amount: Math.round(orderAmount * 100), 
+      currency: "INR",
+      receipt: `order_${orderId}`,
+    };
+
+    razorpayInstance .orders.create(options, async (err, order) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Failed to create Razorpay order" });
+      }
+
+      
+      orderDetails.razorpayOrderId = order.id;
+      await orderDetails.save();
+
+      res.json({
+        success: true,
+        razorpayKey: process.env.RAZOPAY_ID_KEY,
+        amount: order.amount,
+        orderId: order.id,
+      });
+    });
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const verifyPayment = async (req, res) => {
+  try {
+
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
+
+      const sign = razorpay_order_id + "|" + razorpay_payment_id;
+      
+      const expectedSign = crypto.createHmac("sha256", RAZOPAY_SECRET_KEY)
+          .update(sign.toString())
+          .digest("hex");
+
+      if (razorpay_signature === expectedSign) {
+
+          const updatedOrder = await Order.findByIdAndUpdate(orderId, { paymentStatus: true }, { new: true });
+          if (!updatedOrder) {
+              return res.status(404).json({
+                  success: false,
+                  message: "Order not found."
+              });
+          }
+
+      if (updatedOrder) {
+
+        updatedOrder.paymentStatus = true;
+        updatedOrder.orderStatus = "confirmed";
+        updatedOrder.orderedItem.forEach(item => {
+          item.status = "confirmed";
+        });
+        updatedOrder.razorpayPaymentId = razorpay_payment_id;
+        updatedOrder.razorpayOrderId = razorpay_order_id;
+        
+        for (const item of updatedOrder.orderedItem) {
+          const product = await Products.findById(item.productId);
+          if (product) {
+            product.quantity -= item.quantity;
+            product.sales_count += item.quantity;
+            await product.save();
+          }
+        }
+        await updatedOrder.save();
+
+        res.json({ success: true, message: "Payment verified and status updated" });
+      } else {
+        res.status(404).json({ success: false, message: "Order not found" });
+      }
+    } else {
+      res.status(400).json({ success: false, message: "Invalid payment verification" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const addReview = async(req,res)=>{
+  try{
+      const { productId, userId, reviewText, starRating } = req.body;
+
+     
+      const product = await Products.findById(productId);
+  
+      if (!product) {
+        return res.status(404).send('Product not found');
+      }
+  
+    
+      const newReview = {
+        userId,
+        reviewText,
+        starRating
+      };
+  
+    
+      product.reviews.push(newReview);
+      await product.save();
+  
+      res.status(200).send('Review submitted successfully!');
+
+  }catch(error){
+      console.log(error.message)
+  }
+}
+
 const generateInvoice = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -862,19 +993,7 @@ const generateInvoice = async (req, res) => {
       formatCurrency(couponDiscount)
     );
 
-    // Handle delivery charge
-    const deliveryCharge = order.deliveryCharge * 100 || 0;
-    const deliveryChargePosition = discountPosition + 20;
-    generateTableRow(
-      doc,
-      deliveryChargePosition,
-      "",
-      "",
-      "Delivery Charge",
-      formatCurrency(deliveryCharge)
-    );
-
-    const totalPosition = deliveryChargePosition + 25;
+    const totalPosition = discountPosition + 25;
     doc.font("Helvetica-Bold");
     generateTableRow(
       doc,
@@ -882,7 +1001,7 @@ const generateInvoice = async (req, res) => {
       "",
       "",
       "Total",
-      formatCurrency(totalAmount - couponDiscount + deliveryCharge)
+      formatCurrency(totalAmount - couponDiscount )
     );
     doc.font("Helvetica");
 
@@ -931,4 +1050,7 @@ module.exports = {
   returnProduct,
   returnOrder,
   generateInvoice,
+  initiatePayment,
+  verifyPayment,
+  addReview
 };

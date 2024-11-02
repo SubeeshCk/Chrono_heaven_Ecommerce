@@ -1,13 +1,13 @@
 const User = require("../models/userModel");
 
-const is_login = (req, res, next) => {
+const isLogin = (req, res, next) => {
   if (req.session.userId || (req.user && req.user._id)) {
     next();
   } else {
     res.redirect("/login");
   }
 };
-const is_logout = async (req, res, next) => {
+const isLogout = async (req, res, next) => {
   try {
     if (req.session.userId) {
       res.redirect("/");
@@ -21,6 +21,6 @@ const is_logout = async (req, res, next) => {
 };
 
 module.exports = {
-  is_login,
-  is_logout,
+  isLogin,
+  isLogout,
 };

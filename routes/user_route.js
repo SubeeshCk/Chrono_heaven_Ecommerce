@@ -28,21 +28,21 @@ userRoute.set('views','./views/user');
 
 
 /******************************* USER SIGNUP,SIGN IN,LOGOUT ,OTP **********************************/
-userRoute.get('/signUp',userAuth.is_logout,userVerificationController.renderSignUp);
-userRoute.post('/signUp',userAuth.is_logout, userVerificationController.insertUser);
-userRoute.get('/login',userAuth.is_logout,userVerificationController.renderLogin);
-userRoute.post('/login',userAuth.is_logout, userVerificationController.verifyLogin);
-userRoute.get('/otp',userAuth.is_logout,userVerificationController.renderOtp);
-userRoute.post('/verifyOTP',userAuth.is_logout ,userVerificationController.verifyOtp);
-userRoute.get('/resendOtp',userAuth.is_logout ,userVerificationController.resendOtp);
-userRoute.get('/forgot-password',userAuth.is_logout,userVerificationController.renderForgotPassword);
-userRoute.post('/findAccount',userAuth.is_logout,userVerificationController.findAccount);
-userRoute.get("/reset-otp",userAuth.is_logout,userVerificationController.renderResetOtp);
-userRoute.post('/verifyResetOtp',userAuth.is_logout,userVerificationController.verifyResetOtp);
-userRoute.get('/reset-password',userAuth.is_logout,userVerificationController.renderResetPassword);
-userRoute.post("/reset-password",userAuth.is_logout,userVerificationController.updatePassword);
-userRoute.get('/resendResetOtp',userAuth.is_logout,userVerificationController.resendResetOtp);
-userRoute.get('/logOut',userAuth.is_login,userVerificationController.logOut);
+userRoute.get('/signUp',userAuth.isLogout,userVerificationController.renderSignUp);
+userRoute.post('/signUp',userAuth.isLogout, userVerificationController.insertUser);
+userRoute.get('/login',userAuth.isLogout,userVerificationController.renderLogin);
+userRoute.post('/login',userAuth.isLogout, userVerificationController.verifyLogin);
+userRoute.get('/otp',userAuth.isLogout,userVerificationController.renderOtp);
+userRoute.post('/verifyOTP',userAuth.isLogout ,userVerificationController.verifyOtp);
+userRoute.get('/resendOtp',userAuth.isLogout ,userVerificationController.resendOtp);
+userRoute.get('/forgot-password',userAuth.isLogout,userVerificationController.renderForgotPassword);
+userRoute.post('/findAccount',userAuth.isLogout,userVerificationController.findAccount);
+userRoute.get("/reset-otp",userAuth.isLogout,userVerificationController.renderResetOtp);
+userRoute.post('/verifyResetOtp',userAuth.isLogout,userVerificationController.verifyResetOtp);
+userRoute.get('/reset-password',userAuth.isLogout,userVerificationController.renderResetPassword);
+userRoute.post("/reset-password",userAuth.isLogout,userVerificationController.updatePassword);
+userRoute.get('/resendResetOtp',userAuth.isLogout,userVerificationController.resendResetOtp);
+userRoute.get('/logOut',userAuth.isLogin,userVerificationController.logOut);
 
 
 //************************* HOME,SHOP,PRODUCT_DETAILS,WOMEN,MEN******************************//
@@ -52,55 +52,59 @@ userRoute.get('/product-details/:id?',setUserData, setCartCount, setWishlistData
 userRoute.get('/products/womens',setUserData ,setCartCount,setWishlistData, userController.renderWomens);
 userRoute.get('/products/mens',setUserData ,setCartCount,setWishlistData,  userController.renderMens);
 userRoute.get('/sort-products',setUserData ,setCartCount, userController.sortProducts);
-userRoute.get('/wishlist',userAuth.is_login,setUserData ,setCartCount,setWishlistData, userController.renderWishlist)
-userRoute.get('/addToWishlist',userAuth.is_login,setUserData, userController.addToWishlist)
-userRoute.get('/RemoveFromWishlist',userAuth.is_login,setUserData, userController.RemoveFromWishlist)
+userRoute.get('/wishlist',userAuth.isLogin,setUserData ,setCartCount,setWishlistData, userController.renderWishlist)
+userRoute.get('/addToWishlist',userAuth.isLogin,setUserData, userController.addToWishlist)
+userRoute.get('/RemoveFromWishlist',userAuth.isLogin,setUserData, userController.RemoveFromWishlist)
 
 
 
 //********************************User profile management************************************//
-userRoute.get('/user-profile',userAuth.is_login ,setUserData ,setCartCount ,setWishlistData, profileController.renderProfile);
-userRoute.get('/user-profile/edit-profile',userAuth.is_login ,setUserData ,setCartCount,setWishlistData, profileController.renderEditProfile);
-userRoute.post('/user-profile/edit-profile',userAuth.is_login, profileController.updateProfile);
-userRoute.get('/user-profile/address',userAuth.is_login, setCartCount,setWishlistData, profileController.renderAddress);
-userRoute.get('/user-profile/address/add-address',userAuth.is_login, setUserData,setCartCount,setWishlistData, profileController.renderAddNewAddress);
-userRoute.post('/user-profile/address/add-address',userAuth.is_login, setUserData,profileController.insertNewAddress);
-userRoute.get('/user-profile/address/edit-address',userAuth.is_login ,setCartCount,setWishlistData, profileController.renderEditAddress);
-userRoute.post('/user-profile/address/update-address',userAuth.is_login, profileController.updateAddress);
-userRoute.delete('/user-profile/address/delete-address/:id?',userAuth.is_login, profileController.deleteAddress);
-userRoute.post('/user-profile/change-password',setUserData,userAuth.is_login, profileController.resetPassword);
-userRoute.get('/user-profile/myorders',setUserData, userAuth.is_login, setCartCount,setWishlistData, profileController.renderMyOrder);
-userRoute.get('/user-profile/myorders/orderDetails',setUserData, userAuth.is_login,setCartCount, setWishlistData, profileController.renderOrderDetails)
-userRoute.post('/orders/cancelProduct', userAuth.is_login,profileController.cancelProduct);
-userRoute.post('/orders/cancelOrder', userAuth.is_login,profileController.cancelOrder);
-userRoute.post('/orders/returnProduct',userAuth.is_login,profileController.returnProduct);
-userRoute.post('/orders/returnOrder',userAuth.is_login,profileController.returnOrder);
-userRoute.get('/refferal',userAuth.is_login, setUserData, setCartCount ,setWishlistData, profileController.renderRefferal);
-userRoute.get('/invoice/:orderId', userAuth.is_login,profileController.generateInvoice);
+userRoute.get('/user-profile',userAuth.isLogin ,setUserData ,setCartCount ,setWishlistData, profileController.renderProfile);
+userRoute.get('/user-profile/edit-profile',userAuth.isLogin ,setUserData ,setCartCount,setWishlistData, profileController.renderEditProfile);
+userRoute.post('/user-profile/edit-profile',userAuth.isLogin, profileController.updateProfile);
+userRoute.get('/user-profile/address',userAuth.isLogin, setCartCount,setWishlistData, profileController.renderAddress);
+userRoute.get('/user-profile/address/add-address',userAuth.isLogin, setUserData,setCartCount,setWishlistData, profileController.renderAddNewAddress);
+userRoute.post('/user-profile/address/add-address',userAuth.isLogin, setUserData,profileController.insertNewAddress);
+userRoute.get('/user-profile/address/edit-address',userAuth.isLogin ,setCartCount,setWishlistData, profileController.renderEditAddress);
+userRoute.post('/user-profile/address/update-address',userAuth.isLogin, profileController.updateAddress);
+userRoute.delete('/user-profile/address/delete-address/:id?',userAuth.isLogin, profileController.deleteAddress);
+userRoute.post('/user-profile/change-password',setUserData,userAuth.isLogin, profileController.resetPassword);
+userRoute.get('/user-profile/myorders',setUserData, userAuth.isLogin, setCartCount,setWishlistData, profileController.renderMyOrder);
+userRoute.get('/user-profile/myorders/orderDetails',setUserData, userAuth.isLogin,setCartCount, setWishlistData, profileController.renderOrderDetails)
+userRoute.post('/orders/cancelProduct', userAuth.isLogin,profileController.cancelProduct);
+userRoute.post('/orders/cancelOrder', userAuth.isLogin,profileController.cancelOrder);
+userRoute.post('/orders/returnProduct',userAuth.isLogin,profileController.returnProduct);
+userRoute.post('/orders/returnOrder',userAuth.isLogin,profileController.returnOrder);
+userRoute.get('/refferal',userAuth.isLogin, setUserData, setCartCount ,setWishlistData, profileController.renderRefferal);
+userRoute.get('/invoice/:orderId', userAuth.isLogin,profileController.generateInvoice);
 
-userRoute.get('/Wallet',userAuth.is_login,setUserData,setCartCount,setWishlistData, walletController.renderWallet);
-userRoute.post('/add-money',userAuth.is_login,walletController.addMoneyToWallet);
+userRoute.get('/Wallet',userAuth.isLogin,setUserData,setCartCount,setWishlistData, walletController.renderWallet);
+userRoute.post('/add-money',userAuth.isLogin,walletController.addMoneyToWallet);
 
 
 
 
 //*************************************Cart management***************************************//
-userRoute.get('/cart', userAuth.is_login, setUserData,setCartCount, setWishlistData, cartController.renderCart);
-userRoute.get('/addToCart/:id',userAuth.is_login, setCartCount, setWishlistData, cartController.addToCart);
-userRoute.post('/updateCartItem',userAuth.is_login,cartController.updateCartItem);
-userRoute.get('/check-stock',userAuth.is_login, setCartCount, setWishlistData, cartController.checkStock);
-userRoute.post('/removeCartItem',userAuth.is_login,cartController.removeCartItem);
-userRoute.post('/applyCoupon',userAuth.is_login,setUserData, cartController.applyCoupon);
-userRoute.post('/removeCoupon',userAuth.is_login,setUserData, cartController.removeCoupon);
-userRoute.get('/cart/checkout',userAuth.is_login,setUserData, setCartCount, setWishlistData, cartController.loadCheckout);
-userRoute.get('/cart/checkout/addNewAddress',userAuth.is_login, setCartCount, setWishlistData, cartController.addNewAddress);
-userRoute.post('/cart/checkout/addCheckoutAddress',userAuth.is_login, cartController.insertCheckoutAddress);
-userRoute.delete('/cart/checkout/deleteAddress/:id?', userAuth.is_login, cartController.removeAddress);
-userRoute.post('/placeOrder',userAuth.is_login, cartController.placeOrder);
-userRoute.post('/verifyRazorpayPayment',userAuth.is_login, cartController.verifyRazorpayPayment);
+userRoute.get('/cart', userAuth.isLogin, setUserData,setCartCount, setWishlistData, cartController.renderCart);
+userRoute.get('/addToCart/:id',userAuth.isLogin, setCartCount, setWishlistData, cartController.addToCart);
+userRoute.post('/updateCartItem',userAuth.isLogin,cartController.updateCartItem);
+userRoute.get('/check-stock',userAuth.isLogin, setCartCount, setWishlistData, cartController.checkStock);
+userRoute.post('/removeCartItem',userAuth.isLogin,cartController.removeCartItem);
+userRoute.post('/applyCoupon',userAuth.isLogin,setUserData, cartController.applyCoupon);
+userRoute.post('/removeCoupon',userAuth.isLogin,setUserData, cartController.removeCoupon);
+userRoute.get('/cart/checkout',userAuth.isLogin,setUserData, setCartCount, setWishlistData, cartController.loadCheckout);
+userRoute.get('/cart/checkout/addNewAddress',userAuth.isLogin, setCartCount, setWishlistData, cartController.addNewAddress);
+userRoute.post('/cart/checkout/addCheckoutAddress',userAuth.isLogin, cartController.insertCheckoutAddress);
+userRoute.delete('/cart/checkout/deleteAddress/:id?', userAuth.isLogin, cartController.removeAddress);
+userRoute.post('/placeOrder',userAuth.isLogin, cartController.placeOrder);
+userRoute.post('/verifyRazorpayPayment',userAuth.isLogin, cartController.verifyRazorpayPayment);
 
-userRoute.get('/orderPlaced',userAuth.is_login,cartController.renderOrderPlaced);
+userRoute.post('/initiatePayment',userAuth.isLogin,profileController.initiatePayment)
+userRoute.post('/verifyPayment', userAuth.isLogin,profileController.verifyPayment)
 
+userRoute.get('/orderPlaced',userAuth.isLogin,cartController.renderOrderPlaced);
+
+userRoute.post('/addReview',userAuth.isLogin,profileController.addReview)
 
 
 //************************** Google authentication ********************************//

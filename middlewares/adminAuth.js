@@ -1,6 +1,6 @@
 const User = require('../models/userModel')
 
-const is_login = async(req,res,next)=>{
+const isLogin = async(req,res,next)=>{
     try{
         if(req.session.adminId){
             next()
@@ -14,7 +14,7 @@ const is_login = async(req,res,next)=>{
     }
 }
 
-const is_logout = async(req,res,next)=>{
+const isLogout = async(req,res,next)=>{
     try{
        if(req.session.adminId){
         res.redirect('/admin')
@@ -27,6 +27,6 @@ const is_logout = async(req,res,next)=>{
 }
 
 module.exports = {
-    is_login,
-    is_logout
+    isLogin,
+    isLogout
 }
