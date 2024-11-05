@@ -9,7 +9,7 @@ const Address = require("../../models/userAddress");
 const renderCustomer = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 8;
+    const limit = 5;
     const skip = (page - 1) * limit;
 
     const totalUsers = await User.countDocuments({ is_admin: 0 });
@@ -118,7 +118,6 @@ const renderCustomerProfile = async (req, res, next) => {
     customerId = req.params.id;
     const customer = await User.findById(customerId);
     const addresses = await Address.find({ userId:customerId });
-    console.log(addresses);
     
     if (!customer) {
       req.flash("error", "Customer not found");

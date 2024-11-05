@@ -102,27 +102,15 @@
             <div class="col-search">
                 <form class="searchform">
                     <div class="input-group">
-                        <input list="search_terms" type="text" class="form-control" placeholder="Search term" />
+                        <input type="text" placeholder="Search..." class="form-control" />
                         <button class="btn btn-light bg" type="button"><i class="material-icons md-search"></i></button>
                     </div>
-                    <datalist id="search_terms">
-                        <option value="Products"></option>
-                        <option value="New orders"></option>
-                        <option value="Apple iphone"></option>
-                        <option value="Ahmed Hassan"></option>
-                    </datalist>
                 </form>
             </div>
             <div class="col-nav">
                 <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"><i
                         class="material-icons md-apps"></i></button>
                 <ul class="nav">
-                    <li class="nav-item">
-                        <a class="nav-link btn-icon" href="#">
-                            <i class="material-icons md-notifications animation-shake"></i>
-                            <span class="badge rounded-pill">3</span>
-                        </a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link btn-icon darkmode" href="#"> <i class="material-icons md-nights_stay"></i>
                         </a>
@@ -132,34 +120,10 @@
                                 class="material-icons md-cast"></i></a>
                     </li>
                     <li class="dropdown nav-item">
-                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownLanguage"
-                            aria-expanded="false"><i class="material-icons md-public"></i></a>
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownLanguage">
-                            <a class="dropdown-item text-brand" href="#"><img src="/adminAssets/imgs/theme/flag-us.png"
-                                    alt="English" />English</a>
-                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-fr.png"
-                                    alt="Français" />Français</a>
-                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-jp.png"
-                                    alt="Français" />日本語</a>
-                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-cn.png"
-                                    alt="Français" />中国人</a>
-                        </div>
-                    </li>
-                    <li class="dropdown nav-item">
                         <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
                             aria-expanded="false"> <img class="img-xs rounded-circle"
                                 src="/adminAssets/imgs/people/avatar-2.png" alt="User" /></a>
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
-                            <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit
-                                Profile</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account
-                                Settings</a>
-                            <a class="dropdown-item" href="#"><i
-                                    class="material-icons md-account_balance_wallet"></i>Wallet</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help
-                                center</a>
-                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger" href="/admin/logOut"><i
                                     class="material-icons md-exit_to_app"></i>Logout</a>
                         </div>
@@ -178,37 +142,19 @@
                     <a href="/admin/products/add-products" class="btn btn-primary btn-sm rounded">Add new products</a>
                 </div>
             </div>
-            <div class="card mb-4">
-                <header class="card-header">
-                    <div class="row align-items-center">
-                        <div class="col col-check flex-grow-0">
-                            <div class="form-check ms-2">
-                                <input class="form-check-input" type="checkbox" value="" />
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                            <select class="form-select">
-                                <option selected>All products</option>
-                                <option>Electronics</option>
-                                <option>Clothes</option>
-                                <option>Automobile</option>
-                            </select>
-                        </div>
-                    </div>
-                </header>
+            <% if (messages.success) { %>
+                <div class="alert alert-success" role="alert" style="color: green;">
+                    <%= messages.success %>
+                </div>
+                <% } %>
 
-                <div class="card-body">
-                    <% if (messages.success) { %>
-                        <div class="alert alert-success" role="alert" style="color: green;">
-                            <%= messages.success %>
+                    <% if (messages.error) { %>
+                        <div class="alert alert-danger" role="alert" style="color: red;">
+                            <%= messages.error %>
                         </div>
                         <% } %>
-
-                            <% if (messages.error) { %>
-                                <div class="alert alert-danger" role="alert" style="color: red;">
-                                    <%= messages.error %>
-                                </div>
-                                <% } %>
+                            <div class="card mb-4">
+                                <div class="card-body">
 
                                     <!-- Table for Product Listing -->
                                     <table class="table table-hover">
@@ -269,54 +215,55 @@
                                                 <% }) %>
                                         </tbody>
                                     </table>
-                </div>
-            </div>
+                                </div>
+                            </div>
 
-            <!-- Pagination -->
-            <div class="pagination-area mt-30 mb-50">
-                <nav aria-label="Page navigation example">
-                  <ul class="pagination justify-content-start">
-                    <% if (hasPrevPage) { %>
-                      <li class="page-item">
-                        <a class="page-link" href="?page=<%= prevPage %>">
-                          <i class="material-icons md-chevron_left"></i>
-                        </a>
-                      </li>
-                    <% } %>
-              
-                    <% for(let i = 1; i <= totalPages; i++) { %>
-                      <% if (i === currentPage) { %>
-                        <li class="page-item active">
-                          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                        </li>
-                      <% } else if (
-                        i === 1 || 
-                        i === totalPages || 
-                        (i >= currentPage - 1 && i <= currentPage + 1)
-                      ) { %>
-                        <li class="page-item">
-                          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                        </li>
-                      <% } else if (
-                        i === currentPage - 2 || 
-                        i === currentPage + 2
-                      ) { %>
-                        <li class="page-item">
-                          <a class="page-link dot" href="#">...</a>
-                        </li>
-                      <% } %>
-                    <% } %>
-              
-                    <% if (hasNextPage) { %>
-                      <li class="page-item">
-                        <a class="page-link" href="?page=<%= nextPage %>">
-                          <i class="material-icons md-chevron_right"></i>
-                        </a>
-                      </li>
-                    <% } %>
-                  </ul>
-                </nav>
-              </div>
+                            <!-- Pagination -->
+                            <div class="pagination-area mt-30 mb-50">
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination justify-content-start">
+                                        <% if (hasPrevPage) { %>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=<%= prevPage %>">
+                                                    <i class="material-icons md-chevron_left"></i>
+                                                </a>
+                                            </li>
+                                            <% } %>
+
+                                                <% for(let i=1; i <=totalPages; i++) { %>
+                                                    <% if (i===currentPage) { %>
+                                                        <li class="page-item active">
+                                                            <a class="page-link" href="?page=<%= i %>">
+                                                                <%= i %>
+                                                            </a>
+                                                        </li>
+                                                        <% } else if ( i===1 || i===totalPages || (i>= currentPage - 1
+                                                            && i <= currentPage + 1) ) { %>
+                                                                <li class="page-item">
+                                                                    <a class="page-link" href="?page=<%= i %>">
+                                                                        <%= i %>
+                                                                    </a>
+                                                                </li>
+                                                                <% } else if ( i===currentPage - 2 || i===currentPage +
+                                                                    2 ) { %>
+                                                                    <li class="page-item">
+                                                                        <a class="page-link dot" href="#">...</a>
+                                                                    </li>
+                                                                    <% } %>
+                                                                        <% } %>
+
+                                                                            <% if (hasNextPage) { %>
+                                                                                <li class="page-item">
+                                                                                    <a class="page-link"
+                                                                                        href="?page=<%= nextPage %>">
+                                                                                        <i
+                                                                                            class="material-icons md-chevron_right"></i>
+                                                                                    </a>
+                                                                                </li>
+                                                                                <% } %>
+                                    </ul>
+                                </nav>
+                            </div>
         </section>
 
         <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
@@ -325,6 +272,31 @@
         <script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
         <script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
         <script src="/adminAssets/js/main.js" type="text/javascript"></script>
+        <script>
+            // Auto-dismiss flash messages after 3 seconds
+            document.addEventListener('DOMContentLoaded', function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    setTimeout(function() {
+                        alert.style.opacity = '1';
+                        // Fade out effect
+                        (function fade() {
+                            if ((alert.style.opacity -= 0.1) < 0) {
+                                alert.style.display = 'none';
+                            } else {
+                                requestAnimationFrame(fade);
+                            }
+                        })();
+                    }, 1500);
+                });
+            });
+        </script>
+        <style>
+            .alert {
+                transition: opacity 0.5s ease-in-out;
+                opacity: 1;
+            }
+        </style>
 </body>
 
 </html>

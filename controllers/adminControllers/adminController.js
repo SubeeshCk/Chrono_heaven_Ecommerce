@@ -125,7 +125,6 @@ const loadDashboard = async (req, res) => {
 
 const generateData = async (req, res) => {
   const reportType = req.query.reportType;
-  console.log("generateData called with reportType:", reportType);
   try {
     const now = new Date();
     let labels = [];

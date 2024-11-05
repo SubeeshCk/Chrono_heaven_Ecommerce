@@ -7,7 +7,7 @@ const Wallet = require("../../models/walletModel");
 const renderOrder = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 8;
+    const limit = 6;
     const skip = (page - 1) * limit;
 
     const totalOrders = await Order.countDocuments();

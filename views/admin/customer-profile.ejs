@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Admin dashboard</title>
+  <title>Customer profile</title>
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <meta name="description" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -99,82 +99,45 @@
   <main class="main-wrap">
     <header class="main-header navbar">
       <div class="col-search">
-        <form class="searchform">
-          <div class="input-group">
-            <input list="search_terms" type="text" class="form-control" placeholder="Search term" />
-            <button class="btn btn-light bg" type="button"><i class="material-icons md-search"></i></button>
-          </div>
-          <datalist id="search_terms">
-            <option value="Products"></option>
-            <option value="New orders"></option>
-            <option value="Apple iphone"></option>
-            <option value="Ahmed Hassan"></option>
-          </datalist>
-        </form>
+          <form class="searchform">
+              <div class="input-group">
+                  <input type="text" placeholder="Search..." class="form-control" />
+                  <button class="btn btn-light bg" type="button"><i class="material-icons md-search"></i></button>
+              </div>
+          </form>
       </div>
       <div class="col-nav">
-        <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"><i
-            class="material-icons md-apps"></i></button>
-        <ul class="nav">
-          <li class="nav-item">
-            <a class="nav-link btn-icon" href="#">
-              <i class="material-icons md-notifications animation-shake"></i>
-              <span class="badge rounded-pill">3</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link btn-icon darkmode" href="#"> <i class="material-icons md-nights_stay"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="requestfullscreen nav-link btn-icon"><i class="material-icons md-cast"></i></a>
-          </li>
-          <li class="dropdown nav-item">
-            <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownLanguage" aria-expanded="false"><i
-                class="material-icons md-public"></i></a>
-            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownLanguage">
-              <a class="dropdown-item text-brand" href="#"><img src="/adminAssets/imgs/theme/flag-us.png"
-                  alt="English" />English</a>
-              <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-fr.png"
-                  alt="Français" />Français</a>
-              <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-jp.png" alt="Français" />日本語</a>
-              <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-cn.png" alt="Français" />中国人</a>
-            </div>
-          </li>
-          <li class="dropdown nav-item">
-            <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false">
-              <img class="img-xs rounded-circle" src="/adminAssets/imgs/people/avatar-2.png" alt="User" /></a>
-            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
-              <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit
-                Profile</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account
-                Settings</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help
-                center</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item text-danger" href="/admin/logOut"><i
-                  class="material-icons md-exit_to_app"></i>Logout</a>
-            </div>
-          </li>
-        </ul>
+          <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"><i
+                  class="material-icons md-apps"></i></button>
+          <ul class="nav">
+              <li class="nav-item">
+                  <a class="nav-link btn-icon darkmode" href="#"> <i class="material-icons md-nights_stay"></i>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="#" class="requestfullscreen nav-link btn-icon"><i
+                          class="material-icons md-cast"></i></a>
+              </li>
+              <li class="dropdown nav-item">
+                  <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
+                      aria-expanded="false"> <img class="img-xs rounded-circle"
+                          src="/adminAssets/imgs/people/avatar-2.png" alt="User" /></a>
+                  <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+                      <a class="dropdown-item text-danger" href="/admin/logOut"><i
+                              class="material-icons md-exit_to_app"></i>Logout</a>
+                  </div>
+              </li>
+          </ul>
       </div>
-    </header>
+  </header>
 
     <section class="content-main">
       <div class="content-header">
         <a href="/admin/customers"><i class="material-icons md-arrow_back"></i> Go back </a>
       </div>
       <div class="card mb-4">
-        <div class="card-header bg-brand-2" style="height: 150px"></div>
         <div class="card-body">
           <div class="row">
-            <!-- <div class="col-xl col-lg flex-grow-0" style="flex-basis: 230px">
-                    <div class="img-thumbnail shadow w-100 bg-white position-relative text-center" style="height: 190px; width: 200px; margin-top: -120px">
-                        <img src="<%= customer.image %>" class="center-xy img-fluid" alt="Customer Avatar" />
-                    </div>
-                </div> -->
             <div class="col-xl col-lg">
               <h3>
                 <%= customer.name %>
@@ -184,35 +147,11 @@
               <p>Mobile: <%= customer.mobile %>
               </p>
             </div>
-            <div class="col-xl-4 text-md-end">
-              <select class="form-select w-auto d-inline-block"
-                onchange="handleActionChange(this, '<%= customer._id %>', '<%= customer.block %>')">
-                <option value="">Actions</option>
-                <% if (customer.block) { %>
-                  <option value="unblock">Unblock User</option>
-                  <% } else { %>
-                    <option value="block">Block User</option>
-                    <% } %>
-                      <option value="message">Send Message</option>
-              </select>
-              <a href="#" class="btn btn-primary"> View Orders <i class="material-icons md-launch"></i> </a>
-            </div>
           </div>
           <hr class="my-4" />
           <div class="row g-4">
-            <div class="col-md-12 col-lg-4 col-xl-2">
-              <article class="box">
-                <p class="mb-0 text-muted">Total Purchases:</p>
-                <h5 class="text-success">
-                  <%= customer.totalPurchases %>
-                </h5>
-                <p class="mb-0 text-muted">Spent:</p>
-                <h5 class="text-success mb-0">$<%= customer.totalSpent %>
-                </h5>
-              </article>
-            </div>
             <div class="col-sm-6 col-lg-4 col-xl-3">
-              <h6>Contacts</h6>
+              <h4>Contacts</h4>
               <p>
                 Name: <%= customer.name %> <br />
                   Email: <%= customer.email %> <br />
@@ -220,10 +159,10 @@
               </p>
             </div>
             <div class="col-sm-6 col-lg-4 col-xl-3">
-              <h6>Address</h6>
+              <h4>Address</h4>
               <p><% if (addresses && addresses.length > 0) { %>
                      <% addresses.forEach(address => { %>
-                     Type: <%= address.addresstype %><br>
+                     <h6><%= address.addresstype %></h6>
                      <%= address.name %>,<%= address.address %>, <%= address.locality %>, <%= address.city %>, <%= address.pincode %>
                       <% }) %>
                   <% } else { %>

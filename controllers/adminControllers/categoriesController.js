@@ -2,10 +2,35 @@ const Category = require("../../models/category");
 const API_ROUTES = require("../../config/apiRoutes");
 const { findByIdAndUpdate } = require("../../models/userModel");
 
+
 const renderCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find({});
-    res.render("categories", { categories });
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 5; 
+    const skip = (page - 1) * limit;
+
+    const totalCategories = await Category.countDocuments({});
+    const totalPages = Math.ceil(totalCategories / limit);
+
+    const categories = await Category.find({})
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); 
+
+    const pagination = {
+      currentPage: page,
+      totalPages: totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1
+    };
+
+    res.render("categories", { 
+      categories,
+      pagination,
+      messages: req.flash()
+    });
   } catch (error) {
     return next(error);
   }

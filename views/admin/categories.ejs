@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Admin dashboard</title>
+    <title>Categories</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -102,27 +102,15 @@
             <div class="col-search">
                 <form class="searchform">
                     <div class="input-group">
-                        <input list="search_terms" type="text" class="form-control" placeholder="Search term" />
+                        <input type="text" placeholder="Search..." class="form-control" />
                         <button class="btn btn-light bg" type="button"><i class="material-icons md-search"></i></button>
                     </div>
-                    <datalist id="search_terms">
-                        <option value="Products"></option>
-                        <option value="New orders"></option>
-                        <option value="Apple iphone"></option>
-                        <option value="Ahmed Hassan"></option>
-                    </datalist>
                 </form>
             </div>
             <div class="col-nav">
                 <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"><i
                         class="material-icons md-apps"></i></button>
                 <ul class="nav">
-                    <li class="nav-item">
-                        <a class="nav-link btn-icon" href="#">
-                            <i class="material-icons md-notifications animation-shake"></i>
-                            <span class="badge rounded-pill">3</span>
-                        </a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link btn-icon darkmode" href="#"> <i class="material-icons md-nights_stay"></i>
                         </a>
@@ -132,34 +120,10 @@
                                 class="material-icons md-cast"></i></a>
                     </li>
                     <li class="dropdown nav-item">
-                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownLanguage"
-                            aria-expanded="false"><i class="material-icons md-public"></i></a>
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownLanguage">
-                            <a class="dropdown-item text-brand" href="#"><img src="/adminAssets/imgs/theme/flag-us.png"
-                                    alt="English" />English</a>
-                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-fr.png"
-                                    alt="Français" />Français</a>
-                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-jp.png"
-                                    alt="Français" />日本語</a>
-                            <a class="dropdown-item" href="#"><img src="/adminAssets/imgs/theme/flag-cn.png"
-                                    alt="Français" />中国人</a>
-                        </div>
-                    </li>
-                    <li class="dropdown nav-item">
                         <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
                             aria-expanded="false"> <img class="img-xs rounded-circle"
                                 src="/adminAssets/imgs/people/avatar-2.png" alt="User" /></a>
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
-                            <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit
-                                Profile</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account
-                                Settings</a>
-                            <a class="dropdown-item" href="#"><i
-                                    class="material-icons md-account_balance_wallet"></i>Wallet</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help
-                                center</a>
-                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger" href="/admin/logOut"><i
                                     class="material-icons md-exit_to_app"></i>Logout</a>
                         </div>
@@ -178,104 +142,121 @@
                     <a href="/admin/categories/add-category" class="btn btn-primary btn-sm rounded">Create new</a>
                 </div>
             </div>
-            <div class="card mb-4">
-                <header class="card-header">
-                    <div class="row align-items-center">
-                        <div class="col col-check flex-grow-0">
-                            <div class="form-check ms-2">
-                                <input class="form-check-input" type="checkbox" value="" />
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                            <select class="form-select">
-                                <option selected>All category</option>
-                                <option>Electronics</option>
-                                <option>Clothes</option>
-                                <option>Automobile</option>
-                            </select>
-                        </div>
-                    </div>
-                </header>
-                <!-- Assuming this is inside categories.ejs -->
-                <div class="card mb-4">
-                    <% if (messages.success) { %>
-                        <div class="alert alert-success" role="alert" style="color: green;">
-                            <%= messages.success %>
-                        </div>
-                        <% } %>
-
-                            <% if (messages.error) { %>
-                                <div class="alert alert-danger" role="alert" style="color: red;">
-                                    <%= messages.error %>
-                                </div>
-                                <% } %>
-
-                                    <!-- Loop through categories dynamically -->
-                                    <% categories.forEach(category=> { %>
-                                        <article class="itemlist">
-                                            <div class="row align-items-center">
-                                                <div class="col col-check flex-grow-0">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            value="<%= category._id %>" />
-                                                    </div>
-                                                </div>
-
-                                                <!-- Category Name Column -->
-                                                <div class="col-lg-2 col-sm-4 col-8 flex-grow-1 col-name">
-                                                    <h6 class="mb-0">
-                                                        <%= category.name %>
-                                                    </h6>
-                                                </div>
-
-                                                <!-- Category Description Column -->
-                                                <div class="col-lg-4 col-sm-6 col-12 flex-grow-1 col-description">
-                                                    <p class="mb-0">
-                                                        <%= category.description %>
-                                                    </p> <!-- Added description in its own column -->
-                                                </div>
-
-                                                <!-- Category Status Column -->
-                                                <div class="col-lg-2 col-sm-2 col-4 col-status">
-                                                    <span
-                                                        class="badge rounded-pill <%= category.is_listed ? 'alert-success' : 'alert-danger' %>">
-                                                        <%= category.is_listed ? 'Active' : 'unlisted' %>
-                                                    </span>
-                                                </div>
-
-                                                <!-- Action Buttons Column -->
-                                                <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
-                                                    <a href="/admin/categories/edit-category/<%=category._id%>"
-                                                        class="btn btn-sm font-sm rounded btn-brand"> <i
-                                                            class="material-icons md-edit"></i> Edit </a>
-                                                    <a href="/admin/categories/<%= category.is_listed ? 'unlist' : 'list' %>-category/<%=category._id%>"
-                                                        class="btn btn-sm font-sm btn-light rounded"> <i
-                                                            class="material-icons md-delete_forever"></i>
-                                                        <%= category.is_listed ? 'Unlist' : 'List' %>
-                                                    </a>
-                                                </div>
+            <% if (messages.success) { %>
+                <div class="alert alert-success" role="alert" style="color: green;">
+                    <%= messages.success %>
+                </div>
+            <% } %>
+        
+            <% if (messages.error) { %>
+                <div class="alert alert-danger" role="alert" style="color: red;">
+                    <%= messages.error %>
+                </div>
+            <% } %>
+            <div class="card mb-4">            
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" style="table-layout: fixed;">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 200px;">Name</th>
+                                    <th scope="col" style="width: 350px;">Description</th>
+                                    <th scope="col" style="width: 100px;">Status</th>
+                                    <th scope="col" style="width: 200px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% categories.forEach(category => { %>
+                                    <tr>
+                                        <td style="width: 200px;">
+                                            <div class="text-truncate" title="<%= category.name %>">
+                                                <h6 class="mb-0"><%= category.name %></h6>
                                             </div>
-                                        </article>
-                                        <% }) %>
+                                        </td>
+                                        <td style="width: 350px;">
+                                            <div class="text-truncate" title="<%= category.description %>">
+                                                <p class="mb-0"><%= category.description %></p>
+                                            </div>
+                                        </td>
+                                        <td style="width: 100px;">
+                                            <span class="badge rounded-pill <%= category.is_listed ? 'alert-success' : 'alert-danger' %>"
+                                                  style="min-width: 80px; display: inline-block;">
+                                                <%= category.is_listed ? 'Active' : 'Unlisted' %>
+                                            </span>
+                                        </td>
+                                        <td style="width: 200px;">
+                                            <div class="btn-group" role="group" style="min-width: 160px;">
+                                                <a href="/admin/categories/edit-category/<%=category._id%>" 
+                                                   class="btn btn-sm font-sm rounded btn-brand"
+                                                   style="width: 80px;">
+                                                    <i class="material-icons md-edit"></i> Edit
+                                                </a>
+                                                <a href="/admin/categories/<%= category.is_listed ? 'unlist' : 'list' %>-category/<%=category._id%>" 
+                                                   class="btn btn-sm font-sm btn-light rounded"
+                                                   style="width: 80px;">
+                                                    <i class="material-icons md-delete_forever"></i>
+                                                    <%= category.is_listed ? 'Unlist' : 'List' %>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+            
+                    <% if (categories.length === 0) { %>
+                        <div class="text-center p-4">
+                            <p class="mb-0">No categories found</p>
+                        </div>
+                    <% } %>
                 </div>
             </div>
-            <!-- card-body end// -->
             </div>
-            <!-- card end// -->
             <div class="pagination-area mt-30 mb-50">
                 <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-start">
-                        <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                        <li class="page-item"><a class="page-link" href="#">02</a></li>
-                        <li class="page-item"><a class="page-link" href="#">03</a></li>
-                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                        <li class="page-item"><a class="page-link" href="#">16</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
+                  <ul class="pagination justify-content-start">
+                    <% if (pagination.hasPrevPage) { %>
+                      <li class="page-item">
+                        <a class="page-link" href="/admin/categories?page=<%= pagination.prevPage %>">
+                          <i class="material-icons md-chevron_left"></i>
+                        </a>
+                      </li>
+                    <% } %>
+              
+                    <% for(let i = 1; i <= pagination.totalPages; i++) { %>
+                      <% if (i === pagination.currentPage) { %>
+                        <li class="page-item active">
+                          <a class="page-link" href="/admin/categories?page=<%= i %>"><%= i %></a>
                         </li>
-                    </ul>
+                      <% } else if (
+                        i === 1 || 
+                        i === pagination.totalPages || 
+                        (i >= pagination.currentPage - 1 && i <= pagination.currentPage + 1)
+                      ) { %>
+                        <li class="page-item">
+                          <a class="page-link" href="/admin/categories?page=<%= i %>"><%= i %></a>
+                        </li>
+                      <% } else if (
+                        i === pagination.currentPage - 2 || 
+                        i === pagination.currentPage + 2
+                      ) { %>
+                        <li class="page-item">
+                          <a class="page-link dot">...</a>
+                        </li>
+                      <% } %>
+                    <% } %>
+              
+                    <% if (pagination.hasNextPage) { %>
+                      <li class="page-item">
+                        <a class="page-link" href="/admin/categories?page=<%= pagination.nextPage %>">
+                          <i class="material-icons md-chevron_right"></i>
+                        </a>
+                      </li>
+                    <% } %>
+                  </ul>
                 </nav>
-            </div>
+              </div>
         </section>
     </main>
     <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
@@ -285,6 +266,31 @@
     <script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
     <script src="/adminAssets/js/main.js" type="text/javascript"></script>
+    <script>
+        // Auto-dismiss flash messages after 3 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '1';
+                    // Fade out effect
+                    (function fade() {
+                        if ((alert.style.opacity -= 0.1) < 0) {
+                            alert.style.display = 'none';
+                        } else {
+                            requestAnimationFrame(fade);
+                        }
+                    })();
+                }, 1000); // 3 seconds delay
+            });
+        });
+    </script>
+    <style>
+        .alert {
+            transition: opacity 0.5s ease-in-out;
+            opacity: 1;
+        }
+    </style>
 </body>
 
 </html>
