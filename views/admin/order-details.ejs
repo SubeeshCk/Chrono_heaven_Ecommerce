@@ -255,9 +255,18 @@
                                     <h6 class="mb-1">Order info</h6>
                                     <p> Payment Method: <%= order.paymentMethod %>
                                     </p>
-                                    <p class="mb-1 <%= order.paymentStatus ? 'bg-success text-white ' : 'bg-danger text-white' %>"
-                                        style="border-radius: 10px;  padding:8px;">
-                                        Payment Status: <%= order.paymentStatus ? 'Payment Done' : 'Payment pending' %>
+                                    <p class="mb-1 ">
+                                        Payment Status : <%= order.paymentStatus ? 'Payment Done' : 'Payment pending' %>
+                                    </p>
+                                    <p>
+                                        Order Status : 
+                                        <%if ( order.orderStatus === "returnRequested"){ %>
+                                            Return request pending
+                                            <% } else if ( order.orderStatus === "returnRequestCancelled") {%>
+                                            Return request cancelled
+                                            <% } else { %>
+                                             <%= order.orderStatus %>
+                                            <% } %>
                                     </p>
                                 </div>
                             </article>
@@ -330,7 +339,13 @@
                                                 <td>₹<%= product.totalProductAmount %>
                                                 </td>
                                                 <td><span class="badge status-label <%= product.status %>">
-                                                        <%= product.status %>
+                                                    <%if ( product.status === "returnRequested"){ %>
+                                                        Return pending
+                                                        <% } else if ( product.status === "returnRequestCancelled") {%>
+                                                        Return cancelled
+                                                        <% } else { %>
+                                                         <%= product.status %>
+                                                        <% } %>
                                                     </span></td>
                                                 <td>
                                                     <form class="updateProductStatusForm">

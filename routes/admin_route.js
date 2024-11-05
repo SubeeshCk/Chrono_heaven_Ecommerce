@@ -28,7 +28,8 @@ adminRoute.set('views', './views/admin');
 adminRoute.get("/", adminAuth.isLogout, adminController.renderLogin);
 adminRoute.get("/login", adminAuth.isLogout, adminController.loadLogin);
 adminRoute.post("/login", adminController.verifyLogin);
-adminRoute.get('/dashboard', adminAuth.isLogin, adminController.renderDashboard);
+adminRoute.get('/dashboard', adminAuth.isLogin, adminController.loadDashboard);
+adminRoute.get('/generate-sales-data', adminAuth.isLogin, adminController.generateData);
 adminRoute.get('/logOut', adminAuth.isLogin, adminController.logOut);
 
 //*****************************   Categories  ************************************//

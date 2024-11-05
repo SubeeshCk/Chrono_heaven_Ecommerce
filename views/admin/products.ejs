@@ -275,18 +275,48 @@
             <!-- Pagination -->
             <div class="pagination-area mt-30 mb-50">
                 <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-start">
-                        <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                        <li class="page-item"><a class="page-link" href="#">02</a></li>
-                        <li class="page-item"><a class="page-link" href="#">03</a></li>
-                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                        <li class="page-item"><a class="page-link" href="#">16</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
+                  <ul class="pagination justify-content-start">
+                    <% if (hasPrevPage) { %>
+                      <li class="page-item">
+                        <a class="page-link" href="?page=<%= prevPage %>">
+                          <i class="material-icons md-chevron_left"></i>
+                        </a>
+                      </li>
+                    <% } %>
+              
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                      <% if (i === currentPage) { %>
+                        <li class="page-item active">
+                          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
                         </li>
-                    </ul>
+                      <% } else if (
+                        i === 1 || 
+                        i === totalPages || 
+                        (i >= currentPage - 1 && i <= currentPage + 1)
+                      ) { %>
+                        <li class="page-item">
+                          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                      <% } else if (
+                        i === currentPage - 2 || 
+                        i === currentPage + 2
+                      ) { %>
+                        <li class="page-item">
+                          <a class="page-link dot" href="#">...</a>
+                        </li>
+                      <% } %>
+                    <% } %>
+              
+                    <% if (hasNextPage) { %>
+                      <li class="page-item">
+                        <a class="page-link" href="?page=<%= nextPage %>">
+                          <i class="material-icons md-chevron_right"></i>
+                        </a>
+                      </li>
+                    <% } %>
+                  </ul>
                 </nav>
-            </div>
+              </div>
         </section>
 
         <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>

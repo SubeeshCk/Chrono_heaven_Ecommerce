@@ -525,7 +525,13 @@
                               <br>
                               <p><strong>Order Status:</strong>
                                 <span class="status-badge status-label <%= orderData.orderStatus.toLowerCase() %>">
-                                  <%= orderData.orderStatus %>
+                                  <%if ( orderData.orderStatus === "returnRequested"){ %>
+                                    Return request pending
+                                    <% } else if ( orderData.orderStatus === "returnRequestCancelled") {%>
+                                    Return request cancelled
+                                    <% } else { %>
+                                    Order <%= orderData.orderStatus %>
+                                    <% } %>
                                 </span>
                               </p>
                               <br>
@@ -595,7 +601,13 @@
                                     </td>
                                     <td>
                                       <span class="status-badge  %>">
-                                        <%= item.status %>
+                                        <%if ( item.status === "returnRequested"){ %>
+                                          Return request pending
+                                          <% } else if ( item.status === "returnRequestCancelled") {%>
+                                          Return request cancelled
+                                          <% } else { %>
+                                           <%= item.status %>
+                                          <% } %>
                                       </span>
                                     </td>
                                     <td>
@@ -605,7 +617,7 @@
                                           <div class="d-flex flex-column align-items-end">
                                             <% if (productStatus !=='delivered' && productStatus !=='cancelled' &&
                                               productStatus !=='returned' && productStatus !=='returnrequested' &&
-                                              orderData.orderedItem.length> 1 ) { %>
+                                              productStatus !=='returnrequestcancelled' && orderData.orderedItem.length> 1 ) { %>
                                               <button type="button"
                                                 class="btn btn-danger btn-custom cancel-order-btn mb-2"
                                                 data-toggle="modal" data-target="#cancelOrderModal<%= item._id %>">

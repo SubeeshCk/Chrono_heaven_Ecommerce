@@ -1,6 +1,80 @@
 <%- include('../layouts/user/product-header') %>
 
 <style>
+  /* Pagination Styling */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination li {
+  margin: 0;
+}
+
+.pagination li a,
+.pagination li span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  min-width: 40px;
+  background-color: white;
+  color: #333;
+  text-decoration: none;
+  border: 1px solid #dee2e6;
+  margin-left: -1px;
+  transition: all 0.2s ease-in-out;
+}
+
+.pagination li.active a {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.pagination li a:hover:not(.active) {
+  background-color: #f8f9fa;
+  color: #dc3545;
+}
+
+.pagination li.disabled span {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.pagination li:first-child a,
+.pagination li:first-child span {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.pagination li:last-child a,
+.pagination li:last-child span {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Add this to your responsive styles */
+@media (max-width: 576px) {
+  .pagination li a,
+  .pagination li span {
+    padding: 0.5rem 0.75rem;
+    min-width: 35px;
+  }
+}
       /* Container Styling */
       .path {
     display: flex;
@@ -290,7 +364,13 @@
                   <div class="d-flex justify-content-between align-items-center">
                     <h5>Order #<%= order._id.toString().slice(-6) %></h5>
                     <span class="status-badge status-label <%= order.orderStatus.toLowerCase() %>">
+                      <%if ( order.orderStatus === "returnRequested"){ %>
+                      Return request pending
+                      <% } else if ( order.orderStatus === "returnRequestCancelled") {%>
+                      Return request cancelled
+                      <% }else{ %>
                       Order <%= order.orderStatus %>
+                      <% } %>
                     </span>
 
                   </div>
@@ -343,6 +423,55 @@
       </div>
     </div>
   </div>
+<% if (totalPages > 1) { %>
+  <div class="pagination-container">
+    <ul class="pagination">
+      <% if (hasPrevPage) { %>
+        <li>
+          <a href="?page=<%= prevPage %>" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+      <% } else { %>
+        <li class="disabled">
+          <span aria-hidden="true">&laquo;</span>
+        </li>
+      <% } %>
+
+      <% if (currentPage > 2) { %>
+        <li><a href="?page=1">1</a></li>
+        <% if (currentPage > 3) { %>
+          <li class="disabled"><span>...</span></li>
+        <% } %>
+      <% } %>
+
+      <% for (let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages, currentPage + 1); i++) { %>
+        <li class="<%= currentPage === i ? 'active' : '' %>">
+          <a href="?page=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      <% if (currentPage < totalPages - 1) { %>
+        <% if (currentPage < totalPages - 2) { %>
+          <li class="disabled"><span>...</span></li>
+        <% } %>
+        <li><a href="?page=<%= totalPages %>"><%= totalPages %></a></li>
+      <% } %>
+
+      <% if (hasNextPage) { %>
+        <li>
+          <a href="?page=<%= nextPage %>" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      <% } else { %>
+        <li class="disabled">
+          <span aria-hidden="true">&raquo;</span>
+        </li>
+      <% } %>
+    </ul>
+  </div>
+<% } %>
 </section>
 <!-- Personal Info and Orders Section End -->
 

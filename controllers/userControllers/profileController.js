@@ -346,20 +346,39 @@ const resetPassword = async (req, res) => {
 
 const renderMyOrder = async (req, res, next) => {
   try {
-    if (req.session.userId) {
-      const userId = req.session.userId;
-      const orderData = await Order.find({ userId })
-        .sort({ createdAt: -1 })
-        .populate({
-          path: "orderedItem.productId",
-          select: "product_name price images",
-        })
-        .populate("deliveryAddress");
-
-      res.render("myorders", { orderData });
-    } else {
-      res.redirect("/login");
+    if (!req.session.userId) {
+      return res.redirect("/login");
     }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 3;
+    const skip = (page - 1) * limit;
+    const userId = req.session.userId;
+
+    const totalOrders = await Order.countDocuments({ userId });
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    const orderData = await Order.find({ userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "orderedItem.productId",
+        select: "product_name price images",
+      })
+      .populate("deliveryAddress");
+
+    res.render("myorders", { 
+      orderData,
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: totalPages
+    });
+
   } catch (error) {
     return next(error);
   }

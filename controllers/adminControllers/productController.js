@@ -11,10 +11,30 @@ const path = require('path');
 
 const renderProduct = async (req, res, next) => {
   try {
-    const products = await Products.find({});
-    res.render("products", { products });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 4; 
+    const skip = (page - 1) * limit;
+
+    const totalProducts = await Products.countDocuments({});
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await Products.find({})
+      .skip(skip)
+      .limit(limit);
+
+    res.render("products", { 
+      products,
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: totalPages
+    });
   } catch (error) {
-    return next(error);  }
+    return next(error);
+  }
 };
 
 const renderAddProducts = async (req, res, next) => {

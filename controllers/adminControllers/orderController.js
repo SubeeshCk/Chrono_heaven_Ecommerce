@@ -3,10 +3,20 @@ const Order = require("../../models/orderModel");
 const Products = require("../../models/product");
 const Wallet = require("../../models/walletModel");
 
+
 const renderOrder = async (req, res, next) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 8;
+    const skip = (page - 1) * limit;
+
+    const totalOrders = await Order.countDocuments();
+    const totalPages = Math.ceil(totalOrders / limit);
+
     const orderData = await Order.find()
       .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit)
       .populate({
         path: "orderedItem.productId",
         select: "product_name price",
@@ -16,11 +26,21 @@ const renderOrder = async (req, res, next) => {
         select: "name email",
       });
 
-    res.render("orders", { orderData });
+    res.render("orders", { 
+      orderData,
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: totalPages
+    });
   } catch (error) {
     next(error);
   }
 };
+
 
 const renderOrderDetails = async (req, res, next) => {
   try {

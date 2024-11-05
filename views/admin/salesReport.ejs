@@ -214,9 +214,16 @@
                     <p>Comprehensive overview of sales data and analytics</p>
                 </div>
                 <div>
-                    <button id="downloadPdfBtn" class="btn btn-primary">
-                        <i class="material-icons md-file_download"></i> Download Report
-                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="downloadReportDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="material-icons md-file_download"></i> Download Report
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="downloadReportDropdown">
+                            <li><a class="dropdown-item" href="#" id="downloadPdfBtn">Download as PDF</a></li>
+                            <li><a class="dropdown-item" href="#" id="downloadExcelBtn">Download as Excel</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -236,14 +243,14 @@
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="stats-card">
-                        <div class="stats-value" id="avgOrderValue">₹0</div>
-                        <div class="stats-label">Average Order Value</div>
+                        <div class="stats-value" id="totalDiscount">₹0</div>
+                        <div class="stats-label">Total Discount</div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="stats-card">
-                        <div class="stats-value" id="successRate">0%</div>
-                        <div class="stats-label">Success Rate</div>
+                        <div class="stats-value" id="totalCouponDiscount">₹0</div>
+                        <div class="stats-label">Coupon Discount</div>
                     </div>
                 </div>
             </div>
@@ -251,7 +258,7 @@
             <div class="card mb-4">
                 <header class="card-header">
                     <div class="row gx-3">
-                        <div class="col-lg-4 col-md-6 me-auto">
+                        <div class="col-lg-3 col-md-6 me-auto">
                             <input type="text" id="searchInput" placeholder="Search..." class="form-control" />
                         </div>
                         <div class="col-lg-2 col-6 col-md-3">
@@ -261,6 +268,16 @@
                                 <option value="monthly">Monthly</option>
                                 <option value="yearly">Yearly</option>
                                 <option value="custom">Custom Date Range</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-6 col-md-3">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">All Orders</option>
+                                <option value="completed">Completed Orders</option>
+                                <option value="pending">Pending Orders</option>
+                                <option value="processing">Processing Orders</option>
+                                <option value="cancelled">Cancelled Orders</option>
+                                <option value="returned">Returned Orders</option>
                             </select>
                         </div>
                     </div>
@@ -292,7 +309,9 @@
                                     <th>Order ID</th>
                                     <th>Customer Name</th>
                                     <th>Items</th>
-                                    <th>Total Amount</th>
+                                    <th>Subtotal</th>
+                                    <th>Discount</th>
+                                    <th>Final Amount</th>
                                     <th>Payment Method</th>
                                     <th>Status</th>
                                     <th>Date</th>
@@ -339,6 +358,8 @@
             const downloadPdfBtn = $('#downloadPdfBtn');
             const loadingSpinner = $('#loadingSpinner');
             const searchInput = $('#searchInput');
+            const statusFilter = $('#statusFilter');
+            let currentStatusGroup = '';
             let currentDateRange = 'daily';
             let currentStartDate = null;
             let currentEndDate = null;
@@ -390,12 +411,31 @@
                 });
             }
 
-            // Handle PDF download
-            downloadPdfBtn.click(function () {
-                const button = $(this);
-                button.prop('disabled', true).html('<i class="material-icons md-file_download"></i> Generating...');
+            // Add this to your existing script section, replacing the current downloadPdfBtn click handler
+            const downloadReport = (format) => {
+                const button = format === 'pdf' ? $('#downloadPdfBtn') : $('#downloadExcelBtn');
+                const originalText = button.html();
+                button.prop('disabled', true).text('Generating...');
 
-                fetch('/admin/downloadsalesreport')
+                // Get current filter values
+                const dateRange = $('#dateRange').val();
+                const startDate = $('#startDate').val();
+                const endDate = $('#endDate').val();
+                const statusGroup = $('#statusFilter').val();
+
+                // Construct query parameters
+                const params = new URLSearchParams({
+                    format: format,
+                    dateRange: dateRange,
+                    statusGroup: statusGroup
+                });
+
+                if (dateRange === 'custom') {
+                    params.append('startDate', startDate);
+                    params.append('endDate', endDate);
+                }
+
+                fetch(`/admin/downloadsalesreport?${params.toString()}`)
                     .then(response => {
                         if (!response.ok) throw new Error('Network response was not ok');
                         return response.blob();
@@ -404,7 +444,7 @@
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
-                        a.download = `salesReport_${moment().format('YYYYMMDD_HHmmss')}.pdf`;
+                        a.download = `salesReport_${moment().format('YYYYMMDD_HHmmss')}.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
                         document.body.appendChild(a);
                         a.click();
                         window.URL.revokeObjectURL(url);
@@ -412,84 +452,118 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Failed to download PDF. Please try again.');
+                        alert(`Failed to download ${format.toUpperCase()}. Please try again.`);
                     })
                     .finally(() => {
-                        button.prop('disabled', false).html('<i class="material-icons md-file_download"></i> Download Report');
+                        button.prop('disabled', false).html(originalText);
                     });
+            };
+
+            // Add these event listeners
+            $('#downloadPdfBtn').click(function (e) {
+                e.preventDefault();
+                downloadReport('pdf');
             });
 
-            // Update statistics
-            function updateStatistics(data) {
-                const totalOrders = data.length;
-                const totalRevenue = data.reduce((sum, order) => sum + order.totalAmount, 0);
-                const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-                const successfulOrders = data.filter(order =>
-                    ['delivered', 'shipped', 'confirmed'].includes(order.orderStatus.toLowerCase())
-                ).length;
-                const successRate = totalOrders > 0 ? (successfulOrders / totalOrders) * 100 : 0;
+            $('#downloadExcelBtn').click(function (e) {
+                e.preventDefault();
+                downloadReport('excel');
+            });
 
-                $('#totalOrders').text(totalOrders);
-                $('#totalRevenue').text(`₹${totalRevenue.toFixed(2)}`);
-                $('#avgOrderValue').text(`₹${avgOrderValue.toFixed(2)}`);
-                $('#successRate').text(`${successRate.toFixed(1)}%`);
+            // Update statistics with overall stats
+            function updateStatistics(overallStats) {
+                $('#totalOrders').text(overallStats.totalOrders);
+                $('#totalRevenue').text(`₹${overallStats.totalAmount.toFixed(2)}`);
+                $('#totalDiscount').text(`₹${overallStats.totalDiscount.toFixed(2)}`);
+                $('#totalCouponDiscount').text(`₹${overallStats.totalCouponDiscount.toFixed(2)}`);
             }
 
-            // Main function to fetch and display sales report
+            // Update the fetchAndDisplaySalesReport function
             function fetchAndDisplaySalesReport(dateRange, startDate = null, endDate = null, page = 1) {
                 loadingSpinner.show();
 
                 $.ajax({
                     url: '/admin/sortReport',
                     method: 'POST',
-                    data: { dateRange, startDate, endDate, page },
+                    data: {
+                        dateRange,
+                        startDate,
+                        endDate,
+                        page,
+                        statusGroup: currentStatusGroup
+                    },
                     success: function (response) {
                         const tbody = $('#salesTableBody');
                         tbody.empty();
 
                         if (!response.salesData || response.salesData.length === 0) {
-                            tbody.html('<tr><td colspan="8" class="text-center">No sales data available for the selected date range.</td></tr>');
+                            tbody.html('<tr><td colspan="10" class="text-center">No sales data available for the selected filters.</td></tr>');
+                            // Reset statistics to zero when no data
+                            updateStatistics({
+                                totalOrders: 0,
+                                totalAmount: 0,
+                                totalDiscount: 0,
+                                totalCouponDiscount: 0
+                            });
                         } else {
                             response.salesData.forEach(sale => {
+                                const orderStatusText = (() => {
+                                    if (sale.orderStatus === "returnRequested") {
+                                        return "Return pending";
+                                    } else if (sale.orderStatus === "returnRequestCancelled") {
+                                        return "Return cancelled";
+                                    } else {
+                                        return sale.orderStatus;
+                                    }
+                                })();
                                 const row = `
-                            <tr>
-                                <td>${sale.orderId}</td>
-                                <td><b>${sale.customerName}</b></td>
-                                <td>
-                                    ${sale.itemCount} items
-                                    <small class="text-muted d-block">
-                                        ${sale.productNames}
-                                    </small>
-                                </td>
-                                <td>₹${sale.totalAmount.toFixed(2)}</td>
-                                <td>${sale.paymentMethod || 'N/A'}</td>
-                                <td>
-                                    <span class="badge rounded-pill status-label ${sale.orderStatus.toLowerCase()}">
-                                        ${sale.orderStatus}
-                                    </span>
-                                </td>
-                                <td>${moment(sale.orderDate).format('DD/MM/YYYY')}</td>
-                                <td class="text-end">
-                                    <a href="/admin/sales/details/${sale.orderId}" class="btn btn-sm btn-light">Details</a>
-                                </td>
-                            </tr>
-                        `;
+                        <tr>
+                            <td>${sale.orderId.slice(-6)}</td>
+                            <td><b>${sale.customerName}</b></td>
+                            <td>
+                                ${sale.itemCount} items
+                                <small class="text-muted d-block">
+                                    ${sale.productNames}
+                                </small>
+                            </td>
+                            <td>₹${sale.subtotal.toFixed(2)}</td>
+                            <td>₹${sale.totalDiscount.toFixed(2)}</td>
+                            <td>₹${sale.finalAmount.toFixed(2)}</td>
+                            <td>${sale.paymentMethod || 'N/A'}</td>
+                            <td>
+                                <span class="badge rounded-pill status-label ${sale.orderStatus.toLowerCase()}">
+                                    ${orderStatusText}
+                                </span>
+                            </td>
+                            <td>${moment(sale.orderDate).format('DD/MM/YYYY')}</td>
+                            <td class="text-end">
+                                <a href="/admin/sales/details/${sale.orderId}" class="btn btn-sm btn-light">Details</a>
+                            </td>
+                        </tr>
+                    `;
                                 tbody.append(row);
                             });
 
-                            updateStatistics(response.salesData);
+                            // Update statistics with the overall stats
+                            updateStatistics(response.overallStats);
                             updatePagination(response.totalPages, response.currentPage);
                         }
                     },
                     error: function (err) {
                         console.error('Error fetching sales data:', err);
-                        $('#salesTableBody').html('<tr><td colspan="8" class="text-center text-danger">Error fetching sales data. Please try again.</td></tr>');
+                        $('#salesTableBody').html('<tr><td colspan="10" class="text-center text-danger">Error fetching sales data. Please try again.</td></tr>');
                     },
                     complete: function () {
                         loadingSpinner.hide();
                     }
                 });
             }
+
+            // Add status filter handler
+            statusFilter.on('change', function () {
+                currentStatusGroup = $(this).val();
+                fetchAndDisplaySalesReport(currentDateRange, currentStartDate, currentEndDate);
+            });
 
             // Update pagination
             function updatePagination(totalPages, currentPage) {
