@@ -33,8 +33,8 @@ const renderWallet = async ( req , res ) => {
             title: "Your Wallet",
             balance: wallet.balance,
             transactions: wallet.transactions,
-            userData:user
-            
+            userData:user,
+            title : "Wallet",
         });
     } catch (error) {
         console.error("Error in renderWallet:", error);

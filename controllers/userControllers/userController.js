@@ -89,7 +89,7 @@ const renderProducts = async (req, res, next) => {
       };
     });
 
-    res.render("products", { productData: productsWithRatings });
+    res.render("products", { productData: productsWithRatings , title : "Shop"});
   } catch (error) {
     return next(error);
   }
@@ -130,7 +130,8 @@ const productDetails = async (req, res, next) => {
     })[0];
 
     res.render("product-details", { 
-      product: productWithRating
+      product: productWithRating,
+      title : "Product-details"
     });
   } catch (error) {
     return next(error);
@@ -182,6 +183,7 @@ const renderWomens = async (req, res, next) => {
       categories,
       pageCategory: "women",
       allActiveOffers,
+      title : "Shop - Womens"
     });
   } catch (error) {
     return next(error);
@@ -233,6 +235,7 @@ const renderMens = async (req, res, next) => {
       categories,
       pageCategory: "men",
       allActiveOffers,
+      title : "Shop - Mens"
     });
   } catch (error) {
     return next(error);
@@ -263,7 +266,6 @@ const sortProducts = async (req, res, next) => {
 
     let products = await Products.find(matchCondition).populate("activeOffer");
 
-    // Calculate effective price for each product
     products = products.map((product) => {
       let effectivePrice = product.price;
       if (product.activeOffer && product.activeOffer.discountValue) {
@@ -365,6 +367,7 @@ const renderWishlist = async (req, res, next) => {
       res.render("wishlist", {
         wishlistItems: wishlistItems,
         userData: userData,
+        title : "Wishlist",
       });
     } else {
       res.redirect("/login");

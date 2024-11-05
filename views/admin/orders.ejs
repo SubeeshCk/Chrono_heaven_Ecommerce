@@ -159,11 +159,12 @@
                                 <% orderData.forEach((order)=> { %>
                                     <tr>
                                         <td>
-                                            <%= order._id %>
+                                            <%= order._id.toString().slice(-6)%>
                                         </td>
                                         <td><b>
                                                 <%= order.userId?.name || 'Unknown' %>
-                                            </b></td>
+                                            </b>
+                                        </td>
                                         <td>
                                             <%= order.orderedItem.length %> items
                                                 <small class="text-muted d-block">

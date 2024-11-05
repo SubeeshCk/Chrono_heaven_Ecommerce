@@ -136,7 +136,7 @@
             <div class="content-header">
                 <div>
                     <h2 class="content-title card-title">Order detail</h2>
-                    <p>Details for Order ID: <%= order._id %>
+                    <p>Details for Order ID: <%= order._id.toString().slice(-6) %>
                     </p>
                 </div>
                 <div class="content-header">
@@ -167,7 +167,7 @@
                                                 <option value="<%= order.orderStatus %>" selected>
                                                     <%= order.orderStatus %>
                                                 </option>
-                                                <% } %>
+                                            <% } %>
                             </select>
                             <button type="submit" class="btn btn-primary">Update Order Status</button>
                         </div>
@@ -185,7 +185,7 @@
                                 </b>
                             </span>
                             <br />
-                            <small class="text-muted">Order ID: <%= order._id %></small>
+                            <small class="text-muted">Order ID: <%= order._id.toString().slice(-6) %></small>
                         </div>
                     </div>
                 </header>
@@ -286,7 +286,7 @@
                                                 </td>
                                                 <td>
                                                     ₹<%= product.discountedPrice || product.priceAtPurchase %>
-                                                        <% if (product.discountedPrice) { %>
+                                                        <% if (product.discountedPrice !== product.priceAtPurchase) { %>
                                                             <br>
                                                             <small
                                                                 style="text-decoration: line-through; color: #e70707;">

@@ -514,7 +514,7 @@
                           <div class="row">
                             <div class="col-md-6">
                               <p><strong>Order ID:</strong>
-                                <%= orderData._id %>
+                                <%= orderData._id.toString().slice(-6)%>
                               </p>
                               <p><strong>Order Date:</strong>
                                 <%= new Date(orderData.createdAt).toLocaleDateString() %>
@@ -696,8 +696,8 @@
                                       Return order
                                     </button>
                                     <%}%>
-                                    <% if(orderStatus==='delivered' || orderStatus === 'returned' || orderStatus !=='returnrequested' 
-                                    || orderStatus !== 'returnrequestcancelled'){ %>
+                                    <% if(orderStatus==='delivered' || orderStatus === 'returned' || orderStatus ==='returnrequested' 
+                                    || orderStatus === 'returnrequestcancelled'){ %>
                                     <a href="/invoice/<%= orderData._id %>"
                                       class="btn btn-primary btn-custom download-invoice-btn mb-2">
                                       Download Invoice

@@ -34,7 +34,7 @@ const renderProfile = (req, res, next) => {
     if (!userData) {
       return res.redirect("/login");
     }
-    res.render("user-profile");
+    res.render("user-profile",{ title : "User-Profile"});
   } catch (error) {
     return next(error);
   }
@@ -48,7 +48,7 @@ const renderEditProfile = async (req, res, next) => {
       console.log("User not found");
       return res.status(StatusCode.NOT_FOUND).send("User not found");
     }
-    res.render("edit-profile");
+    res.render("edit-profile", { title : "Edit - Profile"});
   } catch (error) {
     return next(error);
   }
@@ -114,7 +114,7 @@ const renderAddress = async (req, res, next) => {
 
     const addresses = await Address.find({ userId });
 
-    res.render("address", { userData: user, addresses });
+    res.render("address", { userData: user, addresses , title : "Adresses" });
   } catch (error) {
     return next(error);
   }
@@ -122,7 +122,7 @@ const renderAddress = async (req, res, next) => {
 
 const renderAddNewAddress = async (req, res, next) => {
   try {
-    res.render("add-address");
+    res.render("add-address", { title : "Add - Address"});
   } catch (error) {
     return next(error);
   }
@@ -221,7 +221,7 @@ const renderEditAddress = async (req, res, next) => {
       return res.status(StatusCode.NOT_FOUND).send("Address not found");
     }
 
-    res.render("edit-address", { userData: [address] });
+    res.render("edit-address", { userData: [address] , title : "Edit - Address"});
   } catch (error) {
     return next(error);
   }
@@ -376,7 +376,8 @@ const renderMyOrder = async (req, res, next) => {
       hasPrevPage: page > 1,
       nextPage: page + 1,
       prevPage: page - 1,
-      lastPage: totalPages
+      lastPage: totalPages,
+      title : "My Orders"
     });
 
   } catch (error) {
@@ -404,7 +405,7 @@ const renderOrderDetails = async (req, res, next) => {
       return res.render("orderdetails", { message: "Order not found." });
     }
 
-    res.render("orderdetails", { orderData });
+    res.render("orderdetails", { orderData , title :"Order-details" });
   } catch (error) {
     console.log(error);
     return next(error);
@@ -724,7 +725,7 @@ const returnProduct = async (req, res) => {
 
 const renderRefferal = async (req, res) => {
   try {
-    res.render("refferal");
+    res.render("refferal" , { title : "Refferal"});
   } catch (error) {
     return next(error);
   }

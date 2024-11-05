@@ -172,7 +172,7 @@
                                         <% completeReturns.forEach((order)=> { %>
                                             <tr>
                                                 <td>
-                                                    <%= order._id %>
+                                                    <%= order._id.toString().slice(-6)%>
                                                 </td>
                                                 <td><b>
                                                         <%= order.userId ? order.userId.name : 'Unknown' %>
@@ -246,7 +246,7 @@
                                                 <% if (item.status==='returnrequested' ) { %>
                                                     <tr>
                                                         <td>
-                                                            <%= order._id %>
+                                                            <%= order._id.toString().slice(-6) %>
                                                         </td>
                                                         <td><b>
                                                                 <%= order.userId ? order.userId.name : 'Unknown' %>
