@@ -2363,8 +2363,13 @@ input.num-product::-webkit-inner-spin-button {
 /*//////////////////////////////////////////////////////////////////
 [ L-Text >= 26 ]*/
 .ltext-101 {
-  font-family: Poppins-Regular;
-  font-size: 50px;
+  font-size: 40px;
+  font-weight:200;
+  line-height: 1.2857;
+}
+
+.ltext-1011 {
+  font-size: 30px;
   font-weight:100;
   line-height: 1.2857;
 }
@@ -2423,10 +2428,18 @@ input.num-product::-webkit-inner-spin-button {
 /*---------------------------------------------*/
 .ltext-201 {
   font-family: PlayfairDisplay-Bold;
-  font-size: 45px;
+  font-size: 35px;
   line-height: 1.1;
   text-transform: uppercase;
 }
+
+.ltext-2011 {
+  font-family: PlayfairDisplay-Bold;
+  font-size: 25px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
 
 .ltext-202 {
   font-family: PlayfairDisplay-Regular;

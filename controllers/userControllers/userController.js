@@ -13,12 +13,15 @@ const renderHome = async (req, res, next) => {
     const productData = await Products.find({
       is_listed: true,
       category: { $in: unblockedCategoryIds },
-    });
+    })
+    .sort({ createdAt: -1 })
+    .limit(8);
 
     const { productsWithOffers, allActiveOffers } = await applyOffers(
       productData,
       categories
     );
+
 
     const productsWithRatings = productsWithOffers.map(product => {
       const productReviews = product.reviews || [];
@@ -39,11 +42,13 @@ const renderHome = async (req, res, next) => {
         averageRating: parseFloat(averageRating)
       };
     });
-
+    const userData = res.locals.userData;
     const renderData = {
       productData: productsWithRatings,
       categories,
-      allActiveOffers
+      allActiveOffers,
+      userData
+
     };
 
     res.render("home", { renderData });
@@ -54,17 +59,32 @@ const renderHome = async (req, res, next) => {
 
 const renderProducts = async (req, res, next) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const skip = (page - 1) * limit;
+
     const categories = await Category.find({ is_listed: true });
     const unblockedCategoryIds = categories.map((category) => category._id);
-
-    const productData = await Products.find({
+    
+    const totalProducts = await Products.countDocuments({
       is_listed: true,
       category: { $in: unblockedCategoryIds },
     });
 
-    if (!productData.length) {
+    const productData = await Products.find({
+      is_listed: true,
+      category: { $in: unblockedCategoryIds },
+    })
+    .skip(skip)
+    .limit(limit);
+
+    if (!productData.length && page === 1) {
       req.flash("error", "No products available");
       return res.redirect("/products");
+    }
+
+    if (!productData.length && page > 1) {
+      return res.redirect(`/products?page=${Math.ceil(totalProducts / limit)}`);
     }
 
     const { productsWithOffers } = await applyOffers(productData, categories);
@@ -89,7 +109,25 @@ const renderProducts = async (req, res, next) => {
       };
     });
 
-    res.render("products", { productData: productsWithRatings , title : "Shop"});
+    const totalPages = Math.ceil(totalProducts / limit);
+    const pagination = {
+      currentPage: page,
+      totalPages: totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: totalPages,
+      pages: Array.from({ length: totalPages }, (_, i) => i + 1)
+    };
+
+    const userData = res.locals.userData;
+    res.render("products", { 
+      productData: productsWithRatings, 
+      pagination,
+      userData,
+      title: "Shop",
+    });
   } catch (error) {
     return next(error);
   }
@@ -131,7 +169,7 @@ const productDetails = async (req, res, next) => {
 
     res.render("product-details", { 
       product: productWithRating,
-      title : "Product-details"
+      title : "Product-details",
     });
   } catch (error) {
     return next(error);
@@ -140,16 +178,28 @@ const productDetails = async (req, res, next) => {
 
 const renderWomens = async (req, res, next) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12; 
+    const skip = (page - 1) * limit;
+
     const womenCategory = await Category.findOne({ name: "women" });
 
     if (!womenCategory) {
       return res.status(StatusCode.NOT_FOUND).send("Women category not found");
     }
 
+    const totalProducts = await Products.countDocuments({
+      category: womenCategory._id,
+      is_listed: true,
+    });
+
     const productData = await Products.find({
       category: womenCategory._id,
       is_listed: true,
-    }).populate("category");
+    })
+    .populate("category")
+    .skip(skip)
+    .limit(limit);
 
     const categories = await Category.find({ is_listed: true });
 
@@ -178,12 +228,36 @@ const renderWomens = async (req, res, next) => {
       };
     });
 
+    const totalPages = Math.ceil(totalProducts / limit);
+    const pagination = {
+      currentPage: page,
+      totalPages: totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: totalPages,
+      pages: Array.from({ length: totalPages }, (_, i) => i + 1)
+    };
+
+    if (!productData.length && page === 1) {
+      req.flash("error", "No women's products available");
+      return res.redirect("/products");
+    }
+
+    if (!productData.length && page > 1) {
+      return res.redirect(`/products/womens?page=${Math.ceil(totalProducts / limit)}`);
+    }
+    const userData = res.locals.userData;
+
     res.render("womens", {
       productData: productsWithRatings,
       categories,
       pageCategory: "women",
       allActiveOffers,
-      title : "Shop - Womens"
+      pagination, 
+      userData,
+      title: "Shop - Womens",
     });
   } catch (error) {
     return next(error);
@@ -192,19 +266,30 @@ const renderWomens = async (req, res, next) => {
 
 const renderMens = async (req, res, next) => {
   try {
-    const mensCategory = await Category.findOne({ name: "men" });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12; 
+    const skip = (page - 1) * limit;
 
+    const mensCategory = await Category.findOne({ name: "men" });
     if (!mensCategory) {
       return res.status(StatusCode.NOT_FOUND).send("Men category not found");
     }
 
+    const totalProducts = await Products.countDocuments({
+      category: mensCategory._id,
+      is_listed: true,
+    });
+
     const productData = await Products.find({
       category: mensCategory._id,
       is_listed: true,
-    }).populate("category");
+    })
+      .populate("category")
+      .skip(skip)
+      .limit(limit);
 
     const categories = await Category.find({ is_listed: true });
-
+    
     const { productsWithOffers, allActiveOffers } = await applyOffers(
       productData,
       categories
@@ -213,16 +298,10 @@ const renderMens = async (req, res, next) => {
     const productsWithRatings = productsWithOffers.map(product => {
       const productReviews = product.reviews || [];
       const totalReviews = productReviews.length;
-      
       const averageRating = totalReviews > 0
-        ? (
-            productReviews.reduce(
-              (acc, review) => acc + review.starRating,
-              0
-            ) / totalReviews
-          ).toFixed(1)
+        ? (productReviews.reduce((acc, review) => acc + review.starRating, 0) / totalReviews).toFixed(1)
         : '0.0';
-
+      
       return {
         ...product,
         totalReviews,
@@ -230,17 +309,42 @@ const renderMens = async (req, res, next) => {
       };
     });
 
+    const totalPages = Math.ceil(totalProducts / limit);
+    const pagination = {
+      currentPage: page,
+      totalPages: totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: totalPages,
+      pages: Array.from({ length: totalPages }, (_, i) => i + 1)
+    };
+
+    if (!productData.length && page === 1) {
+      req.flash("error", "No men's products available");
+      return res.redirect("/products");
+    }
+
+    if (!productData.length && page > 1) {
+      return res.redirect(`/products/mens?page=${Math.ceil(totalProducts / limit)}`);
+    }
+    const userData = res.locals.userData;
+
     res.render("mens", {
       productData: productsWithRatings,
       categories,
       pageCategory: "men",
       allActiveOffers,
-      title : "Shop - Mens"
+      pagination,
+      userData, 
+      title: "Shop - Mens"
     });
   } catch (error) {
     return next(error);
   }
 };
+
 
 const sortProducts = async (req, res, next) => {
   try {
@@ -276,7 +380,6 @@ const sortProducts = async (req, res, next) => {
       return { ...product.toObject(), effectivePrice };
     });
 
-    // Sort products
     switch (sortBy) {
       case "popularity":
         products.sort((a, b) => b.sales_count - a.sales_count);

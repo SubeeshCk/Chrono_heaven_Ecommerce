@@ -211,14 +211,112 @@
 											<p>No products available.</p>
 										  <% } %>
 										</div>
-
-							<!-- Load more -->
-							<div class="flex-c-m flex-w w-full p-t-45">
-								<a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
-									Load More
-								</a>
-							</div>
-						</div>
-					</div>
+  
+	  <!-- Pagination Section -->
+	  <div class="d-flex justify-content-center w-100 p-t-45">
+		<% if (pagination.totalPages > 1) { %>
+		  <nav aria-label="Page navigation" class="pagination-container">
+			<ul class="pagination justify-content-center align-items-center m-0">
+			  <!-- Previous page button -->
+			  <% if (pagination.hasPrevPage) { %>
+				<li class="page-item">
+				  <a href="/products/mens?page=<%= pagination.prevPage %>" 
+					 class="page-link flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
+					Previous
+				  </a>
+				</li>
+			  <% } %>
+  
+			  <!-- Page numbers -->
+			  <% 
+			  let startPage = Math.max(1, pagination.currentPage - 2);
+			  let endPage = Math.min(pagination.totalPages, startPage + 4);
+			  if (endPage - startPage < 4) {
+				startPage = Math.max(1, endPage - 4);
+			  }
+			  %>
+  
+			  <% for(let i = startPage; i <= endPage; i++) { %>
+				<li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
+				  <a href="/products/mens?page=<%= i %>" 
+					 class="page-link flex-c-m stext-101 cl5 size-103 <%= i === pagination.currentPage ? 'bg1' : 'bg2' %> bor1 hov-btn1 p-lr-15 trans-04">
+					<%= i %>
+				  </a>
+				</li>
+			  <% } %>
+  
+			  <!-- Next page button -->
+			  <% if (pagination.hasNextPage) { %>
+				<li class="page-item">
+				  <a href="/products/mens?page=<%= pagination.nextPage %>" 
+					 class="page-link flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
+					Next
+				  </a>
+				</li>
+			  <% } %>
+			</ul>
+		  </nav>
+		<% } %>
+	  </div>
+	</div>
+  </div>
+  
+  <!-- Updated styles -->
+  <style>
+	.pagination-container {
+	  margin-bottom: 50px;
+	  width: 100%;
+	}
+	
+	.pagination {
+	  gap: 8px;
+	}
+  
+	.pagination .page-item {
+	  margin: 0 4px;
+	}
+  
+	.pagination .page-link {
+	  border-radius: 3px;
+	  min-width: 45px;
+	  height: 45px;
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  text-decoration: none;
+	  margin: 0;
+	  border: 1px solid #e6e6e6;
+	  background-color: #fff;
+	  color: #666;
+	  transition: all 0.3s;
+	}
+  
+	.pagination .page-item.active .page-link {
+	  background-color: #717fe0;
+	  color: #fff;
+	  border-color: #717fe0;
+	}
+  
+	.pagination .page-link:hover {
+	  background-color: #717fe0;
+	  color: #fff;
+	  border-color: #717fe0;
+	}
+  
+	/* Add these new styles to fix container issues */
+	.bg0 {
+	  overflow: hidden;
+	  width: 100%;
+	}
+  
+	.container {
+	  max-width: 1380px;
+	  width: 100%;
+	  padding-right: 15px;
+	  padding-left: 15px;
+	  margin-right: auto;
+	  margin-left: auto;
+	}
+  </style>
 
 					<%- include("../layouts/user/footer")-%>

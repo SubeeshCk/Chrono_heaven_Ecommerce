@@ -276,12 +276,14 @@ document.addEventListener('DOMContentLoaded', function() {
     return `${formattedWholePart}.${decimalPart}`;
   }
 });
-	</script>
-	    <script>
+</script>
+
+<script>
+			  const userData = <%- JSON.stringify(userData) %>;
 			function showToast(message, isSuccess = true) {
 				Toastify({
 					text: message,
-					duration: 3000,
+					duration: 1000,
 					gravity: "top",
 					position: "center",
 					backgroundColor: isSuccess ? "#4CAF50" : "#f44336",
@@ -292,24 +294,28 @@ document.addEventListener('DOMContentLoaded', function() {
 				}).showToast();
 			}
 	
-			document.addEventListener('DOMContentLoaded', function() {
-				const wishlistButtons = document.querySelectorAll('.btn-addwish-b2');
-				
-				wishlistButtons.forEach(button => {
-					button.addEventListener('click', function(e) {
-						e.preventDefault();
-						const heartIcon = this.querySelector('.icon-heart1');
-						
-						// Check current state of the heart icon
-						if (heartIcon.src.includes('icon-heart-02.png')) {
-							showToast('Product removed from wishlist');
-						} else {
-							showToast('Product added to wishlist! ❤️');
-						}
-					});
-				});
-			});
-		</script>
+	document.addEventListener('DOMContentLoaded', function() {
+    const wishlistButtons = document.querySelectorAll('.btn-addwish-b2');
+
+    wishlistButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const heartIcon = this.querySelector('.icon-heart1');
+
+        if (userData) {
+          if (heartIcon.src.includes('icon-heart-02.png')) {
+            showToast('Product removed from wishlist');
+          } else {
+            showToast('Product added to wishlist! ❤️');
+          }
+        } else {
+          window.location.href = '/login';
+        }
+      });
+    });
+  });
+			
+</script>
 
 </body>
 

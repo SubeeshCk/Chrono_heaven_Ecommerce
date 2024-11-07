@@ -52,9 +52,9 @@ userRoute.get('/product-details/:id?',setUserData, setCartCount, setWishlistData
 userRoute.get('/products/womens',setUserData ,setCartCount,setWishlistData, userController.renderWomens);
 userRoute.get('/products/mens',setUserData ,setCartCount,setWishlistData,  userController.renderMens);
 userRoute.get('/sort-products',setUserData ,setCartCount, userController.sortProducts);
-userRoute.get('/wishlist',userAuth.isLogin,setUserData ,setCartCount,setWishlistData, userController.renderWishlist)
-userRoute.get('/addToWishlist',userAuth.isLogin,setUserData, userController.addToWishlist)
-userRoute.get('/RemoveFromWishlist',userAuth.isLogin,setUserData, userController.RemoveFromWishlist)
+userRoute.get('/wishlist',userAuth.isLogin,setUserData ,setCartCount,setWishlistData, userController.renderWishlist);
+userRoute.get('/addToWishlist',userAuth.isLogin,setUserData, userController.addToWishlist);
+userRoute.get('/RemoveFromWishlist',userAuth.isLogin,setUserData, userController.RemoveFromWishlist);
 
 
 
@@ -82,8 +82,6 @@ userRoute.get('/Wallet',userAuth.isLogin,setUserData,setCartCount,setWishlistDat
 userRoute.post('/add-money',userAuth.isLogin,walletController.addMoneyToWallet);
 
 
-
-
 //*************************************Cart management***************************************//
 userRoute.get('/cart', userAuth.isLogin, setUserData,setCartCount, setWishlistData, cartController.renderCart);
 userRoute.get('/addToCart/:id',userAuth.isLogin, setCartCount, setWishlistData, cartController.addToCart);
@@ -98,13 +96,12 @@ userRoute.post('/cart/checkout/addCheckoutAddress',userAuth.isLogin, cartControl
 userRoute.delete('/cart/checkout/deleteAddress/:id?', userAuth.isLogin, cartController.removeAddress);
 userRoute.post('/placeOrder',userAuth.isLogin, cartController.placeOrder);
 userRoute.post('/verifyRazorpayPayment',userAuth.isLogin, cartController.verifyRazorpayPayment);
-
-userRoute.post('/initiatePayment',userAuth.isLogin,profileController.initiatePayment)
-userRoute.post('/verifyPayment', userAuth.isLogin,profileController.verifyPayment)
-
 userRoute.get('/orderPlaced',userAuth.isLogin,cartController.renderOrderPlaced);
 
-userRoute.post('/addReview',userAuth.isLogin,profileController.addReview)
+userRoute.post('/initiatePayment',userAuth.isLogin,profileController.initiatePayment);
+userRoute.post('/verifyPayment', userAuth.isLogin,profileController.verifyPayment);
+
+userRoute.post('/addReview',userAuth.isLogin,profileController.addReview);
 
 
 //************************** Google authentication ********************************//

@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@paypal/checkout-server-sdk": "^1.0.3",
+    "@paypal/paypal-js": "^8.1.2",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cookie-session": "^2.1.0",
