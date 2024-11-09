@@ -70,45 +70,34 @@ const verifyLogin = async (req, res, next) => {
 
 const loadDashboard = async (req, res) => {
   try {
-    const allOrders = await Order.find().populate({
-      path: "orderedItem.productId",
-      populate: {
-        path: "category",
-        model: "Category",
-      },
-    });
+    const allOrders = await Order.find()
+      .populate({
+        path: "orderedItem.productId",
+        populate: {
+          path: "category",
+          model: "Category",
+        },
+      })
+      .lean();
 
     const dashboardData = initializeDashboardData();
-
     allOrders.forEach(order => processOrder(order, dashboardData));
 
     const topProducts = await getTopProducts();
     const topCategories = getTopCategories(dashboardData.categoryPurchaseCount);
 
-    const chartData = {
-      sales: {
-        labels: ["Total Revenue"],
-        data: [dashboardData.totalRevenue],
-      },
-      orders: {
-        labels: ["Delivered", "Returned", "Cancelled"],
-        data: [
-          dashboardData.deliveredOrders.length,
-          dashboardData.returnedOrders.length,
-          dashboardData.cancelledOrders.length,
-        ],
-      },
-      totalOrders: allOrders.length,
-    };
+    // Get initial daily data for charts
+    const now = new Date();
+    const initialChartData = await generateFilteredData('yearly', now); // Changed to yearly for initial load
 
     res.render("dashboard", {
       deliveredOrders: dashboardData.deliveredOrders,
       totalOrders: allOrders.length,
-      totalRevenue: dashboardData.totalRevenue,
+      totalRevenue: Number(dashboardData.totalRevenue.toFixed(2)),
       totalReturns: dashboardData.returnedOrders.length,
       totalCancellations: dashboardData.cancelledOrders.length,
-      monthlyEarning: dashboardData.currentMonthEarnings,
-      chartData: JSON.stringify(chartData),
+      monthlyEarning: Number(dashboardData.currentMonthEarnings.toFixed(2)),
+      chartData: JSON.stringify(initialChartData),
       topProducts: topProducts,
       topCategories: topCategories,
     });
@@ -224,30 +213,47 @@ async function generateFilteredData(reportType, now) {
   labels = timeLabels;
 
   for (const { start, end } of ranges) {
+    // Use createdAt for finding orders within range
     const orders = await Order.find({
-      createdAt: { $gte: start, $lte: end }
-    });
+      orderDate: {
+        $gte: start,
+        $lte: end
+      }
+    }).lean();
 
-    ordersData.push(orders.length);
-    salesData.push(calculateRevenue(orders));
+    const periodOrders = orders.length;
+    const periodRevenue = calculateRevenue(orders);
+
+    ordersData.push(periodOrders);
+    salesData.push(periodRevenue);
   }
 
+  // Get total orders count
+  const totalOrders = await Order.countDocuments();
+
   return {
-    sales: { labels, data: salesData },
-    orders: { labels, data: ordersData },
-    totalOrders: await Order.countDocuments()
+    sales: { 
+      labels, 
+      data: salesData.map(value => Number(value.toFixed(2))) 
+    },
+    orders: { 
+      labels, 
+      data: ordersData 
+    },
+    totalOrders
   };
 }
 
 function calculateRevenue(orders) {
   return orders.reduce((sum, order) => {
-    let orderTotal = 0;
-
-    order.orderedItem.forEach(item => {
-      if (item.status !== "Cancelled" && item.status !== "Returned" && item.status !== 'pending') {
-        orderTotal += item.totalProductAmount;
+    const orderTotal = order.orderedItem.reduce((itemSum, item) => {
+      if (item.status !== "Cancelled" && 
+          item.status !== "Returned" && 
+          item.status !== "pending") {
+        return itemSum + (item.totalProductAmount || 0);
       }
-    });
+      return itemSum;
+    }, 0);
 
     const orderRevenue = orderTotal - (order.couponDiscount || 0);
     return sum + (orderRevenue > 0 ? orderRevenue : 0);
@@ -310,14 +316,18 @@ function generateMonthlyTimeRanges(now) {
 function generateYearlyTimeRanges(now) {
   const ranges = [];
   const labels = [];
-
+  
+  const startYear = new Date(now.getFullYear(), 0, 1);
+  
   for (let i = 0; i < 12; i++) {
-    const date = new Date(now.getFullYear(), i, 1);
-    labels.push(date.toLocaleDateString("en-US", { month: "short" }));
-
-    const start = new Date(now.getFullYear(), i, 1);
-    const end = new Date(now.getFullYear(), i + 1, 0, 23, 59, 59, 999);
-    ranges.push({ start, end });
+    const monthStart = new Date(startYear.getFullYear(), i, 1);
+    const monthEnd = new Date(startYear.getFullYear(), i + 1, 0, 23, 59, 59, 999);
+    
+    labels.push(monthStart.toLocaleDateString("en-US", { month: "short" }));
+    ranges.push({ 
+      start: monthStart,
+      end: monthEnd
+    });
   }
 
   return { ranges, labels };

@@ -31,6 +31,12 @@ const getQueryByFilters = (dateRange, startDate, endDate, statusGroup) => {
       $gte: now.startOf("week").toDate(),
       $lte: now.endOf("week").toDate(),
     };
+  } else if (dateRange === "monthly") {
+    const now = moment();
+    query.orderDate = {
+      $gte: now.startOf("month").toDate(),
+      $lte: now.endOf("month").toDate(),
+    };
   } else if (dateRange === "yearly") {
     const now = moment();
     query.orderDate = {

@@ -140,14 +140,6 @@
                 <h2 class="content-title card-title">Dashboard</h2>
                 <p>Whole data about your business here</p>
               </div>
-              <div>
-                <select id="reportType" class="form-select">
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                </select>
-              </div>
             </div>
             <br>
             <div class="row">
@@ -230,6 +222,14 @@
                 <div class="card mb-4">
                   <article class="card-body">
                     <h5 class="card-title">Sale Statistics</h5>
+                    <div>
+                      <select id="reportType" class="form-select">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly" selected>Yearly</option>
+                      </select>
+                    </div>
                     <canvas id="salesChart" height="200"></canvas>
                   </article>
                 </div>
@@ -290,7 +290,8 @@
                     </table>
                   </div>
                 </div>
-              </div>              
+              </div> 
+              <input type="hidden" id="initial-chart-data" value='<%- chartData %>'>             
           </section>
     </main>
     <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
@@ -303,84 +304,129 @@
     <script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-      const initialChartData = JSON.parse('<%- chartData %>');
     
-      document.addEventListener('DOMContentLoaded', function () {
-        const salesCtx = document.getElementById('salesChart').getContext('2d');
-        const orderCtx = document.getElementById('orderChart').getContext('2d');
-        const reportTypeSelect = document.getElementById('reportType');
-    
-        let salesChart;
-        let orderChart;
-    
-        function updateCharts(data) {
-          salesChart.data.labels = data.sales.labels;
-          salesChart.data.datasets[0].data = data.sales.data;
-          salesChart.update();
-    
-          orderChart.data.labels = data.orders.labels;
-          orderChart.data.datasets[0].data = data.orders.data;
-          orderChart.update();
-    
-          document.querySelector('.total-orders').innerText = data.totalOrders;
+// Replace the existing script with this updated version
+document.addEventListener('DOMContentLoaded', function () {
+  const salesCtx = document.getElementById('salesChart').getContext('2d');
+  const orderCtx = document.getElementById('orderChart').getContext('2d');
+  const reportTypeSelect = document.getElementById('reportType');
+
+  let salesChart;
+  let orderChart;
+
+  const chartOptions = {
+  responsive: true,
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        callback: function(value, index, values) {
+          if (this.chart.canvas.id === 'salesChart') {
+            return '₹' + value.toLocaleString();
+          }
+          return value;
         }
-    
-        function fetchData(reportType) {
-          fetch(`/admin/dashboard/data?reportType=${reportType}`)
-            .then(response => response.json())
-            .then(data => updateCharts(data))
-            .catch(error => console.error('Error fetching data:', error));
+      }
+    }
+  },
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          if (context.chart.canvas.id === 'salesChart') {
+            return '₹' + context.parsed.y.toLocaleString();
+          }
+          return context.parsed.y;
         }
-    
-        reportTypeSelect.addEventListener('change', function () {
-          fetchData(this.value);
-        });
-    
-        function initializeCharts() {
-          const chartOptions = {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true
-              }
+      }
+    }
+  }
+};
+
+  // Initialize charts with proper configuration
+  function initializeCharts(initialData) {
+    salesChart = new Chart(salesCtx, {
+      type: 'bar',
+      data: {
+        labels: initialData.sales.labels,
+        datasets: [{
+          label: 'Sales Revenue (₹)',
+          data: initialData.sales.data,
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        ...chartOptions,
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem) {
+              return '₹' + tooltipItem.yLabel.toFixed(2);
             }
-          };
-    
-          salesChart = new Chart(salesCtx, {
-            type: 'bar',
-            data: {
-              labels: initialChartData.sales.labels,
-              datasets: [{
-                label: 'Total Sales',
-                data: initialChartData.sales.data,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-              }]
-            },
-            options: chartOptions
-          });
-    
-          orderChart = new Chart(orderCtx, {
-            type: 'bar',
-            data: {
-              labels: initialChartData.orders.labels,
-              datasets: [{
-                label: 'Total Orders',
-                data: initialChartData.orders.data,
-                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                borderColor: 'rgba(153, 102, 255, 1)',
-                borderWidth: 1
-              }]
-            },
-            options: chartOptions
-          });
-    
-          document.querySelector('.total-orders').innerText = initialChartData.totalOrders;
+          }
         }
-    
-        initializeCharts();
-      });
+      }
+    });
+
+    orderChart = new Chart(orderCtx, {
+      type: 'bar',
+      data: {
+        labels: initialData.orders.labels,
+        datasets: [{
+          label: 'Number of Orders',
+          data: initialData.orders.data,
+          backgroundColor: 'rgba(153, 102, 255, 0.2)',
+          borderColor: 'rgba(153, 102, 255, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: chartOptions
+    });
+  }
+
+  // Function to update charts with new data
+  function updateCharts(newData) {
+    if (salesChart && orderChart) {
+      // Update sales chart
+      salesChart.data.labels = newData.sales.labels;
+      salesChart.data.datasets[0].data = newData.sales.data;
+      salesChart.update();
+
+      // Update orders chart
+      orderChart.data.labels = newData.orders.labels;
+      orderChart.data.datasets[0].data = newData.orders.data;
+      orderChart.update();
+
+      // Update total orders display
+      document.querySelector('.total-orders').textContent = newData.totalOrders;
+    }
+  }
+
+  // Function to fetch new data based on selected time period
+  async function fetchFilteredData(reportType) {
+    try {
+      const response = await fetch(`/admin/dashboard/data?reportType=${reportType}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      updateCharts(data);
+    } catch (error) {
+      console.error('Error fetching filtered data:', error);
+      alert('Error loading dashboard data. Please try again.');
+    }
+  }
+
+  // Event listener for filter changes
+  reportTypeSelect.addEventListener('change', function() {
+    fetchFilteredData(this.value);
+  });
+
+  // Initialize charts with the initial data
+  const initialChartData = JSON.parse(document.getElementById('initial-chart-data').value);
+  initializeCharts(initialChartData);
+});
     </script>
 
     
