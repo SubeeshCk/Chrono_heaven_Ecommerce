@@ -194,23 +194,22 @@ const updateProductStatus = async (req, res, next) => {
   }
 };
 
-// Controller modifications
+
 const renderReturnRequest = async (req, res, next) => {
   try {
-    // Fetch orders with either order-level return requests or product-level return requests
+
     const returnRequests = await Order.find({
       $or: [
-        { orderStatus: "returnrequested" },
-        { "orderedItem.status": "returnrequested" },
+        { orderStatus: "returnRequested" },
+        { "orderedItem.status": "returnRequested" },
       ],
     })
       .populate("userId")
       .populate("orderedItem.productId");
 
-    // Separate orders into complete returns and partial returns
     const completeReturns = returnRequests.filter(
       (order) =>
-        order.orderStatus === "returnrequested" &&
+        order.orderStatus === "returnRequested" &&
         order.orderedItem.every(
           (item) =>
             item.status !== "cancelled" &&
@@ -220,8 +219,8 @@ const renderReturnRequest = async (req, res, next) => {
 
     const partialReturns = returnRequests.filter(
       (order) =>
-        order.orderStatus !== "returnrequested" &&
-        order.orderedItem.some((item) => item.status === "returnrequested")
+        order.orderStatus !== "returnRequested" &&
+        order.orderedItem.some((item) => item.status === "returnRequested")
     );
 
     res.render("return", { completeReturns, partialReturns });
@@ -234,61 +233,73 @@ const acceptCompleteReturn = async (req, res, next) => {
   const { orderId } = req.body;
 
   try {
-    const order = await Order.findById(orderId);
-
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
-    if (order.orderStatus !== "returnrequested") {
-      return res
-        .status(400)
-        .json({ error: "Order is not in return requested status" });
-    }
-
-    // Update order status
-    order.orderStatus = "Returned";
-
-    // Update all non-cancelled items to Returned
-    let totalRefundAmount = 0;
-    for (const item of order.orderedItem) {
-      if (
-        item.status !== "cancelled" &&
-        item.status !== "returnRequestCancelled"
-      ) {
-        item.status = "Returned";
-
-        const product = await Products.findById(item.productId);
-        if (product) {
-          product.quantity += item.quantity;
-          await product.save();
-        }
+      const order = await Order.findById(orderId);
+      
+      if (!order) {
+          console.log('Order not found:', orderId);
+          return res.status(404).json({ error: "Order not found" });
       }
-    }
 
-    totalRefundAmount = order.orderAmount;
+      if (order.orderStatus.toLowerCase() !== "returnrequested") {
+          console.log('Invalid order status:', order.orderStatus);
+          return res.status(400).json({ error: "Order is not in return requested status" });
+      }
 
-    const userWallet = await Wallet.findOne({ userId: order.userId });
-    if (!userWallet) {
-      return res.status(404).json({ error: "Wallet not found" });
-    }
+      order.orderStatus = "Returned";
 
-    userWallet.balance += totalRefundAmount;
-    userWallet.transactions.push({
-      amount: totalRefundAmount,
-      transactionMethod: "Refund",
-      date: new Date(),
-    });
+      let totalRefundAmount = 0;
+      const productUpdates = [];
 
-    await Promise.all([order.save(), userWallet.save()]);
+      for (const item of order.orderedItem) {
+          if (item.status.toLowerCase() !== "cancelled" && 
+              item.status.toLowerCase() !== "returnrequestcancelled") {
+              item.status = "Returned";
 
-    res.status(200).json({
-      success: "Complete order return accepted successfully",
-      refundAmount: totalRefundAmount,
-    });
+              if (item.productId) {
+                  productUpdates.push(
+                      Products.findByIdAndUpdate(
+                          item.productId,
+                          { $inc: { quantity: item.quantity } },
+                          { new: true }
+                      )
+                  );
+              }
+          }
+      }
+
+      totalRefundAmount = order.orderAmount;
+
+      let userWallet = await Wallet.findOne({ userId: order.userId });
+      
+      if (!userWallet) {
+          console.log('Creating new wallet for user:', order.userId);
+          userWallet = new Wallet({
+              userId: order.userId,
+              balance: 0,
+              transactions: []
+          });
+      }
+
+      userWallet.balance += totalRefundAmount;
+      userWallet.transactions.push({
+          amount: totalRefundAmount,
+          transactionMethod: "Refund",
+          date: new Date(),
+      });
+
+      await Promise.all([
+          order.save(),
+          userWallet.save(),
+          ...productUpdates
+      ]);
+
+      res.status(200).json({
+          success: "Complete order return accepted successfully",
+          refundAmount: totalRefundAmount,
+      });
   } catch (error) {
-    console.error("Error accepting complete return:", error);
-    res.status(500).json({ error: "Internal server error" });
+      console.error("Error accepting complete return:", error);
+      res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -310,28 +321,35 @@ const acceptPartialReturn = async (req, res, next) => {
       return res.status(404).json({ error: "Product not found in order" });
     }
 
-    if (orderedItem.status !== "returnrequested") {
+    if (orderedItem.status !== "returnRequested") {
       return res
         .status(400)
         .json({ error: "Product is not in return requested status" });
     }
 
-    // Update item status
+    const otherItems = order.orderedItem.filter(item => 
+      item.productId.toString() !== productId
+  );
+  
+  if (order.orderedItem.length === 1 || otherItems.every(item => 
+      item.status === "Cancelled" || item.status === "Returned"
+  )) {
+      order.orderStatus = "Returned";
+      console.log('Updating order status to Returned for order:', orderId);
+  }
+
     orderedItem.status = "Returned";
 
-    // Calculate refund amount
     const refundAmount = orderedItem.discountedPrice
       ? orderedItem.discountedPrice * orderedItem.quantity
       : orderedItem.priceAtPurchase * orderedItem.quantity;
 
-    // Update product quantity
     const product = await Products.findById(productId);
     if (product) {
       product.quantity += orderedItem.quantity;
       await product.save();
     }
 
-    // Process refund to wallet
     const userWallet = await Wallet.findOne({ userId: order.userId });
     if (!userWallet) {
       return res.status(404).json({ error: "Wallet not found" });
@@ -356,6 +374,7 @@ const acceptPartialReturn = async (req, res, next) => {
   }
 };
 
+
 const declineReturn = async (req, res, next) => {
   const { orderId, productId } = req.body;
 
@@ -367,7 +386,6 @@ const declineReturn = async (req, res, next) => {
     }
 
     if (productId) {
-      // Partial return decline
       const orderedItem = order.orderedItem.find(
         (item) => item.productId.toString() === productId
       );
@@ -376,7 +394,7 @@ const declineReturn = async (req, res, next) => {
         return res.status(404).json({ error: "Product not found in order" });
       }
 
-      if (orderedItem.status !== "returnrequested") {
+      if (orderedItem.status !== "returnRequested") {
         return res
           .status(400)
           .json({ error: "Product is not in return requested status" });
@@ -384,8 +402,7 @@ const declineReturn = async (req, res, next) => {
 
       orderedItem.status = "returnRequestCancelled";
     } else {
-      // Complete order return decline
-      if (order.orderStatus !== "returnrequested") {
+      if (order.orderStatus !== "returnRequested") {
         return res
           .status(400)
           .json({ error: "Order is not in return requested status" });
@@ -393,7 +410,7 @@ const declineReturn = async (req, res, next) => {
 
       order.orderStatus = "returnRequestCancelled";
       order.orderedItem.forEach((item) => {
-        if (item.status === "returnrequested") {
+        if (item.status === "returnRequested") {
           item.status = "returnRequestCancelled";
         }
       });

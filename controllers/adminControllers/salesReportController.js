@@ -57,8 +57,12 @@ const calculateOrderStats = (order) => {
   };
 
   if (order.orderedItem && Array.isArray(order.orderedItem)) {
-    stats.itemCount = order.orderedItem.length;
-    stats.subtotal = order.orderedItem.reduce((sum, item) => {
+    const filteredItems = order.orderedItem.filter(item => {
+      return item.status !== 'Cancelled' && item.status !== 'Returned' && item.status !== 'pending';
+    });
+
+    stats.itemCount = filteredItems.length;
+    stats.subtotal = filteredItems.reduce((sum, item) => {
       return sum + (item.totalProductAmount || 0);
     }, 0);
   }
@@ -81,7 +85,7 @@ const getOrdersData = (orders) => {
     
     overallStats.totalOrders++;
     overallStats.totalAmount += stats.subtotal;
-    overallStats.totalDiscount += (order.discount || 0);
+    overallStats.totalDiscount += stats.totalDiscount;
     overallStats.totalCouponDiscount += (order.couponDiscount || 0);
 
     return {

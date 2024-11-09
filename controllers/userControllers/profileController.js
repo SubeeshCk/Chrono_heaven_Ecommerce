@@ -643,13 +643,13 @@ const returnOrder = async (req, res) => {
     // Update status for all non-cancelled products
     order.orderedItem.forEach((item) => {
       if (item.status !== "Cancelled") {
-        item.status = "returnrequested";
+        item.status = "returnRequested";
         item.returnReason = returnReason;
       }
     });
 
     // Update main order status
-    order.orderStatus = "returnrequested";
+    order.orderStatus = "returnRequested";
     order.returnReason = returnReason;
 
     await order.save();
@@ -685,7 +685,7 @@ const returnProduct = async (req, res) => {
     }
 
     const hasReturnedOrRequested = order.orderedItem.some(
-      (item) => item.status === "Returned" || item.status === "returnrequested" ||
+      (item) => item.status === "Returned" || item.status === "returnRequested" ||
       item.status === "returnRequestCancelled");
 
     if (hasReturnedOrRequested) {
@@ -711,7 +711,7 @@ const returnProduct = async (req, res) => {
       return res.status(400).json({ error: "Product is already Returned" });
     }
 
-    orderedItem.status = "returnrequested";
+    orderedItem.status = "returnRequested";
     orderedItem.returnReason = returnReason;
 
     await order.save();

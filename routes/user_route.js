@@ -79,7 +79,6 @@ userRoute.get('/refferal',userAuth.isLogin, setUserData, setCartCount ,setWishli
 userRoute.get('/invoice/:orderId', userAuth.isLogin,profileController.generateInvoice);
 
 userRoute.get('/Wallet',userAuth.isLogin,setUserData,setCartCount,setWishlistData, walletController.renderWallet);
-userRoute.post('/add-money',userAuth.isLogin,walletController.addMoneyToWallet);
 
 
 //*************************************Cart management***************************************//

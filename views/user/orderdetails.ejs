@@ -658,20 +658,20 @@
                               <table class="table table-bordered">
                                 <tr>
                                   <td>Subtotal:</td>
-                                  <td>₹<%= (orderData.orderAmount + orderData.couponDiscount)
+                                  <td>₹<%= (orderData.orderAmount + orderData.couponDiscount).toFixed(2)
                                       %>
                                   </td>
                                 </tr>
                                 <% if (orderData.couponDiscount) { %>
                                   <tr>
                                     <td>Coupon Discount:</td>
-                                    <td>-₹<%= orderData.couponDiscount %>
+                                    <td>-₹<%= (orderData.couponDiscount).toFixed(2) %>
                                     </td>
                                   </tr>
                                   <% } %>
                                     <tr class="font-weight-bold">
                                       <td>Total Amount:</td>
-                                      <td>₹<%= orderData.orderAmount %>
+                                      <td>₹<%= orderData.orderAmount.toFixed(2) %>
                                       </td>
                                     </tr>
                               </table>
@@ -689,7 +689,7 @@
                                 </button>
                                 <%}%>
 
-                                  <% if(orderStatus==='delivered' ){ %>
+                                  <% if( orderStatus==='delivered' ){ %>
                                     <button type="button" class="btn btn-danger btn-custom return-entire-order-btn mb-2"
                                       data-order-id="<%= orderData._id %>" data-bs-toggle="modal"
                                       data-bs-target="#returnCompleteOrderModal">

@@ -139,6 +139,35 @@
     .text-green {
       color: green;
     }
+
+    /* Table Styling */
+.table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  padding: 12px;
+  text-align: center; /* Center-align content in each cell */
+  vertical-align: middle;
+}
+
+.table th {
+  font-weight: bold;
+  background-color: #f2f2f2; /* Light background for headers */
+  border-bottom: 2px solid #ddd;
+}
+
+.table td {
+  border-bottom: 1px solid #ddd;
+}
+
+.transaction-list {
+  max-height: 300px; /* Adjust as needed */
+  overflow-y: auto; /* Enable scroll if content overflows */
+}
+
   </style>
 
   </head>
@@ -290,10 +319,6 @@
                         <%= messages.error %>
                       </div>
                       <% } %>
-                        <div class="d-flex justify-content-between mt-3">
-                          <button type="button" class="btn btn-success" id="addMoneyBtn">Add Money</button>
-
-                        </div>
                         <div class="transaction-list mt-4">
                           <table class="table table-striped">
                             <thead>
@@ -345,15 +370,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-      $(document).ready(function () {
-
-        $('#addMoneyBtn').click(function () {
-          $('#addMoneyModal').modal('show');
-        });
-
-      });
-    </script>
 
     <script>
       $(document).ready(function () {

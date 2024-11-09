@@ -134,161 +134,164 @@
         </header>
 
 
-        <section class="content-main">
+        <section class="content-main" >
             <div class="content-header">
-                <div>
-                    <h2 class="content-title card-title">Dashboard</h2>
-                </div>
-                <div>
-                    <select id="timeFilter" class="form-select">
-                        <option value="yearly">Yearly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="daily">Daily</option>
-                    </select>
-                </div>
+              <div>
+                <h2 class="content-title card-title">Dashboard</h2>
+                <p>Whole data about your business here</p>
+              </div>
+              <div>
+                <select id="reportType" class="form-select">
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
             </div>
-
+            <br>
             <div class="row">
-                <div class="col-lg-3">
-                    <div class="card card-body mb-4">
-                        <article class="icontext">
-                            <span class="icon icon-sm rounded-circle bg-primary-light">
-                                <i class="material-icons md-monetization_on text-primary"></i>
-                            </span>
-                            <div class="text">
-                                <h6 class="mb-1">Total Revenue</h6>
-                                <span>₹ <%= totalRevenue.toLocaleString() %></span>
-                            </div>
-                        </article>
+              <!-- Total Revenue -->
+              <div class="col-lg-3">
+                <div class="card card-body mb-4">
+                  <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-primary-light">
+                      <i class="text-primary material-icons md-monetization_on"></i>
+                    </span>
+                    <div class="text">
+                      <h6 class="mb-1">Total Revenue</h6>
+                      <span>₹<%= totalRevenue.toFixed(2) %></span>
                     </div>
+                  </article>
                 </div>
-                <div class="col-lg-3">
-                    <div class="card card-body mb-4">
-                        <article class="icontext">
-                            <span class="icon icon-sm rounded-circle bg-success-light">
-                                <i class="material-icons md-shopping_cart text-success"></i>
-                            </span>
-                            <div class="text">
-                                <h6 class="mb-1">Total Orders</h6>
-                                <span>
-                                    <%= totalOrders %>
-                                </span>
-                            </div>
-                        </article>
+              </div>
+              <!-- Total Orders -->
+              <div class="col-lg-3">
+                <div class="card card-body mb-4">
+                  <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-success-light">
+                      <i class="text-success material-icons md-local_shipping"></i>
+                    </span>
+                    <div class="text">
+                      <h6 class="mb-1">Total Orders</h6>
+                      <span class="total-orders"><%= totalOrders %></span>
                     </div>
+                  </article>
                 </div>
-                <div class="col-lg-3">
-                    <div class="card card-body mb-4">
-                        <article class="icontext">
-                            <span class="icon icon-sm rounded-circle bg-warning-light">
-                                <i class="material-icons md-shopping_basket text-warning"></i>
-                            </span>
-                            <div class="text">
-                                <h6 class="mb-1">Total Returns</h6>
-                                <span>
-                                    <%= totalReturns %>
-                                </span>
-                            </div>
-                        </article>
+              </div>
+              <!-- Monthly Earnings -->
+              <div class="col-lg-3">
+                <div class="card card-body mb-4">
+                  <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-info-light">
+                      <i class="text-info material-icons md-shopping_cart"></i>
+                    </span>
+                    <div class="text">
+                      <h6 class="mb-1">Monthly Earnings</h6>
+                      <span>₹<%= monthlyEarning.toFixed(2) %></span>
                     </div>
+                  </article>
                 </div>
-                <div class="col-lg-3">
-                    <div class="card card-body mb-4">
-                        <article class="icontext">
-                            <span class="icon icon-sm rounded-circle bg-danger-light">
-                                <i class="material-icons md-cancel text-danger"></i>
-                            </span>
-                            <div class="text">
-                                <h6 class="mb-1">Total Cancellations</h6>
-                                <span>
-                                    <%= totalCancellations %>
-                                </span>
-                            </div>
-                        </article>
+              </div>
+              <!-- Returns -->
+              <div class="col-lg-3">
+                <div class="card card-body mb-4">
+                  <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-danger-light">
+                      <i class="text-danger material-icons md-receipt"></i>
+                    </span>
+                    <div class="text">
+                      <h6 class="mb-1">Returns</h6>
+                      <span class="total-returns"><%= totalReturns %></span>
                     </div>
+                  </article>
                 </div>
+              </div>
             </div>
-
             <div class="row">
-                <div class="col-xl-8 col-lg-12">
-                    <div class="card mb-4">
-                        <article class="card-body">
-                            <h5 class="card-title">Sale & Orders Statistics</h5>
-                            <canvas id="salesChart" height="120"></canvas>
-                        </article>
+              <!-- Cancellations -->
+              <div class="col-lg-3">
+                <div class="card card-body mb-4">
+                  <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-secondary-light">
+                      <i class="text-secondary material-icons md-highlight_off"></i>
+                    </span>
+                    <div class="text">
+                      <h6 class="mb-1">Cancellations</h6>
+                      <span class="total-cancellations"><%= totalCancellations %></span>
                     </div>
+                  </article>
                 </div>
-                <div class="col-xl-4 col-lg-12">
-                    <div class="card mb-4">
-                        <article class="card-body">
-                            <h5 class="card-title">Order Status</h5>
-                            <canvas id="orderStatusChart"></canvas>
-                        </article>
-                    </div>
-                </div>
+              </div>
             </div>
-
             <div class="row">
-                <div class="col-xl-4 col-lg-12">
-                    <div class="card mb-4">
-                        <article class="card-body">
-                            <h5 class="card-title">Top 10 Products</h5>
-                            <div class="table-responsive">
-                                <table class="table" id="topProducts">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Sales</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </article>
-                    </div>
+              <!-- Sales Chart -->
+              <div class="col-xl-8 col-lg-12">
+                <div class="card mb-4">
+                  <article class="card-body">
+                    <h5 class="card-title">Sale Statistics</h5>
+                    <canvas id="salesChart" height="200"></canvas>
+                  </article>
                 </div>
-                <div class="col-xl-4 col-lg-12">
-                    <div class="card mb-4">
-                        <article class="card-body">
-                            <h5 class="card-title">Top Categories</h5>
-                            <div class="table-responsive">
-                                <table class="table" id="topCategories">
-                                    <thead>
-                                        <tr>
-                                            <th>Category</th>
-                                            <th>Sales</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </article>
-                    </div>
+              </div>
+              <!-- Order Chart -->
+              <div class="col-xl-4 col-lg-12">
+                <div class="card mb-body">
+                  <article class="card-body">
+                    <h5 class="card-title">Order Statistics</h5>
+                    <canvas id="orderChart" height="200"></canvas>
+                  </article>
                 </div>
-                <div class="col-xl-4 col-lg-12">
-                    <div class="card mb-4">
-                        <article class="card-body">
-                            <h5 class="card-title">Top Brands</h5>
-                            <div class="table-responsive">
-                                <table class="table" id="topBrands">
-                                    <thead>
-                                        <tr>
-                                            <th>Brand</th>
-                                            <th>Sales</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </article>
-                    </div>
-                </div>
+              </div>
             </div>
-        </section>
+            <div class="row">
+                <!-- Top Products Table -->
+                <div class="col-lg-6">
+                  <div class="card card-body mb-4">
+                    <h5 class="card-title">Top 10 Products</h5>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Count</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% topProducts.forEach(product => { %>
+                          <tr>
+                            <td><%= product.name %></td>
+                            <td><%= product.count %></td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                <!-- Top Categories Table -->
+                <div class="col-lg-6">
+                  <div class="card card-body mb-4">
+                    <h5 class="card-title">Top 10 Categories</h5>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Count</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% topCategories.forEach(category => { %>
+                          <tr>
+                            <td><%= category.name %></td>
+                            <td><%= category.count %></td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>              
+          </section>
     </main>
     <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
@@ -298,184 +301,89 @@
     <script src="/adminAssets/js/vendors/chart.js"></script>
     <!-- Main Script -->
     <script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
-    <script src="/adminAssets/js/custom-chart.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Parse the chart data from the server
-            const chartData = JSON.parse('<%- chartData %>');
-
-            // Initialize charts
-            const salesCtx = document.getElementById('salesChart').getContext('2d');
-            const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
-
-            // Sales and Orders Chart
-            const salesChart = new Chart(salesCtx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'Sales',
-                            data: [],
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            tension: 0.4,
-                            fill: false
-                        },
-                        {
-                            label: 'Orders',
-                            data: [],
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            tension: 0.4,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Sales & Orders Timeline'
-                        }
-                    }
-                }
-            });
-
-            // Order Status Chart (Doughnut)
-            const orderStatusChart = new Chart(orderStatusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: chartData.orders.labels,
-                    datasets: [{
-                        data: chartData.orders.data,
-                        backgroundColor: [
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(255, 99, 132, 0.8)',
-                            'rgba(255, 206, 86, 0.8)'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        }
-                    }
-                }
-            });
-
-            // Time filter change handler
-            document.getElementById('timeFilter').addEventListener('change', async function (e) {
-                const timeFrame = e.target.value;
-                try {
-                    const response = await fetch(`/admin/generate-sales-data?reportType=${timeFrame}`);
-                    const data = await response.json();
-
-                    // Update sales chart
-                    salesChart.data.labels = data.sales.labels;
-                    salesChart.data.datasets[0].data = data.sales.data;
-                    salesChart.data.datasets[1].data = data.orders.data;
-                    salesChart.update();
-
-                } catch (error) {
-                    console.error('Error fetching data:', error);
-                }
-            });
-
-            // Initial data load
-            document.getElementById('timeFilter').dispatchEvent(new Event('change'));
+      const initialChartData = JSON.parse('<%- chartData %>');
+    
+      document.addEventListener('DOMContentLoaded', function () {
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const orderCtx = document.getElementById('orderChart').getContext('2d');
+        const reportTypeSelect = document.getElementById('reportType');
+    
+        let salesChart;
+        let orderChart;
+    
+        function updateCharts(data) {
+          salesChart.data.labels = data.sales.labels;
+          salesChart.data.datasets[0].data = data.sales.data;
+          salesChart.update();
+    
+          orderChart.data.labels = data.orders.labels;
+          orderChart.data.datasets[0].data = data.orders.data;
+          orderChart.update();
+    
+          document.querySelector('.total-orders').innerText = data.totalOrders;
+        }
+    
+        function fetchData(reportType) {
+          fetch(`/admin/dashboard/data?reportType=${reportType}`)
+            .then(response => response.json())
+            .then(data => updateCharts(data))
+            .catch(error => console.error('Error fetching data:', error));
+        }
+    
+        reportTypeSelect.addEventListener('change', function () {
+          fetchData(this.value);
         });
-
-        // Populate top products table
-        const topProductsTable = document.getElementById('topProducts').getElementsByTagName('tbody')[0];
-        chartData.topProducts.forEach(product => {
-            const row = topProductsTable.insertRow();
-            row.insertCell(0).textContent = product.name;
-            row.insertCell(1).textContent = product.sales;
-        });
-
-        // Populate top categories table
-        const topCategoriesTable = document.getElementById('topCategories').getElementsByTagName('tbody')[0];
-        chartData.topCategories.forEach(category => {
-            const row = topCategoriesTable.insertRow();
-            row.insertCell(0).textContent = category.name;
-            row.insertCell(1).textContent = category.sales;
-        });
-
-        // Populate top brands table
-        const topBrandsTable = document.getElementById('topBrands').getElementsByTagName('tbody')[0];
-        chartData.topBrands.forEach(brand => {
-            const row = topBrandsTable.insertRow();
-            row.insertCell(0).textContent = brand.name;
-            row.insertCell(1).textContent = brand.sales;
-        });
+    
+        function initializeCharts() {
+          const chartOptions = {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          };
+    
+          salesChart = new Chart(salesCtx, {
+            type: 'bar',
+            data: {
+              labels: initialChartData.sales.labels,
+              datasets: [{
+                label: 'Total Sales',
+                data: initialChartData.sales.data,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+              }]
+            },
+            options: chartOptions
+          });
+    
+          orderChart = new Chart(orderCtx, {
+            type: 'bar',
+            data: {
+              labels: initialChartData.orders.labels,
+              datasets: [{
+                label: 'Total Orders',
+                data: initialChartData.orders.data,
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+              }]
+            },
+            options: chartOptions
+          });
+    
+          document.querySelector('.total-orders').innerText = initialChartData.totalOrders;
+        }
+    
+        initializeCharts();
+      });
     </script>
 
-    <style>
-        .card {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            border: none;
-            margin-bottom: 1.5rem;
-        }
-
-        .card-title {
-            color: #212529;
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .icontext {
-            display: flex;
-            align-items: center;
-        }
-
-        .icontext .icon {
-            position: relative;
-            margin-right: 1rem;
-            padding: 1rem;
-        }
-
-        .bg-primary-light {
-            background-color: rgba(13, 110, 253, 0.1);
-        }
-
-        .bg-success-light {
-            background-color: rgba(25, 135, 84, 0.1);
-        }
-
-        .bg-warning-light {
-            background-color: rgba(255, 193, 7, 0.1);
-        }
-
-        .bg-danger-light {
-            background-color: rgba(220, 53, 69, 0.1);
-        }
-
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table th {
-            font-weight: 600;
-            background-color: #f8f9fa;
-        }
-
-        .content-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-        }
-
-        #timeFilter {
-            width: auto;
-            min-width: 150px;
-        }
-    </style>
+    
 </body>
 
 </html>

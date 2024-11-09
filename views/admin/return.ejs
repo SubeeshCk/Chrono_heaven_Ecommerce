@@ -243,7 +243,7 @@
                                     <% } else { %>
                                         <% partialReturns.forEach((order)=> { %>
                                             <% order.orderedItem.forEach((item)=> { %>
-                                                <% if (item.status==='returnrequested' ) { %>
+                                                <% if (item.status==='returnRequested' ) { %>
                                                     <tr>
                                                         <td>
                                                             <%= order._id.toString().slice(-6) %>
@@ -268,7 +268,7 @@
                                                                 : 'No Product Name' %>
                                                         </td>
                                                         <td>
-                                                            <%= item.reason %>
+                                                            <%= item.returnReason %>
                                                         </td>
                                                         <td>
                                                             <span
@@ -328,67 +328,85 @@
                     return result;
                 }
 
-                async function handleCompleteReturn(orderId, action) {
-                    const confirmation = await confirmAction(action, 'complete');
-                    if (confirmation) {
-                        const endpoint = action === 'accept' ? '/admin/acceptCompleteReturn' : '/admin/declineReturn';
-                        const xhr = new XMLHttpRequest();
-                        xhr.open('POST', endpoint, true);
-                        xhr.setRequestHeader('Content-Type', 'application/json');
+            // Updated client-side handlers with better error handling
+async function handleCompleteReturn(orderId, action) {
+    const confirmation = await confirmAction(action, 'complete');
+    if (confirmation) {
+        const endpoint = action === 'accept' ? '/admin/acceptCompleteReturn' : '/admin/declineReturn';
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', endpoint, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
 
-                        xhr.onload = function () {
-                            if (xhr.status === 200) {
-                                const data = JSON.parse(xhr.responseText);
-                                if (data.success) {
-                                    swal('Success', data.success, 'success').then(() => {
-                                        window.location.reload();
-                                    });
-                                } else {
-                                    swal('Error', data.error, 'error');
-                                }
-                            } else {
-                                swal('Error', `Failed to ${action} return`, 'error');
-                            }
-                        };
-
-                        xhr.onerror = function () {
-                            swal('Error', `An error occurred while ${action}ing the return`, 'error');
-                        };
-
-                        xhr.send(JSON.stringify({ orderId }));
-                    }
+        xhr.onload = function () {
+            try {
+                const response = JSON.parse(xhr.responseText);
+                if (xhr.status === 200 && response.success) {
+                    swal('Success', response.success, 'success').then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    const errorMessage = response.error || `Failed to ${action} return. Status: ${xhr.status}`;
+                    console.error('Error details:', { 
+                        status: xhr.status,
+                        response: response,
+                        orderId: orderId
+                    });
+                    swal('Error', errorMessage, 'error');
                 }
+            } catch (e) {
+                console.error('Parse error:', e, 'Raw response:', xhr.responseText);
+                swal('Error', `Failed to process response for ${action} return`, 'error');
+            }
+        };
 
-                async function handlePartialReturn(orderId, productId, action) {
-                    const confirmation = await confirmAction(action, 'partial');
-                    if (confirmation) {
-                        const endpoint = action === 'accept' ? '/admin/acceptPartialReturn' : '/admin/declineReturn';
-                        const xhr = new XMLHttpRequest();
-                        xhr.open('POST', endpoint, true);
-                        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onerror = function (error) {
+            console.error('XHR Error:', error);
+            swal('Error', `Network error while ${action}ing the return`, 'error');
+        };
 
-                        xhr.onload = function () {
-                            if (xhr.status === 200) {
-                                const data = JSON.parse(xhr.responseText);
-                                if (data.success) {
-                                    swal('Success', data.success, 'success').then(() => {
-                                        window.location.reload();
-                                    });
-                                } else {
-                                    swal('Error', data.error, 'error');
-                                }
-                            } else {
-                                swal('Error', `Failed to ${action} return`, 'error');
-                            }
-                        };
+        xhr.send(JSON.stringify({ orderId }));
+    }
+}
 
-                        xhr.onerror = function () {
-                            swal('Error', `An error occurred while ${action}ing the return`, 'error');
-                        };
+async function handlePartialReturn(orderId, productId, action) {
+    const confirmation = await confirmAction(action, 'partial');
+    if (confirmation) {
+        const endpoint = action === 'accept' ? '/admin/acceptPartialReturn' : '/admin/declineReturn';
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', endpoint, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
 
-                        xhr.send(JSON.stringify({ orderId, productId }));
-                    }
+        xhr.onload = function () {
+            try {
+                const response = JSON.parse(xhr.responseText);
+                if (xhr.status === 200 && response.success) {
+                    swal('Success', response.success, 'success').then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    const errorMessage = response.error || `Failed to ${action} return. Status: ${xhr.status}`;
+                    console.error('Error details:', { 
+                        status: xhr.status,
+                        response: response,
+                        orderId: orderId,
+                        productId: productId
+                    });
+                    swal('Error', errorMessage, 'error');
                 }
+            } catch (e) {
+                console.error('Parse error:', e, 'Raw response:', xhr.responseText);
+                swal('Error', `Failed to process response for ${action} return`, 'error');
+            }
+        };
+
+        xhr.onerror = function (error) {
+            console.error('XHR Error:', error);
+            swal('Error', `Network error while ${action}ing the return`, 'error');
+        };
+
+        xhr.send(JSON.stringify({ orderId, productId }));
+    }
+}
 
                 // Add search functionality
                 document.querySelector('input[placeholder="Search order ID"]').addEventListener('input', function (e) {

@@ -279,14 +279,14 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-			  const userData = <%- JSON.stringify(userData) %>;
+			const userData = <%- JSON.stringify(userData) %>;
 			function showToast(message, isSuccess = true) {
 				Toastify({
 					text: message,
 					duration: 1000,
 					gravity: "top",
 					position: "center",
-					backgroundColor: isSuccess ? "#4CAF50" : "#f44336",
+					backgroundColor: isSuccess ? "#b9a273" : "#f44336",
 					stopOnFocus: true,
 					style: {
 						borderRadius: '5px',
@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (heartIcon.src.includes('icon-heart-02.png')) {
             showToast('Product removed from wishlist');
           } else {
-            showToast('Product added to wishlist! ❤️');
+            showToast('Product added to wishlist!');
           }
         } else {
           window.location.href = '/login';
