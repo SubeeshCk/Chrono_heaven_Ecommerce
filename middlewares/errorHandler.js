@@ -1,4 +1,4 @@
-const {StatusCode} = require ("../config/StatusCode");
+const {StatusCode} = require ("../config/statusCode");
 
 const errorHandler = ((err, req, res, next) => {
     console.error(err.message);
