@@ -1,7 +1,6 @@
 const User = require("../../models/userModel");
 const Products = require("../../models/product");
 const CartItem = require("../../models/cartModel");
-const { StatusCode } = require("../../config/StatusCode");
 const Address = require("../../models/userAddress");
 const Order = require("../../models/orderModel");
 const Coupon = require("../../models/couponModel");
@@ -26,12 +25,12 @@ const addToCart = async (req, res, next) => {
     const product = await Products.findById(productId);
 
     if (!product) {
-      return res.status(StatusCode.NOT_FOUND).send("Product not found");
+      return res.status(404).send("Product not found");
     }
 
     if (product.quantity < quantity) {
       return res
-        .status(StatusCode.BAD_REQUEST)
+        .status(400)
         .send("Not enough stock available");
     }
 
@@ -70,12 +69,12 @@ const addToCart = async (req, res, next) => {
 
         if (newQuantity > product.quantity) {
           return res
-            .status(StatusCode.BAD_REQUEST)
+            .status(400)
             .send("Not enough stock available");
         }
         if (newQuantity > 5) {
           return res
-            .status(StatusCode.BAD_REQUEST)
+            .status(400)
             .send("You can purchase maximum 5 products in an order");
         }
 

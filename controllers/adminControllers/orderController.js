@@ -1,4 +1,3 @@
-const API_ROUTES = require("../../config/apiRoutes");
 const Order = require("../../models/orderModel");
 const Products = require("../../models/product");
 const Wallet = require("../../models/walletModel");

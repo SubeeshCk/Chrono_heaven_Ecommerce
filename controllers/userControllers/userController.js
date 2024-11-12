@@ -2,7 +2,6 @@ const User = require("../../models/userModel");
 const Category = require("../../models/category");
 const Products = require("../../models/product");
 const WishlistItem = require("../../models/wishListModel");
-const { StatusCode } = require("../../config/StatusCode");
 const { applyOffers,calculateDiscountedPrice } = require("../../config/offerUtils");
 
 
@@ -185,7 +184,7 @@ const renderWomens = async (req, res, next) => {
     const womenCategory = await Category.findOne({ name: "women" });
 
     if (!womenCategory) {
-      return res.status(StatusCode.NOT_FOUND).send("Women category not found");
+      return res.status(404).send("Women category not found");
     }
 
     const totalProducts = await Products.countDocuments({
@@ -272,7 +271,7 @@ const renderMens = async (req, res, next) => {
 
     const mensCategory = await Category.findOne({ name: "men" });
     if (!mensCategory) {
-      return res.status(StatusCode.NOT_FOUND).send("Men category not found");
+      return res.status(404).send("Men category not found");
     }
 
     const totalProducts = await Products.countDocuments({
@@ -358,7 +357,7 @@ const sortProducts = async (req, res, next) => {
       });
       if (!categoryDoc) {
         return res
-          .status(StatusCode.NOT_FOUND)
+          .status(404)
           .json({ error: "Category not found" });
       }
       matchCondition.category = categoryDoc._id;

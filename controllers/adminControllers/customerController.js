@@ -1,7 +1,6 @@
 const User = require("../../models/userModel");
 const moment = require("moment");
 const API_ROUTES = require("../../config/apiRoutes");
-const { StatusCode } = require("../../config/StatusCode");
 const Address = require("../../models/userAddress");
 
 

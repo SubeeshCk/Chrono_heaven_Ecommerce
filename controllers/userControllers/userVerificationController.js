@@ -2,7 +2,6 @@ const User = require("../../models/userModel");
 const nodeMailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const { error } = require("console");
 const Wallet = require("../../models/walletModel");
 
 //for genarate an otp

@@ -1,8 +1,6 @@
 const API_ROUTES = require("../../config/apiRoutes");
 const Category = require("../../models/category");
 const Products = require("../../models/product");
-const { StatusCode } = require("../../config/StatusCode");
-
 
 const fs = require('fs').promises;
 const path = require('path');

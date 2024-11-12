@@ -1,6 +1,5 @@
 const User = require("../../models/userModel");
 const Products = require("../../models/product");
-const { StatusCode } = require("../../config/StatusCode");
 const Address = require("../../models/userAddress");
 const bcrypt = require("bcrypt");
 const Order = require("../../models/orderModel");
@@ -46,7 +45,7 @@ const renderEditProfile = async (req, res, next) => {
 
     if (!userData) {
       console.log("User not found");
-      return res.status(StatusCode.NOT_FOUND).send("User not found");
+      return res.status(404).send("User not found");
     }
     res.render("edit-profile", { title : "Edit - Profile"});
   } catch (error) {
@@ -109,7 +108,7 @@ const renderAddress = async (req, res, next) => {
 
     if (!user) {
       console.log("User not found");
-      return res.status(StatusCode.NOT_FOUND).send("User not found");
+      return res.status(404).send("User not found");
     }
 
     const addresses = await Address.find({ userId });
@@ -218,7 +217,7 @@ const renderEditAddress = async (req, res, next) => {
     const address = await Address.findById(addressId);
 
     if (!address || address.userId !== userId) {
-      return res.status(StatusCode.NOT_FOUND).send("Address not found");
+      return res.status(404).send("Address not found");
     }
 
     res.render("edit-address", { userData: [address] , title : "Edit - Address"});
@@ -250,7 +249,7 @@ const updateAddress = async (req, res, next) => {
     if (!existingAddress) {
       req.flash("error", "Address not found or does not belong to the user");
       return res
-        .status(StatusCode.NOT_FOUND)
+        .status(404)
         .send("Address not found or does not belong to the user");
     }
 
@@ -266,7 +265,7 @@ const updateAddress = async (req, res, next) => {
     } else {
       req.flash("error", "Failed to update address");
       return res
-        .status(StatusCode.INTERNAL_SERVER_ERROR)
+        .status(500)
         .send("Failed to update address");
     }
   } catch (error) {
@@ -290,7 +289,7 @@ const deleteAddress = async (req, res, next) => {
     if (!address) {
       console.log("Address not found or does not belong to the user");
       return res
-        .status(StatusCode.NOT_FOUND)
+        .status(404)
         .json({ error: "Address not found or does not belong to the user" });
     }
 

@@ -1,6 +1,5 @@
 const User = require("../../models/userModel");
 const bcrypt = require("bcrypt");
-const { StatusCode } = require("../../config/StatusCode");
 const Order = require ("../../models/orderModel");
 const Products = require ("../../models/product");
 
