@@ -55,7 +55,8 @@ userRoute.get('/sort-products',setUserData ,setCartCount, userController.sortPro
 userRoute.get('/wishlist',userAuth.isLogin,setUserData ,setCartCount,setWishlistData, userController.renderWishlist);
 userRoute.get('/addToWishlist',userAuth.isLogin,setUserData, userController.addToWishlist);
 userRoute.get('/RemoveFromWishlist',userAuth.isLogin,setUserData, userController.RemoveFromWishlist);
-
+userRoute.get('/about', setUserData ,setCartCount,setWishlistData, userController.renderAbout);
+userRoute.get('/contact', setUserData ,setCartCount,setWishlistData, userController.renderContact);
 
 
 //********************************User profile management************************************//

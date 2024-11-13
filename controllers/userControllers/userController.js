@@ -166,8 +166,18 @@ const productDetails = async (req, res, next) => {
       };
     })[0];
 
+    const relatedProducts = await Products.find({
+      category: product.category,
+      _id: { $ne: product._id }
+    })
+    .sort({ createdAt: -1 })
+    .limit(4);
+
+    const { productsWithOffers: relatedProductsWithOffers } = await applyOffers(relatedProducts, categories);
+
     res.render("product-details", { 
       product: productWithRating,
+      relatedProducts: relatedProductsWithOffers,
       title : "Product-details",
     });
   } catch (error) {
@@ -510,6 +520,22 @@ const RemoveFromWishlist = async (req, res, next) => {
   }
 };
 
+const renderAbout = async (req, res, next) => {
+try {
+  res.render("about",{title : "About"});
+} catch (error) {
+  return next(error);
+}
+}
+
+const renderContact = async (req, res, next) => {
+  try {
+    res.render("contact",{title : "Contact"});
+  } catch (error) {
+    return next(error);
+  }
+  }
+
 module.exports = {
   renderHome,
   renderProducts,
@@ -520,4 +546,6 @@ module.exports = {
   renderWishlist,
   addToWishlist,
   RemoveFromWishlist,
+  renderAbout,
+  renderContact,
 };
