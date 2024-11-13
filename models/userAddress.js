@@ -32,7 +32,11 @@ const addressSchema = new mongoose.Schema({
     addresstype: {
          type: String,
           required: true
-         } 
+    },
+    is_deleted: {
+        type: Boolean,
+        default: false
+    },
 },{ timestamps: true});
 
 const Address = mongoose.model('Address', addressSchema);

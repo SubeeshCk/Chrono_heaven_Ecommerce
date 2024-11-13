@@ -5,11 +5,11 @@ const bcrypt = require("bcrypt");
 const Order = require("../../models/orderModel");
 const Wallet = require("../../models/walletModel");
 const PDFDocument = require("pdfkit");
-const crypto = require('crypto');
+const crypto = require("crypto");
 
 const Razorpay = require("razorpay");
 
-const { RAZOPAY_ID_KEY , RAZOPAY_SECRET_KEY } = process.env;
+const { RAZOPAY_ID_KEY, RAZOPAY_SECRET_KEY } = process.env;
 
 const razorpayInstance = new Razorpay({
   key_id: RAZOPAY_ID_KEY,
@@ -33,7 +33,7 @@ const renderProfile = (req, res, next) => {
     if (!userData) {
       return res.redirect("/login");
     }
-    res.render("user-profile",{ title : "User-Profile"});
+    res.render("user-profile", { title: "User-Profile" });
   } catch (error) {
     return next(error);
   }
@@ -47,7 +47,7 @@ const renderEditProfile = async (req, res, next) => {
       console.log("User not found");
       return res.status(404).send("User not found");
     }
-    res.render("edit-profile", { title : "Edit - Profile"});
+    res.render("edit-profile", { title: "Edit - Profile" });
   } catch (error) {
     return next(error);
   }
@@ -111,9 +111,9 @@ const renderAddress = async (req, res, next) => {
       return res.status(404).send("User not found");
     }
 
-    const addresses = await Address.find({ userId });
+    const addresses = await Address.find({ userId, is_deleted: false });
 
-    res.render("address", { userData: user, addresses , title : "Adresses" });
+    res.render("address", { userData: user, addresses, title: "Adresses" });
   } catch (error) {
     return next(error);
   }
@@ -121,7 +121,7 @@ const renderAddress = async (req, res, next) => {
 
 const renderAddNewAddress = async (req, res, next) => {
   try {
-    res.render("add-address", { title : "Add - Address"});
+    res.render("add-address", { title: "Add - Address" });
   } catch (error) {
     return next(error);
   }
@@ -220,7 +220,10 @@ const renderEditAddress = async (req, res, next) => {
       return res.status(404).send("Address not found");
     }
 
-    res.render("edit-address", { userData: [address] , title : "Edit - Address"});
+    res.render("edit-address", {
+      userData: [address],
+      title: "Edit - Address",
+    });
   } catch (error) {
     return next(error);
   }
@@ -264,9 +267,7 @@ const updateAddress = async (req, res, next) => {
       return res.redirect("/user-profile/address");
     } else {
       req.flash("error", "Failed to update address");
-      return res
-        .status(500)
-        .send("Failed to update address");
+      return res.status(500).send("Failed to update address");
     }
   } catch (error) {
     console.log(error.message);
@@ -293,7 +294,7 @@ const deleteAddress = async (req, res, next) => {
         .json({ error: "Address not found or does not belong to the user" });
     }
 
-    await Address.findByIdAndDelete(addressId);
+    await Address.findByIdAndUpdate(addressId, { is_deleted: true });
 
     res.status(200).json({ message: "Address deleted successfully" });
   } catch (error) {
@@ -367,7 +368,7 @@ const renderMyOrder = async (req, res, next) => {
       })
       .populate("deliveryAddress");
 
-    res.render("myorders", { 
+    res.render("myorders", {
       orderData,
       currentPage: page,
       totalPages,
@@ -376,9 +377,8 @@ const renderMyOrder = async (req, res, next) => {
       nextPage: page + 1,
       prevPage: page - 1,
       lastPage: totalPages,
-      title : "My Orders"
+      title: "My Orders",
     });
-
   } catch (error) {
     return next(error);
   }
@@ -404,7 +404,7 @@ const renderOrderDetails = async (req, res, next) => {
       return res.render("orderdetails", { message: "Order not found." });
     }
 
-    res.render("orderdetails", { orderData , title :"Order-details" });
+    res.render("orderdetails", { orderData, title: "Order-details" });
   } catch (error) {
     console.log(error);
     return next(error);
@@ -421,7 +421,6 @@ const cancelOrder = async (req, res, next) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    // Find the order and populate product details
     const order = await Order.findOne({
       _id: orderId,
       userId,
@@ -434,7 +433,6 @@ const cancelOrder = async (req, res, next) => {
         .json({ error: "Order not found or does not belong to the user" });
     }
 
-    // Check if order is already cancelled or in a state that can't be cancelled
     if (order.orderStatus.toLowerCase() === "cancelled") {
       console.log("Order is already cancelled");
       return res.status(400).json({ error: "Order is already cancelled" });
@@ -453,20 +451,35 @@ const cancelOrder = async (req, res, next) => {
 
     let totalRefundAmount = 0;
     for (const item of order.orderedItem) {
+      let refundAmount = 0;
 
-      if (
-        ["cancelled", "delivered", "returned"].includes(
-          item.status.toLowerCase()
-        )
-      ) {
+      if ([
+        "cancelled",
+        "delivered",
+        "returned",
+        "returnrequested",
+        "returnrequestcancelled"
+      ].includes(item.status.toLowerCase())) {
         continue;
       }
 
-      let refundAmount = item.discountedPrice
-        ? item.discountedPrice * item.quantity
-        : item.totalProductAmount * item.quantity;
-        
-        totalRefundAmount += refundAmount;
+      if (order.orderedItem.length === 1) {
+
+        refundAmount = order.orderAmount;
+
+      } else {
+
+        let itemCouponDiscount = 0;
+        if (order.orderAmount > 0 && order.couponDiscount) {
+
+          const itemProportion = item.totalProductAmount / (order.orderAmount + order.couponDiscount);
+          itemCouponDiscount = order.couponDiscount * itemProportion;
+        }
+        refundAmount = item.totalProductAmount - itemCouponDiscount;
+      }
+
+
+      totalRefundAmount += refundAmount;
 
       item.status = "Cancelled";
       item.cancelReason = cancelReason;
@@ -549,9 +562,19 @@ const cancelProduct = async (req, res, next) => {
       return res.status(400).json({ error: "Product is already cancelled" });
     }
 
-    const refundAmount = orderedItem.discountedPrice
-      ? orderedItem.discountedPrice * orderedItem.quantity
-      : orderedItem.totalProductAmount * orderedItem.quantity;
+    let refundAmount = 0;
+    
+    if (order.orderedItem.length === 1) {
+      refundAmount = order.orderAmount;
+    } else {
+
+        let itemCouponDiscount = 0;
+        if (order.orderAmount > 0 && order.couponDiscount) {
+          const itemProportion = orderedItem.totalProductAmount / (order.orderAmount + order.couponDiscount);
+          itemCouponDiscount = order.couponDiscount * itemProportion;
+        }
+        refundAmount = orderedItem.totalProductAmount - itemCouponDiscount;
+    }
 
     let cancelCount = order.orderedItem.filter(
       (item) => item.status !== "Cancelled"
@@ -627,16 +650,17 @@ const returnOrder = async (req, res) => {
     }
 
     const hasReturnedItems = order.orderedItem.some(
-      (item) => item.status === "Returned" || item.status === "returnrequested" ||
-    item.status === "returnRequestCancelled" );
+      (item) =>
+        item.status === "Returned" ||
+        item.status === "returnrequested" ||
+        item.status === "returnRequestCancelled"
+    );
 
     if (hasReturnedItems) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Some items in this order are already returned or have pending return requests",
-        });
+      return res.status(400).json({
+        error:
+          "Some items in this order are already returned or have pending return requests",
+      });
     }
 
     // Update status for all non-cancelled products
@@ -684,16 +708,17 @@ const returnProduct = async (req, res) => {
     }
 
     const hasReturnedOrRequested = order.orderedItem.some(
-      (item) => item.status === "Returned" || item.status === "returnRequested" ||
-      item.status === "returnRequestCancelled");
+      (item) =>
+        item.status === "Returned" ||
+        item.status === "returnRequested" ||
+        item.status === "returnRequestCancelled"
+    );
 
     if (hasReturnedOrRequested) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "A product in this order has already been marked as Returned or returnrequested",
-        });
+      return res.status(400).json({
+        error:
+          "A product in this order has already been marked as Returned or returnrequested",
+      });
     }
 
     const orderedItem = order.orderedItem.find(
@@ -724,7 +749,7 @@ const returnProduct = async (req, res) => {
 
 const renderRefferal = async (req, res) => {
   try {
-    res.render("refferal" , { title : "Refferal"});
+    res.render("refferal", { title: "Refferal" });
   } catch (error) {
     return next(error);
   }
@@ -734,39 +759,40 @@ const initiatePayment = async (req, res) => {
   try {
     const { orderId } = req.body;
 
-
     const orderDetails = await Order.findById(orderId);
 
     if (!orderDetails) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-
     if (orderDetails.paymentStatus) {
-      return res.status(400).json({ message: "This order has already been paid" });
+      return res
+        .status(400)
+        .json({ message: "This order has already been paid" });
     }
 
     const orderAmount = orderDetails.orderAmount;
 
-
     if (orderAmount < 1) {
-      return res.status(400).json({ message: "Order amount must be at least ₹1" });
+      return res
+        .status(400)
+        .json({ message: "Order amount must be at least ₹1" });
     }
 
-
     const options = {
-      amount: Math.round(orderAmount * 100), 
+      amount: Math.round(orderAmount * 100),
       currency: "INR",
       receipt: `order_${orderId}`,
     };
 
-    razorpayInstance .orders.create(options, async (err, order) => {
+    razorpayInstance.orders.create(options, async (err, order) => {
       if (err) {
         console.error(err);
-        return res.status(500).json({ message: "Failed to create Razorpay order" });
+        return res
+          .status(500)
+          .json({ message: "Failed to create Razorpay order" });
       }
 
-      
       orderDetails.razorpayOrderId = order.id;
       await orderDetails.save();
 
@@ -777,7 +803,6 @@ const initiatePayment = async (req, res) => {
         orderId: order.id,
       });
     });
-
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: "Internal server error" });
@@ -786,35 +811,42 @@ const initiatePayment = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
   try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      orderId,
+    } = req.body;
 
-      const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
+    const sign = razorpay_order_id + "|" + razorpay_payment_id;
 
-      const sign = razorpay_order_id + "|" + razorpay_payment_id;
-      
-      const expectedSign = crypto.createHmac("sha256", RAZOPAY_SECRET_KEY)
-          .update(sign.toString())
-          .digest("hex");
+    const expectedSign = crypto
+      .createHmac("sha256", RAZOPAY_SECRET_KEY)
+      .update(sign.toString())
+      .digest("hex");
 
-      if (razorpay_signature === expectedSign) {
-
-          const updatedOrder = await Order.findByIdAndUpdate(orderId, { paymentStatus: true }, { new: true });
-          if (!updatedOrder) {
-              return res.status(404).json({
-                  success: false,
-                  message: "Order not found."
-              });
-          }
+    if (razorpay_signature === expectedSign) {
+      const updatedOrder = await Order.findByIdAndUpdate(
+        orderId,
+        { paymentStatus: true },
+        { new: true }
+      );
+      if (!updatedOrder) {
+        return res.status(404).json({
+          success: false,
+          message: "Order not found.",
+        });
+      }
 
       if (updatedOrder) {
-
         updatedOrder.paymentStatus = true;
         updatedOrder.orderStatus = "confirmed";
-        updatedOrder.orderedItem.forEach(item => {
+        updatedOrder.orderedItem.forEach((item) => {
           item.status = "confirmed";
         });
         updatedOrder.razorpayPaymentId = razorpay_payment_id;
         updatedOrder.razorpayOrderId = razorpay_order_id;
-        
+
         for (const item of updatedOrder.orderedItem) {
           const product = await Products.findById(item.productId);
           if (product) {
@@ -825,12 +857,17 @@ const verifyPayment = async (req, res) => {
         }
         await updatedOrder.save();
 
-        res.json({ success: true, message: "Payment verified and status updated" });
+        res.json({
+          success: true,
+          message: "Payment verified and status updated",
+        });
       } else {
         res.status(404).json({ success: false, message: "Order not found" });
       }
     } else {
-      res.status(400).json({ success: false, message: "Invalid payment verification" });
+      res
+        .status(400)
+        .json({ success: false, message: "Invalid payment verification" });
     }
   } catch (error) {
     console.error(error);
@@ -838,34 +875,30 @@ const verifyPayment = async (req, res) => {
   }
 };
 
-const addReview = async(req,res)=>{
-  try{
-      const { productId, userId, reviewText, starRating } = req.body;
+const addReview = async (req, res) => {
+  try {
+    const { productId, userId, reviewText, starRating } = req.body;
 
-     
-      const product = await Products.findById(productId);
-  
-      if (!product) {
-        return res.status(404).send('Product not found');
-      }
-  
-    
-      const newReview = {
-        userId,
-        reviewText,
-        starRating
-      };
-  
-    
-      product.reviews.push(newReview);
-      await product.save();
-  
-      res.status(200).send('Review submitted successfully!');
+    const product = await Products.findById(productId);
 
-  }catch(error){
-      console.log(error.message)
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
+
+    const newReview = {
+      userId,
+      reviewText,
+      starRating,
+    };
+
+    product.reviews.push(newReview);
+    await product.save();
+
+    res.status(200).send("Review submitted successfully!");
+  } catch (error) {
+    console.log(error.message);
   }
-}
+};
 
 const generateInvoice = async (req, res) => {
   try {
@@ -1020,7 +1053,7 @@ const generateInvoice = async (req, res) => {
       "",
       "",
       "Total",
-      formatCurrency(totalAmount - couponDiscount )
+      formatCurrency(totalAmount - couponDiscount)
     );
     doc.font("Helvetica");
 
@@ -1071,5 +1104,5 @@ module.exports = {
   generateInvoice,
   initiatePayment,
   verifyPayment,
-  addReview
+  addReview,
 };

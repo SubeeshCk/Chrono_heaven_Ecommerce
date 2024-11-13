@@ -305,7 +305,7 @@ const loadCheckout = async (req, res, next) => {
     }
 
     const userData = await User.findById(userId);
-    const addressData = await Address.find({ userId });
+    const addressData = await Address.find({ userId ,is_deleted : false });
 
     let subtotal = 0;
     let totalProductCount = 0;
@@ -445,7 +445,7 @@ const insertCheckoutAddress = async (req, res, next) => {
 const removeAddress = async (req, res, next) => {
   try {
     const addressId = req.params.id;
-    await Address.findByIdAndDelete(addressId);
+    await Address.findByIdAndUpdate(addressId, { is_deleted: true });
     res.json({ success: true, message: "Address removed successfully" });
   } catch (error) {
     return next(error);

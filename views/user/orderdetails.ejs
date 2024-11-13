@@ -551,15 +551,19 @@
                                 <% } %>
                             </div>
                             <div class="col-md-6">
-                              <p><strong>Delivery Address:</strong></p>
-                              <address>
-                                <%= orderData.deliveryAddress.name %><br>
+                              <% if (orderData && orderData.deliveryAddress) { %>
+                                <p><strong>Delivery Address:</strong></p>
+                                <address>
+                                  <%= orderData.deliveryAddress.name %><br>
                                   <%= orderData.deliveryAddress.address %><br>
-                                    <%= orderData.deliveryAddress.locality %><br>
-                                      <%= orderData.deliveryAddress.city %><br>
-                                        <%= orderData.deliveryAddress.state %> - <%= orderData.deliveryAddress.pincode
-                                            %>
-                              </address>
+                                  <%= orderData.deliveryAddress.locality %><br>
+                                  <%= orderData.deliveryAddress.city %><br>
+                                  <%= orderData.deliveryAddress.state %> <br> 
+                                  <%= orderData.deliveryAddress.pincode %>
+                                </address>
+                              <% } else { %>
+                                <p>No delivery address available</p>
+                              <% } %>
                             </div>
                           </div>
 

@@ -245,28 +245,48 @@ const acceptCompleteReturn = async (req, res, next) => {
       }
 
       order.orderStatus = "Returned";
-
+      
+      let refundAmount = 0;
       let totalRefundAmount = 0;
       const productUpdates = [];
 
-      for (const item of order.orderedItem) {
-          if (item.status.toLowerCase() !== "cancelled" && 
-              item.status.toLowerCase() !== "returnrequestcancelled") {
-              item.status = "Returned";
 
-              if (item.productId) {
-                  productUpdates.push(
-                      Products.findByIdAndUpdate(
-                          item.productId,
-                          { $inc: { quantity: item.quantity } },
-                          { new: true }
-                      )
-                  );
-              }
-          }
-      }
+        // Process each item
+        for (const item of order.orderedItem) {
+            if (item.status.toLowerCase() === "returnrequested") {
+                item.status = "Returned";
 
-      totalRefundAmount = order.orderAmount;
+                // Handle product quantity update
+                if (item.productId) {
+                    productUpdates.push(
+                        Products.findByIdAndUpdate(
+                            item.productId,
+                            { $inc: { quantity: item.quantity } },
+                            { new: true }
+                        )
+                    );
+                }
+
+                // Calculate refund amount for this item
+                let itemRefundAmount = 0;
+                
+                if (order.orderedItem.filter(i => i.status.toLowerCase() === "returnrequested").length === order.orderedItem.length) {
+
+                    itemRefundAmount = order.orderAmount;
+                } else {
+                    // For partial returns, calculate proportional coupon discount
+                    let itemCouponDiscount = 0;
+                    if (order.couponDiscount > 0) {
+                        const itemProportion = item.totalProductAmount / (order.orderAmount + order.couponDiscount);
+                        itemCouponDiscount = order.couponDiscount * itemProportion;
+                    }
+                    itemRefundAmount = item.totalProductAmount - itemCouponDiscount;
+                }
+
+                totalRefundAmount += itemRefundAmount;
+            }
+        }
+
 
       let userWallet = await Wallet.findOne({ userId: order.userId });
       
@@ -339,9 +359,18 @@ const acceptPartialReturn = async (req, res, next) => {
 
     orderedItem.status = "Returned";
 
-    const refundAmount = orderedItem.discountedPrice
-      ? orderedItem.discountedPrice * orderedItem.quantity
-      : orderedItem.priceAtPurchase * orderedItem.quantity;
+    let refundAmount = 0;
+    
+    if (order.orderedItem.length === 1) {
+      refundAmount = order.orderAmount;
+    } else {
+        let itemCouponDiscount = 0;
+        if (order.orderAmount > 0 && order.couponDiscount) {
+          const itemProportion = orderedItem.totalProductAmount / (order.orderAmount + order.couponDiscount);
+          itemCouponDiscount = order.couponDiscount * itemProportion;
+        }
+        refundAmount = orderedItem.totalProductAmount - itemCouponDiscount;
+    }
 
     const product = await Products.findById(productId);
     if (product) {

@@ -243,11 +243,16 @@
                                 <div class="text">
                                     <h6 class="mb-1">Deliver to</h6>
                                     <p class="mb-1">
-                                        <%= order.deliveryAddress.address %> <br>
-                                            <%= order.deliveryAddress.locality %> <br>
-                                                <%= order.deliveryAddress.city %> <br>
-                                                    <%= order.deliveryAddress.state %> <br>
-                                                        <%= order.deliveryAddress.pincode %>
+                                        <% if (order && order.deliveryAddress) { %>
+                                            <%= order.deliveryAddress.name %><br>
+                                            <%= order.deliveryAddress.address %><br>
+                                            <%= order.deliveryAddress.locality %><br>
+                                            <%= order.deliveryAddress.city %><br>
+                                            <%= order.deliveryAddress.state %> <br> 
+                                            <%= order.deliveryAddress.pincode %>
+                                        <% } else {%>
+                                            <p>No delivery address available</p>
+                                        <% } %>
                                     </p>
                                 </div>
                             </article>
