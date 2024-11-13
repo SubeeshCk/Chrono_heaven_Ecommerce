@@ -471,16 +471,19 @@ const addToWishlist = async (req, res, next) => {
 const renderWishlist = async (req, res, next) => {
   try {
     if (req.session.userId) {
+
       const userData = res.locals.userData;
+
       let wishlistItems = await WishlistItem.find({
         userId: req.session.userId,
       }).populate("product.productId");
 
-      res.render("wishlist", {
+      res.render("wishList", {
         wishlistItems: wishlistItems,
         userData: userData,
         title : "Wishlist",
       });
+      
     } else {
       res.redirect("/login");
     }
