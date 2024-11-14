@@ -143,10 +143,10 @@ const insertUser = async (req, res, next) => {
       return res.redirect("/signUp");
     }
 
-    if (!/^[6-9]\d{9}$/.test(mobile)) {
+    if (!/^[3-9]\d{9}$/.test(mobile)) {
       req.flash(
         "error",
-        "Please enter a valid 10-digit mobile number starting with 6-9"
+        "Please enter a valid 10-digit mobile number starting with 3-9"
       );
       return res.redirect("/signUp");
     }

@@ -202,6 +202,28 @@
         width: 60px;
       }
     }
+
+    .input-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #a69259;
+  }
+
+  .toggle-password:hover {
+    color: #8b764d;
+  }
+
+  .form-control {
+    padding-right: 30px; /* Ensure space for the icon */
+  }
   </style>
 </head>
 
@@ -229,8 +251,13 @@
                   <div class="error" id="email-error"></div>
                 </div>
                 <div class="form-group">
-                  <input type="password" class="form-control" id="password" name="password" placeholder="Password"
-                    required />
+                  <label for="password">Password</label>
+                  <div class="input-wrapper">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required />
+                    <span id="togglePassword" class="toggle-password">
+                      <i class="fa fa-eye"></i>
+                    </span>
+                  </div>
                   <div class="error" id="password-error"></div>
                 </div>
                 <div class="forgot-password">
@@ -296,6 +323,24 @@
         }
       });
   </script>
+
+<script>
+  // Toggle password visibility
+  document.getElementById("togglePassword").addEventListener("click", function () {
+    var passwordInput = document.getElementById("password");
+    var icon = this.querySelector("i");
+
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+    } else {
+      passwordInput.type = "password";
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    }
+  });
+</script>
 </body>
 
 </html>

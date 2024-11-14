@@ -149,6 +149,29 @@
             height: auto;
             display: inline-block;
         }
+
+        .input-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #a69259;
+    }
+
+    .toggle-password:hover {
+        color: #8b764d;
+    }
+
+    .form-control {
+        padding-right: 30px; /* Ensures space for the icon */
+    }
+
     </style>
 </head>
 
@@ -194,17 +217,24 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="password">Password <span style="color: red">*</span></label>
-                                    <input type="password" class="form-control" id="password" name="password"
-                                        required />
+                                    <div class="input-wrapper">
+                                    <input type="password" class="form-control" id="password" name="password" required />
+                                    <span id="togglePassword" class="toggle-password">
+                                        <i class="fa fa-eye"></i>
+                                    </span>
+                                    </div>
                                     <div class="error" id="password-error"></div>
                                     <div class="password-strength" id="password-strength"></div>
                                     <div class="live-validation" id="password-validation"></div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="confirm_password">Confirm Password <span
-                                            style="color: red">*</span></label>
-                                    <input type="password" class="form-control" id="cpassword" name="cpassword"
-                                        required />
+                                    <label for="confirm_password">Confirm Password <span style="color: red">*</span></label>
+                                    <div class="input-wrapper">
+                                    <input type="password" class="form-control" id="cpassword" name="cpassword" required />
+                                    <span id="toggleCPassword" class="toggle-password">
+                                        <i class="fa fa-eye"></i>
+                                    </span>
+                                    </div>
                                     <div class="error" id="cpassword-error"></div>
                                     <div class="live-validation" id="cpassword-validation"></div>
                                 </div>
@@ -318,6 +348,41 @@
                 }
             });
     </script>
+
+<script>
+    // Toggle password visibility for password field
+    document.getElementById("togglePassword").addEventListener("click", function () {
+        var passwordInput = document.getElementById("password");
+        var icon = this.querySelector("i");
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            passwordInput.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    });
+
+    // Toggle password visibility for confirm password field
+    document.getElementById("toggleCPassword").addEventListener("click", function () {
+        var cpasswordInput = document.getElementById("cpassword");
+        var icon = this.querySelector("i");
+
+        if (cpasswordInput.type === "password") {
+            cpasswordInput.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            cpasswordInput.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    });
+</script>
+
 </body>
 
 </html>
