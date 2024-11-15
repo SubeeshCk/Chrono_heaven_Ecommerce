@@ -357,7 +357,10 @@ const renderMens = async (req, res, next) => {
 
 const sortProducts = async (req, res, next) => {
   try {
-    const { sortBy, category } = req.query;
+    const { sortBy, category, search, page = 1 } = req.query;
+    const limit = 12;
+    const skip = (page - 1) * limit;
+    
     let matchCondition = { is_listed: true };
 
     if (category && category !== "all") {
@@ -366,9 +369,7 @@ const sortProducts = async (req, res, next) => {
         is_listed: true,
       });
       if (!categoryDoc) {
-        return res
-          .status(404)
-          .json({ error: "Category not found" });
+        return res.status(404).json({ error: "Category not found" });
       }
       matchCondition.category = categoryDoc._id;
     } else {
@@ -377,16 +378,46 @@ const sortProducts = async (req, res, next) => {
       matchCondition.category = { $in: listedCategoryIds };
     }
 
-    let products = await Products.find(matchCondition).populate("activeOffer");
+    if (search) {
+      matchCondition.product_name = { $regex: search, $options: 'i' };
+    }
 
+    const totalProducts = await Products.countDocuments(matchCondition);
+
+    let products = await Products.find(matchCondition)
+      .populate("category")
+      .populate("activeOffer")
+      .populate("reviews")
+      .skip(skip)
+      .limit(limit);
+
+    let wishlistItems = [];
+    if (req.session.userId) {
+      wishlistItems = await WishlistItem.find({ 
+        userId: req.session.userId 
+      }).distinct('product.productId');
+    }
     products = products.map((product) => {
       let effectivePrice = product.price;
       if (product.activeOffer && product.activeOffer.discountValue) {
-        effectivePrice =
-          product.price -
-          product.price * (product.activeOffer.discountValue / 100);
+        effectivePrice = product.price - (product.price * (product.activeOffer.discountValue / 100));
       }
-      return { ...product.toObject(), effectivePrice };
+
+      const productReviews = product.reviews || [];
+      const totalReviews = productReviews.length;
+      const averageRating = totalReviews > 0
+        ? (productReviews.reduce((acc, review) => acc + review.starRating, 0) / totalReviews).toFixed(1)
+        : '0.0';
+
+      const isInWishlist = wishlistItems.some(id => id.equals(product._id));
+
+      return {
+        ...product.toObject(),
+        effectivePrice,
+        totalReviews,
+        averageRating: parseFloat(averageRating),
+        isInWishlist
+      };
     });
 
     switch (sortBy) {
@@ -400,7 +431,7 @@ const sortProducts = async (req, res, next) => {
         products.sort((a, b) => b.effectivePrice - a.effectivePrice);
         break;
       case "average-rating":
-        products.sort((a, b) => b.average_rating - a.average_rating);
+        products.sort((a, b) => parseFloat(b.averageRating) - parseFloat(a.averageRating));
         break;
       case "featured":
         products.sort((a, b) => b.is_featured - a.is_featured);
@@ -422,7 +453,23 @@ const sortProducts = async (req, res, next) => {
         products.sort((a, b) => b.createdAt - a.createdAt);
     }
 
-    res.json({ products });
+    const totalPages = Math.ceil(totalProducts / limit);
+    const pagination = {
+      currentPage: parseInt(page),
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: parseInt(page) + 1,
+      prevPage: parseInt(page) - 1,
+      lastPage: totalPages
+    };
+
+    res.json({ 
+      products,
+      pagination,
+      totalProducts 
+    });
+
   } catch (error) {
     return next(error);
   }

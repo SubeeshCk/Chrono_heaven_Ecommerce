@@ -211,56 +211,165 @@
 document.addEventListener('DOMContentLoaded', function() {
   const sortLinks = document.querySelectorAll('.sort-link');
   const productContainer = document.querySelector('.isotope-grid');
+  const searchInput = document.querySelector('input[name="search-product"]');
+  const paginationContainer = document.querySelector('.pagination-container');
   
   const category = document.body.dataset.category || 'all';
+  let currentSort = '';
+  let currentSearch = '';
+  let currentPage = 1;
 
+  // Handle sorting
   sortLinks.forEach(link => {
     link.addEventListener('click', function(e) {
       e.preventDefault();
-      const sortBy = this.getAttribute('data-sort');
-
-      fetch(`/sort-products?sortBy=${sortBy}&category=${category}`)
-        .then(response => response.json())
-        .then(data => {
-          productContainer.innerHTML = '';
-          data.products.forEach(product => {
-            const productHTML = `
-              <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
-                <div class="block2">
-                  <div class="block2-pic hov-img0">
-                    <img src="/adminAssets/uploads/product_images/${product.images[0]}" alt="IMG-PRODUCT" />
-                    <a href="/product-details/${product._id}" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
-                      View
-                    </a>
-                  </div>
-                  <div class="block2-txt flex-w flex-t p-t-14">
-                    <div class="block2-txt-child1 flex-col-l">
-                      <a href="/product-details/${product._id}" class="product-name stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-                        ${product.product_name}
-                      </a>
-                      </br>
-                      ${getPriceHTML(product)}
-                    </div>
-                    <div class="block2-txt-child2 flex-r p-t-3">
-                      <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-                        <img class="icon-heart1 dis-block trans-04" src="/userAssets/images/icons/icon-heart-01.png" alt="ICON" />
-                        <img class="icon-heart2 dis-block trans-04 ab-t-l" src="/userAssets/images/icons/icon-heart-02.png" alt="ICON" />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
-            productContainer.innerHTML += productHTML;
-          });
-        })
-        .catch(error => console.error('Error:', error));
+      currentSort = this.getAttribute('data-sort');
+      fetchProducts();
     });
   });
 
+  // Handle search
+  let searchTimeout;
+  searchInput.addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      currentSearch = e.target.value;
+      currentPage = 1; // Reset to first page on new search
+      fetchProducts();
+    }, 500);
+  });
+
+  function fetchProducts() {
+    const queryParams = new URLSearchParams({
+      sortBy: currentSort,
+      category: category,
+      page: currentPage
+    });
+    
+    if (currentSearch) {
+      queryParams.append('search', currentSearch);
+    }
+
+    fetch(`/sort-products?${queryParams.toString()}`)
+      .then(response => response.json())
+      .then(data => {
+        renderProducts(data.products);
+        renderPagination(data.pagination);
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  function renderProducts(products) {
+    productContainer.innerHTML = '';
+    products.forEach(product => {
+      const productHTML = `
+        <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
+          <div class="block2">
+            <div class="block2-pic hov-img0">
+              <img src="/adminAssets/uploads/product_images/${product.images[0]}" alt="IMG-PRODUCT" />
+              <a href="/product-details/${product._id}" 
+                 class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                View
+              </a>
+            </div>
+            <div class="block2-txt flex-w flex-t p-t-14">
+              <div class="block2-txt-child1 flex-col-l">
+                <a href="/product-details/${product._id}" 
+                   class="product-name stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                  ${product.product_name}
+                </a>
+                ${getPriceHTML(product)}
+                <div class="rating" style="margin-top: 5px; color: #d49311;">
+                  ${getRatingHTML(product.averageRating, product.totalReviews)}
+                </div>
+              </div>
+              <div class="block2-txt-child2 flex-r p-t-3">
+                <a href="#" class="btn-addwish-b2 dis-block" data-product-id="${product._id}">
+                  <img class="icon-heart1 dis-block trans-04" 
+                       src="/userAssets/images/icons/icon-heart-${product.isInWishlist ? '02' : '01'}.png" 
+                       alt="ICON" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      productContainer.innerHTML += productHTML;
+    });
+
+    // Reattach wishlist event listeners
+    attachWishlistHandlers();
+  }
+
+  function renderPagination(pagination) {
+    if (!pagination.totalPages || pagination.totalPages <= 1) {
+      paginationContainer.innerHTML = '';
+      return;
+    }
+
+    let paginationHTML = `
+      <nav aria-label="Page navigation" class="pagination-container">
+        <ul class="pagination justify-content-center align-items-center m-0">
+    `;
+
+    if (pagination.hasPrevPage) {
+      paginationHTML += `
+        <li class="page-item">
+          <a href="#" data-page="${pagination.prevPage}" 
+             class="page-link flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
+            Previous
+          </a>
+        </li>
+      `;
+    }
+
+    // Show limited page numbers
+    const startPage = Math.max(1, pagination.currentPage - 2);
+    const endPage = Math.min(pagination.totalPages, startPage + 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+      paginationHTML += `
+        <li class="page-item ${i === pagination.currentPage ? 'active' : ''}">
+          <a href="#" data-page="${i}" 
+             class="page-link flex-c-m stext-101 cl5 size-103 ${i === pagination.currentPage ? 'bg1' : 'bg2'} bor1 hov-btn1 p-lr-15 trans-04">
+            ${i}
+          </a>
+        </li>
+      `;
+    }
+
+    if (pagination.hasNextPage) {
+      paginationHTML += `
+        <li class="page-item">
+          <a href="#" data-page="${pagination.nextPage}" 
+             class="page-link flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
+            Next
+          </a>
+        </li>
+      `;
+    }
+
+    paginationHTML += `
+        </ul>
+      </nav>
+    `;
+
+    paginationContainer.innerHTML = paginationHTML;
+
+    // Attach pagination event listeners
+    const pageLinks = paginationContainer.querySelectorAll('[data-page]');
+    pageLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        currentPage = parseInt(this.dataset.page);
+        fetchProducts();
+      });
+    });
+  }
+
   function getPriceHTML(product) {
     if (product.activeOffer && product.activeOffer.discountValue) {
-      const discountedPrice = product.price - (product.price * (product.activeOffer.discountValue / 100));
+      const discountedPrice = product.effectivePrice;
       return `
         <span class="mtext-106 cl2" style="text-decoration: line-through; color: #888;">
           ₹${formatPriceWithCommas(product.price)}
@@ -269,17 +378,56 @@ document.addEventListener('DOMContentLoaded', function() {
           ₹${formatPriceWithCommas(discountedPrice)} (${product.activeOffer.discountValue}% off)
         </span>
       `;
-    } else {
-      return `
-        <span class="mtext-110 cl2">
-          ₹${formatPriceWithCommas(product.price)}
-        </span>
-      `;
     }
+    return `
+      <span class="mtext-110 cl2">
+        ₹${formatPriceWithCommas(product.price)}
+      </span>
+    `;
+  }
+
+  function getRatingHTML(rating, totalReviews) {
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+      if (i <= Math.floor(rating)) {
+        html += '<i class="fa fa-star"></i>';
+      } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+        html += '<i class="fa fa-star-half-o"></i>';
+      } else {
+        html += '<i class="fa fa-star-o"></i>';
+      }
+    }
+    html += `<span>(${totalReviews} reviews)</span>`;
+    return html;
+  }
+
+  function attachWishlistHandlers() {
+    const wishlistButtons = document.querySelectorAll('.btn-addwish-b2');
+    wishlistButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const productId = this.dataset.productId;
+        fetch(`/add-to-wishlist?productId=${productId}`, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const img = this.querySelector('img');
+            img.src = img.src.includes('01.png') 
+              ? '/userAssets/images/icons/icon-heart-02.png'
+              : '/userAssets/images/icons/icon-heart-01.png';
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      });
+    });
   }
 
   function formatPriceWithCommas(price) {
-    price = price.toFixed(2);
+    price = parseFloat(price).toFixed(2);
     let [wholePart, decimalPart] = price.toString().split('.');
     let lastThree = wholePart.substring(wholePart.length-3);
     let otherNumbers = wholePart.substring(0, wholePart.length-3);
