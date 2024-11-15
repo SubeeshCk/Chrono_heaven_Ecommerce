@@ -154,47 +154,6 @@
 </div>
 <!-- Breadcrumb End -->
 
-<!-- Change Password Modal -->
-<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel"
-  aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form action="/user-profile/change-password" method="post" id="changePasswordForm">
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="currentPassword">Current Password</label>
-            <input type="password" class="form-control" id="currentPassword" name="current_password" required>
-          </div>
-          <div class="form-group">
-            <label for="newPassword">New Password</label>
-            <input type="password" class="form-control" id="newPassword" name="new_password" required>
-            <small id="passwordHelp" class="form-text text-muted">
-              Your password must be minimum 8 characters long, contain uppercase and lowercase letters, a number, and a
-              special character.
-            </small>
-          </div>
-          <div class="form-group">
-            <label for="confirmPassword">Confirm New Password</label>
-            <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
-            <small id="passwordMatchError" class="form-text text-danger" style="display: none;">
-              Passwords do not match!
-            </small>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Save changes</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
 <!-- Personal info Section Begin -->
 <section class="checkout spad">
   <div class="container">
@@ -218,7 +177,7 @@
           </div>
           <div class="separator"></div>
           <div>
-            <a href="#" id="changePasswordBtn">Change Password</a>
+            <a href="/user-profile/change-password" >Change Password</a>
           </div>
           <div class="separator"></div>
           <div>
@@ -231,16 +190,16 @@
           <div class="col-lg-8 personal-info" style="margin-left: 40px;">
           <br>
           <% if (messages.success) { %>
-            <div class="alert alert-success flash-message" role="alert" style="color: green;" data-timeout="5">
-              <%= messages.success %>
+            <div class="alert alert-success flash-message" role="alert" style="color: green;" data-timeout="5000">
+                <%= messages.success %>
             </div>
-          <% } %>
-
-          <% if (messages.error) { %>
-            <div class="alert alert-danger flash-message" role="alert" style="color: red;" data-timeout="5">
-              <%= messages.error %>
+        <% } %>
+        
+        <% if (messages.error) { %>
+            <div class="alert alert-danger flash-message" role="alert" style="color: red;" data-timeout="5000">
+                <%= messages.error %>
             </div>
-          <% } %>
+        <% } %>
 
       <h5>Personal Information</h5>
       <div class="info-group">
@@ -314,3 +273,20 @@ $(document).ready(function () {
 });
 
 </script>
+
+<script>
+
+  // Flash message auto-hide function
+  document.addEventListener("DOMContentLoaded", function() {
+      const flashMessages = document.querySelectorAll('.flash-message');
+      
+      flashMessages.forEach(function(message) {
+          const timeout = parseInt(message.getAttribute('data-timeout')) || 2000; 
+          
+          setTimeout(function() {
+              message.style.display = 'none';
+          }, timeout);
+      });
+  });
+  
+  </script>

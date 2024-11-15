@@ -302,15 +302,33 @@ const deleteAddress = async (req, res, next) => {
   }
 };
 
+
+const renderResetPassword = async (req, res, next ) => {
+  try {
+    res.render("resetPasswordProfile",{ title : "Reset password"});
+  } catch (error) {
+    return next(error);
+  }
+}
+
 const resetPassword = async (req, res) => {
   try {
     const { current_password, new_password, confirm_password } = req.body;
     const userData = res.locals.userData;
-    console.log(userData);
 
     if (!userData) {
       return res.redirect("/login");
     }
+
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+   if (!passwordRegex.test(new_password)) {
+    req.flash(
+      "error",
+      "Password must contain at least 8 characters, including at least one uppercase letter, one lowercase letter, one number, and one special character."
+    );
+    return res.redirect("/user-profile/change-password");
+  }
 
     const passwordMatch = await bcrypt.compare(
       current_password,
@@ -319,12 +337,12 @@ const resetPassword = async (req, res) => {
 
     if (!passwordMatch) {
       req.flash("error", "You entered a wrong password");
-      return res.redirect("/user-profile");
+      return res.redirect("/user-profile/change-password");
     }
 
     if (new_password !== confirm_password) {
       req.flash("error", "Passwords do not match");
-      return res.redirect("/user-profile");
+      return res.redirect("/user-profile/change-password");
     }
 
     const hashedPassword = await securePassword(new_password);
@@ -337,7 +355,7 @@ const resetPassword = async (req, res) => {
 
     if (updateResult) {
       req.flash("success", "Your password updated successfully");
-      return res.redirect("/user-profile");
+      return res.redirect("/user-profile/change-password");
     }
   } catch (error) {
     return next(error);
@@ -1093,6 +1111,7 @@ module.exports = {
   renderEditAddress,
   updateAddress,
   deleteAddress,
+  renderResetPassword,
   resetPassword,
   renderMyOrder,
   renderOrderDetails,

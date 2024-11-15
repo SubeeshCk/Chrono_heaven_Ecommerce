@@ -85,41 +85,6 @@
 	</div>
 <!-- Breadcrumb End -->
 
-<!-- Change Password Modal -->
-<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form action="/change-password" method="post">
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="currentPassword">Current Password</label>
-            <input type="password" class="form-control" id="currentPassword" name="current_password" required>
-          </div>
-          <div class="form-group">
-            <label for="newPassword">New Password</label>
-            <input type="password" class="form-control" id="newPassword" name="new_password" required>
-          </div>
-          <div class="form-group">
-            <label for="confirmPassword">Confirm New Password</label>
-            <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Save changes</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-
-
 <!-- Personal info Section Begin -->
 <section class="checkout spad">
   <div class="container">
@@ -143,7 +108,7 @@
           </div>
           <div class="separator"></div>
           <div>
-            <a href="#" id="changePasswordBtn">Change Password</a>
+            <a href="/user-profile/change-password" >Change Password</a>
           </div>
           <div class="separator"></div>
           <div>
@@ -154,16 +119,16 @@
 
         <div class="content" style="flex:1; margin-left: 20px; background-color: #f9f9f9; padding: 40px; border-radius: 10px;margin-bottom: 50px;">
           <% if (messages.success) { %>
-            <div class="alert alert-success flash-message" role="alert" style="color: green;" data-timeout="5">
-              <%= messages.success %>
+            <div class="alert alert-success flash-message" role="alert" style="color: green;" data-timeout="5000">
+                <%= messages.success %>
             </div>
-          <% } %>
+        <% } %>
         
-          <% if (messages.error) { %>
-            <div class="alert alert-danger flash-message" role="alert" style="color: red;" data-timeout="5">
-              <%= messages.error %>
+        <% if (messages.error) { %>
+            <div class="alert alert-danger flash-message" role="alert" style="color: red;" data-timeout="5000">
+                <%= messages.error %>
             </div>
-          <% } %>
+        <% } %>
           <div class="container mt-5 " >
     
             <div class="row">
@@ -294,3 +259,20 @@ function deleteAddress(addressId) {
     });
   });
 </script>
+
+<script>
+
+  // Flash message auto-hide function
+  document.addEventListener("DOMContentLoaded", function() {
+      const flashMessages = document.querySelectorAll('.flash-message');
+      
+      flashMessages.forEach(function(message) {
+          const timeout = parseInt(message.getAttribute('data-timeout')) || 2000; 
+          
+          setTimeout(function() {
+              message.style.display = 'none';
+          }, timeout);
+      });
+  });
+  
+  </script>

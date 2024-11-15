@@ -70,6 +70,7 @@ userRoute.get('/user-profile/address/edit-address',userAuth.isLogin ,setCartCoun
 userRoute.post('/user-profile/address/update-address',userAuth.isLogin, profileController.updateAddress);
 userRoute.delete('/user-profile/address/delete-address/:id?',userAuth.isLogin, profileController.deleteAddress);
 userRoute.post('/user-profile/change-password',setUserData,userAuth.isLogin, profileController.resetPassword);
+userRoute.get('/user-profile/change-password',setUserData,userAuth.isLogin,setCartCount,setWishlistData, profileController.renderResetPassword);
 userRoute.get('/user-profile/myorders',setUserData, userAuth.isLogin, setCartCount,setWishlistData, profileController.renderMyOrder);
 userRoute.get('/user-profile/myorders/orderDetails',setUserData, userAuth.isLogin,setCartCount, setWishlistData, profileController.renderOrderDetails)
 userRoute.post('/orders/cancelProduct', userAuth.isLogin,profileController.cancelProduct);

@@ -151,27 +151,27 @@
         }
 
         .input-wrapper {
-        position: relative;
-        width: 100%;
-    }
+            position: relative;
+            width: 100%;
+        }
 
-    .toggle-password {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: #a69259;
-    }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #a69259;
+        }
 
-    .toggle-password:hover {
-        color: #8b764d;
-    }
+        .toggle-password:hover {
+            color: #8b764d;
+        }
 
-    .form-control {
-        padding-right: 30px; /* Ensures space for the icon */
-    }
-
+        .form-control {
+            padding-right: 30px;
+            /* Ensures space for the icon */
+        }
     </style>
 </head>
 
@@ -211,29 +211,32 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="referred_code">Referral code <span style="color: red">*</span></label>
-                                    <input type="text" class="form-control" id="referred_code" maxlength="11" 
+                                    <input type="text" class="form-control" id="referred_code" maxlength="11"
                                         name="referred_code" />
                                     <div class="error" id="mobile-error"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="password">Password <span style="color: red">*</span></label>
                                     <div class="input-wrapper">
-                                    <input type="password" class="form-control" id="password" name="password" required />
-                                    <span id="togglePassword" class="toggle-password">
-                                        <i class="fa fa-eye"></i>
-                                    </span>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            required />
+                                        <span id="togglePassword" class="toggle-password">
+                                            <i class="fa fa-eye"></i>
+                                        </span>
                                     </div>
                                     <div class="error" id="password-error"></div>
                                     <div class="password-strength" id="password-strength"></div>
                                     <div class="live-validation" id="password-validation"></div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="confirm_password">Confirm Password <span style="color: red">*</span></label>
+                                    <label for="confirm_password">Confirm Password <span
+                                            style="color: red">*</span></label>
                                     <div class="input-wrapper">
-                                    <input type="password" class="form-control" id="cpassword" name="cpassword" required />
-                                    <span id="toggleCPassword" class="toggle-password">
-                                        <i class="fa fa-eye"></i>
-                                    </span>
+                                        <input type="password" class="form-control" id="cpassword" name="cpassword"
+                                            required />
+                                        <span id="toggleCPassword" class="toggle-password">
+                                            <i class="fa fa-eye"></i>
+                                        </span>
                                     </div>
                                     <div class="error" id="cpassword-error"></div>
                                     <div class="live-validation" id="cpassword-validation"></div>
@@ -248,140 +251,149 @@
     </div>
 
     <script>
-        // Validation and form handling script
-        document
-            .getElementById("signup-form")
-            .addEventListener("submit", function (event) {
-                var name = document.getElementById("name").value.trim();
-                var email = document.getElementById("email").value.trim();
-                var mobile = document.getElementById("mobile").value.trim();
-                var password = document.getElementById("password").value.trim();
-                var cpassword = document.getElementById("cpassword").value.trim();
 
-                if (
-                    name === "" ||
-                    email === "" ||
-                    mobile === "" ||
-                    password === "" ||
-                    cpassword === ""
-                ) {
-                    event.preventDefault();
-                    if (name === "") {
-                        document.getElementById("name-error").innerText =
-                            "Name cannot be empty";
-                    }
-                    if (email === "") {
-                        document.getElementById("email-error").innerText =
-                            "Email cannot be empty";
-                    }
-                    if (mobile === "") {
-                        document.getElementById("mobile-error").innerText =
-                            "Mobile number cannot be empty";
-                    }
-                    if (password === "") {
-                        document.getElementById("password-error").innerText =
-                            "Password cannot be empty";
-                    }
-                    if (cpassword === "") {
-                        document.getElementById("cpassword-error").innerText =
-                            "Confirm password cannot be empty";
-                    }
-                } else {
-                    document.getElementById("name-error").innerText = "";
-                    document.getElementById("email-error").innerText = "";
-                    document.getElementById("mobile-error").innerText = "";
-                    document.getElementById("password-error").innerText = "";
-                    document.getElementById("cpassword-error").innerText = "";
-                }
-            });
+        document.getElementById("signup-form").addEventListener("submit", function (event) {
+            var name = document.getElementById("name").value.trim();
+            var email = document.getElementById("email").value.trim();
+            var mobile = document.getElementById("mobile").value.trim();
+            var password = document.getElementById("password").value.trim();
+            var cpassword = document.getElementById("cpassword").value.trim();
+            var isValid = true;
 
-        document
-            .getElementById("password")
-            .addEventListener("input", function () {
-                var password = this.value;
-                var strength = document.getElementById("password-strength");
-                var passwordValidation = document.getElementById(
-                    "password-validation"
-                );
-                var strongRegex =
-                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (name === "") {
+                document.getElementById("name-error").innerText = "Name cannot be empty";
+                isValid = false;
+            } else {
+                document.getElementById("name-error").innerText = "";
+            }
+            if (email === "") {
+                document.getElementById("email-error").innerText = "Email cannot be empty";
+                isValid = false;
+            } else {
+                document.getElementById("email-error").innerText = "";
+            }
+            if (mobile === "") {
+                document.getElementById("mobile-error").innerText = "Mobile number cannot be empty";
+                isValid = false;
+            } else {
+                document.getElementById("mobile-error").innerText = "";
+            }
+            if (password === "") {
+                document.getElementById("password-error").innerText = "Password cannot be empty";
+                isValid = false;
+            } else {
+                document.getElementById("password-error").innerText = "";
+            }
+            if (cpassword === "") {
+                document.getElementById("cpassword-error").innerText = "Confirm password cannot be empty";
+                isValid = false;
+            } else {
+                document.getElementById("cpassword-error").innerText = "";
+            }
 
-                passwordValidation.innerHTML = "";
-                strength.innerHTML = "";
+            var strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!strongRegex.test(password)) {
+                document.getElementById("password-error").innerText =
+                    "Password must contain at least 8 characters, including an uppercase letter, a number, and a special character.";
+                isValid = false;
+            }
 
-                if (password === "") {
-                    return;
-                }
+            if (password !== cpassword) {
+                document.getElementById("cpassword-error").innerText = "Passwords do not match.";
+                isValid = false;
+            } else {
+                document.getElementById("cpassword-error").innerText = "";
+            }
 
-                if (!strongRegex.test(password)) {
-                    passwordValidation.innerHTML =
-                        "Password must contain at least 8 characters, including an uppercase letter, a number, and a special character.";
-                }
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
 
-                if (password.length < 6) {
-                    strength.innerHTML = "Weak";
-                    strength.style.color = "red";
-                } else if (password.length < 8) {
-                    strength.innerHTML = "Medium";
-                    strength.style.color = "orange";
-                } else {
-                    strength.innerHTML = "Strong";
-                    strength.style.color = "green";
-                }
-            });
+        document.getElementById("password").addEventListener("input", function () {
+            var password = this.value;
+            var strength = document.getElementById("password-strength");
+            var passwordValidation = document.getElementById("password-validation");
+            var strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-        document
-            .getElementById("cpassword")
-            .addEventListener("input", function () {
-                var password = document.getElementById("password").value;
-                var cpassword = this.value;
-                var cpasswordValidation = document.getElementById(
-                    "cpassword-validation"
-                );
+            passwordValidation.innerHTML = "";
+            strength.innerHTML = "";
 
-                if (password === cpassword) {
-                    cpasswordValidation.innerHTML = "Passwords match.";
-                    cpasswordValidation.style.color = "green";
-                } else {
-                    cpasswordValidation.innerHTML = "Passwords do not match.";
-                    cpasswordValidation.style.color = "red";
-                }
-            });
+            if (password === "") {
+                return;
+            }
+
+            if (!strongRegex.test(password)) {
+                passwordValidation.innerHTML =
+                    "Password must contain at least 8 characters, including an uppercase letter, a number, and a special character.";
+            }
+
+            if (password.length < 6) {
+                strength.innerHTML = "Weak";
+                strength.style.color = "red";
+            } else if (password.length < 8) {
+                strength.innerHTML = "Medium";
+                strength.style.color = "orange";
+            } else {
+                strength.innerHTML = "Strong";
+                strength.style.color = "green";
+            }
+        });
+
+        function checkPasswordMatch() {
+            var password = document.getElementById("password").value;
+            var cpassword = document.getElementById("cpassword").value;
+            var cpasswordValidation = document.getElementById("cpassword-validation");
+
+            if (password === cpassword && password !== "") {
+                cpasswordValidation.innerHTML = "Passwords match.";
+                cpasswordValidation.style.color = "green";
+            } else if (password !== cpassword && cpassword !== "") {
+                cpasswordValidation.innerHTML = "Passwords do not match.";
+                cpasswordValidation.style.color = "red";
+            } else {
+                cpasswordValidation.innerHTML = "";
+            }
+        }
+
+        document.getElementById("password").addEventListener("input", checkPasswordMatch);
+        document.getElementById("cpassword").addEventListener("input", checkPasswordMatch);
+
     </script>
 
-<script>
-    // Toggle password visibility for password field
-    document.getElementById("togglePassword").addEventListener("click", function () {
-        var passwordInput = document.getElementById("password");
-        var icon = this.querySelector("i");
+    <script>
 
-        if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-        } else {
-            passwordInput.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-        }
-    });
+        document.getElementById("togglePassword").addEventListener("click", function () {
+            var passwordInput = document.getElementById("password");
+            var icon = this.querySelector("i");
 
-    // Toggle password visibility for confirm password field
-    document.getElementById("toggleCPassword").addEventListener("click", function () {
-        var cpasswordInput = document.getElementById("cpassword");
-        var icon = this.querySelector("i");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        });
 
-        if (cpasswordInput.type === "password") {
-            cpasswordInput.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-        } else {
-            cpasswordInput.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-        }
-    });
-</script>
+        // Toggle password visibility for confirm password field
+        document.getElementById("toggleCPassword").addEventListener("click", function () {
+            var cpasswordInput = document.getElementById("cpassword");
+            var icon = this.querySelector("i");
+
+            if (cpasswordInput.type === "password") {
+                cpasswordInput.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                cpasswordInput.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        });
+    </script>
 
 </body>
 
