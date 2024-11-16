@@ -250,13 +250,10 @@ const acceptCompleteReturn = async (req, res, next) => {
       let totalRefundAmount = 0;
       const productUpdates = [];
 
-
-        // Process each item
         for (const item of order.orderedItem) {
             if (item.status.toLowerCase() === "returnrequested") {
                 item.status = "Returned";
 
-                // Handle product quantity update
                 if (item.productId) {
                     productUpdates.push(
                         Products.findByIdAndUpdate(
@@ -267,14 +264,12 @@ const acceptCompleteReturn = async (req, res, next) => {
                     );
                 }
 
-                // Calculate refund amount for this item
                 let itemRefundAmount = 0;
                 
                 if (order.orderedItem.filter(i => i.status.toLowerCase() === "returnrequested").length === order.orderedItem.length) {
 
                     itemRefundAmount = order.orderAmount;
                 } else {
-                    // For partial returns, calculate proportional coupon discount
                     let itemCouponDiscount = 0;
                     if (order.couponDiscount > 0) {
                         const itemProportion = item.totalProductAmount / (order.orderAmount + order.couponDiscount);

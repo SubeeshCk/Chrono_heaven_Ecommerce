@@ -5,52 +5,56 @@
       font-family: 'Montserrat', sans-serif;
     }
 
-  /* Container Styling */
-      .path {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    padding: 25px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    width: 300px; /* Increased width */
-    font-family: Arial, sans-serif;
-    margin-right: auto;
-    margin-top: 10px;
-    margin-bottom: 50px;
-    height: 500px;
-  }
+    /* Container Styling */
+    .path {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      padding: 25px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      width: 300px;
+      /* Increased width */
+      font-family: Arial, sans-serif;
+      margin-right: auto;
+      margin-top: 10px;
+      margin-bottom: 50px;
+      height: 500px;
+    }
 
-  /* Link Styling */
-  .path a {
-    color: #333;
-    text-decoration: none;
-    font-size: 20px; /* Increased font size */
-    font-weight: 300;
-    padding: 12px 0; /* Slightly larger padding */
-    transition: color 0.3s ease;
-  }
+    /* Link Styling */
+    .path a {
+      color: #333;
+      text-decoration: none;
+      font-size: 20px;
+      /* Increased font size */
+      font-weight: 300;
+      padding: 12px 0;
+      /* Slightly larger padding */
+      transition: color 0.3s ease;
+    }
 
-  /* Hover and Active Link */
-  .path a:hover {
-    color: #007bff;
-  }
-  .path a[style*="color: red;"] {
-    color: #dc3545;
-  }
+    /* Hover and Active Link */
+    .path a:hover {
+      color: #007bff;
+    }
 
-  /* Separator Line Styling */
-  .path .separator {
-    width: 100%;
-    height: 1px;
-    background-color: #e0e0e0;
-    margin: 6px 0;
-  }
+    .path a[style*="color: red;"] {
+      color: #dc3545;
+    }
+
+    /* Separator Line Styling */
+    .path .separator {
+      width: 100%;
+      height: 1px;
+      background-color: #e0e0e0;
+      margin: 6px 0;
+    }
 
 
     .wallet-container {
       margin-top: 10px;
-      background-color: #fff;
+      background-color: #f8f9fa;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       padding: 20px;
@@ -141,33 +145,65 @@
     }
 
     /* Table Styling */
-.table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: collapse;
+    .table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    .table th,
+    .table td {
+      padding: 12px;
+      text-align: center;
+      /* Center-align content in each cell */
+      vertical-align: middle;
+    }
+
+    .table th {
+      font-weight: bold;
+      background-color: #f2f2f2;
+      /* Light background for headers */
+      border-bottom: 2px solid #ddd;
+    }
+
+    .table td {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .transaction-list {
+      max-height: 300px;
+      /* Adjust as needed */
+      overflow-y: auto;
+      /* Enable scroll if content overflows */
+    }
+
+    .pagination {
+    margin-bottom: 20px;
 }
 
-.table th, .table td {
-  padding: 12px;
-  text-align: center; /* Center-align content in each cell */
-  vertical-align: middle;
+.page-link {
+    color: #333;
+    border: 1px solid #dee2e6;
+    padding: 8px 12px;
 }
 
-.table th {
-  font-weight: bold;
-  background-color: #f2f2f2; /* Light background for headers */
-  border-bottom: 2px solid #ddd;
+.page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
 }
 
-.table td {
-  border-bottom: 1px solid #ddd;
+.page-link:hover {
+    color: #0056b3;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
 }
 
 .transaction-list {
-  max-height: 300px; /* Adjust as needed */
-  overflow-y: auto; /* Enable scroll if content overflows */
+    max-height: none;
+    overflow-y: visible;
 }
-
   </style>
 
   </head>
@@ -227,11 +263,11 @@
         <div class="row d-flex justify-content-end">
           <div class="path">
             <div class="l">
-              <a href="/user-profile" >Personal Information</a>
+              <a href="/user-profile">Personal Information</a>
             </div>
             <div class="separator"></div>
             <div>
-              <a href="/user-profile/myorders" >My Orders</a>
+              <a href="/user-profile/myorders">My Orders</a>
             </div>
             <div class="separator"></div>
             <div>
@@ -239,11 +275,11 @@
             </div>
             <div class="separator"></div>
             <div>
-              <a href="/Wallet" style="color: #dc3545;" >Wallet</a>
+              <a href="/Wallet" style="color: #dc3545;">Wallet</a>
             </div>
             <div class="separator"></div>
             <div>
-              <a href="/user-profile/change-password" >Change Password</a>
+              <a href="/user-profile/change-password">Change Password</a>
             </div>
             <div class="separator"></div>
             <div>
@@ -256,7 +292,6 @@
             <br>
             <h5 class="d-flex justify-content-center font-weight-bold">Wallet</h5>
             <div class="container ">
-              <div class="balance-box">
                 <div class="balance-box">
                   <% if (typeof balance==='number' ) { %>
                     <h3>Wallet Balance: &#x20B9;<%= balance.toFixed(2) %>
@@ -291,7 +326,7 @@
                                 <tr>
                                   <td>
                                     <%= transaction.transactionMethod %>
-                                  </td> <!-- Corrected: was 'transactionsMethod' -->
+                                  </td>
                                   <td>
                                     <%= new Date(transaction.date).toDateString() %>
                                   </td>
@@ -311,10 +346,38 @@
                                 </tr>
                                 <% }) %>
                             </tbody>
-
-
-
                           </table>
+                          <!-- Pagination Controls -->
+                          <% if (pagination.totalPages> 1) { %>
+                            <nav aria-label="Transaction pagination" class="d-flex justify-content-center mt-4">
+                              <ul class="pagination">
+                                <% if (pagination.hasPrevPage) { %>
+                                  <li class="page-item">
+                                    <a class="page-link" href="?page=<%= pagination.prevPage %>" aria-label="Previous">
+                                      <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                  </li>
+                                  <% } %>
+
+                                    <% for(let i=1; i <=pagination.totalPages; i++) { %>
+                                      <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %>">
+                                          <%= i %>
+                                        </a>
+                                      </li>
+                                      <% } %>
+
+                                        <% if (pagination.hasNextPage) { %>
+                                          <li class="page-item">
+                                            <a class="page-link" href="?page=<%= pagination.nextPage %>"
+                                              aria-label="Next">
+                                              <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                          </li>
+                                          <% } %>
+                              </ul>
+                            </nav>
+                            <% } %>
                         </div>
               </div>
             </div>
