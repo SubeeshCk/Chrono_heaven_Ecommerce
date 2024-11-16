@@ -86,14 +86,22 @@ const addProduct = async (req, res, next) => {
     let uploadedImages = [];
 
     if (req.files && req.files.length > 0) {
+      if (req.files.length > 4) {
+        req.flash("error", "Maximum 4 images allowed.");
+        return res.redirect(API_ROUTES.PRODUCT.ADD);
+      }
+
       for (let file of req.files) {
         const extension = file.filename.split(".").pop().toLowerCase();
         if (!validExtensions.includes(extension)) {
-          req.flash("error", "Only image files are allowed for images.");
+          req.flash("error", "Only JPG and PNG images are allowed.");
           return res.redirect(API_ROUTES.PRODUCT.ADD);
         }
         uploadedImages.push(file.filename);
       }
+    } else {
+      req.flash("error", "At least one image is required.");
+      return res.redirect(API_ROUTES.PRODUCT.ADD);
     }
 
     const newProduct = new Products({
@@ -114,13 +122,21 @@ const addProduct = async (req, res, next) => {
       images: uploadedImages,
     });
 
+
     await newProduct.save();
     req.flash("success", "Product added successfully!");
-    res.redirect(API_ROUTES.PRODUCT.LIST);
+    return res.json({ 
+      success: true, 
+      message: "Product added successfully!",
+      redirect: '/admin/products'  
+    });
+
   } catch (error) {
     console.error(error.message);
-    req.flash("error", "An error occurred while adding the product.");
-    res.redirect(API_ROUTES.PRODUCT.ADD);
+    res.json({ 
+      success: false, 
+      message: "An error occurred while adding the product." 
+    });
   }
 };
 
