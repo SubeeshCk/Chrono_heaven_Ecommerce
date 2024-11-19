@@ -200,7 +200,6 @@ const updateProducts = async (req, res, next) => {
       return res.redirect(API_ROUTES.PRODUCT.LIST);
     }
 
-    // Update product fields
     existingProduct.name = name;
     existingProduct.category = category;
     existingProduct.brand_name = brand_name;
@@ -227,7 +226,6 @@ const updateProducts = async (req, res, next) => {
       for (let index of removedIndexes) {
         if (index >= 0 && index < updatedImages.length) {
           const imageToRemove = updatedImages[index];
-          // Remove the file from the server
           const imagePath = path.join(__dirname, '..', 'public', 'adminAssets', 'uploads', 'product_images', imageToRemove);
           try {
             await fs.unlink(imagePath);
@@ -238,11 +236,9 @@ const updateProducts = async (req, res, next) => {
         }
       }
 
-      // Filter out the removed images
       updatedImages = updatedImages.filter((_, index) => !removedIndexes.includes(index));
     }
 
-    // Add new images
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map(file => {
         const extension = file.filename.split(".").pop().toLowerCase();
@@ -252,7 +248,6 @@ const updateProducts = async (req, res, next) => {
         return file.filename;
       });
 
-      // Ensure total images don't exceed 4
       if (updatedImages.length + newImages.length > 4) {
         req.flash("error", "Maximum of 4 images allowed.");
         return res.redirect(API_ROUTES.PRODUCT.LIST);

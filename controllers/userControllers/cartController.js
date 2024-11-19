@@ -472,10 +472,10 @@ const placeOrder = async (req, res, next) => {
       couponDiscount,
     } = req.body;
 
-    if (paymentMethod === "cashOnDelivery" && totalAmount > 2000) {
+    if (paymentMethod === "cashOnDelivery" && totalAmount > 100000) {
       return res.status(400).json({
         success: false,
-        message: "Order above 2000 should not be allowed for COD",
+        message: "Order above 100000 should not be allowed for COD",
       });
     }
 
