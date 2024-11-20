@@ -858,6 +858,7 @@ const verifyPayment = async (req, res) => {
       }
 
       if (updatedOrder) {
+        updatedOrder.paymentMethod = "razorpay";
         updatedOrder.paymentStatus = true;
         updatedOrder.orderStatus = "confirmed";
         updatedOrder.orderedItem.forEach((item) => {

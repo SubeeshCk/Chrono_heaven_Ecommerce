@@ -553,14 +553,23 @@ const placeOrder = async (req, res, next) => {
         });
       }
     }
+    
+const address = await Address.findById(selectedAddress);
 
     const orderData = new Order({
       userId,
-      cartId,
       orderedItem: orderedItems,
       orderAmount: orderAmount,
       orderDate: new Date(),
-      deliveryAddress: selectedAddress,
+      deliveryAddress: {
+        name: address.name,
+        address: address.address,
+        locality: address.locality,
+        city: address.city,
+        state: address.state,
+        pincode: address.pincode,
+        addresstype:address.addresstype,
+      },
       paymentMethod,
       discount,
       couponDiscount,

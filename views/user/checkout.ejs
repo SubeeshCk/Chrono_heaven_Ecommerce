@@ -269,28 +269,35 @@
             <h5><i class="fa fa-map-marker icon"></i>Address</h5>
             <br>
             <div class="checkout__address">
-              <% if (addressData.length> 0) { %>
-                <% addressData.forEach((address, index)=> { %>
+              <% if (addressData.length > 0) { %>
+                <% addressData.forEach((address, index) => { %>
                   <div class="checkout__address__details" id="address<%= address._id %>">
-                    <input type="radio" name="selectedAddress" value="<%= address._id %>"
-                      id="address<%= address._id %>">
+                    <input type="radio" 
+                           name="selectedAddress" 
+                           value="<%= address._id %>" 
+                           id="address<%= address._id %>" 
+                           <%= index === 0 ? 'checked' : '' %>> <!-- Select the first address by default -->
                     <label for="address<%= address._id %>">
                       <%= address.name %> <br>
-                        <%= address.address %> <br>
-                          <%= address.city %> <br>
-                            <%= address.pincode %> <br>
-                              <%= address.state %> <br>
-                                <%= userData.mobile %>
+                      <%= address.address %> <br>
+                      <%= address.city %> <br>
+                      <%= address.pincode %> <br>
+                      <%= address.state %> <br>
+                      <%= userData.mobile %>
                     </label>
-                    <button type="button" class="btn btn-danger btn-sm"
-                      onclick="removeAddress('<%= address._id %>')">Remove</button>
+                    <button type="button" 
+                            class="btn btn-danger btn-sm" 
+                            onclick="removeAddress('<%= address._id %>')">
+                      Remove
+                    </button>
                   </div>
-                  <% }); %>
-                    <% } else { %>
-                      <p>No address available. Please add one.</p>
-                      <% } %>
-                      <button type="button" class="site-btn" id="addAddressBtn">Add Address</button>
+                <% }); %>
+              <% } else { %>
+                <p>No address available. Please add one.</p>
+              <% } %>
+              <button type="button" class="site-btn" id="addAddressBtn">Add Address</button>
             </div>
+            
             <br>
             <div class="checkout__coupon">
               <h5><i class="fa fa-tag icon"></i>Available coupon</h5>

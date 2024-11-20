@@ -6,11 +6,6 @@ const orderSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  cartId: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'Cart_Items',
-    required: true
-  },
   orderedItem: [{
     productId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -52,9 +47,13 @@ const orderSchema = new mongoose.Schema({
     type: Date
   },
   deliveryAddress: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Address",
-    required: true
+    name: { type: String, required: true },
+    address: { type: String, required: true },
+    locality: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    pincode: { type: String, required: true },
+    addresstype: { type: String, required: true },
   },
   deliveryDate: {
     type: Date

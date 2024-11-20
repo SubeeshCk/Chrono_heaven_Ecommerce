@@ -2,7 +2,6 @@ const statusCode = require("../../config/statusCode");
 const Order = require("../../models/orderModel");
 const Products = require("../../models/product");
 const Wallet = require("../../models/walletModel");
-const statusCode = require ("../../config/statusCode");
 
 
 const renderOrder = async (req, res, next) => {

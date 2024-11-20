@@ -6,7 +6,6 @@ const fs = require('fs').promises;
 const path = require('path');
 
 
-
 const renderProduct = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
