@@ -1,6 +1,8 @@
+const statusCode = require("../../config/statusCode");
 const Order = require("../../models/orderModel");
 const Products = require("../../models/product");
 const Wallet = require("../../models/walletModel");
+const statusCode = require ("../../config/statusCode");
 
 
 const renderOrder = async (req, res, next) => {
@@ -51,7 +53,7 @@ const renderOrderDetails = async (req, res, next) => {
       .populate("deliveryAddress");
 
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(statusCode.NOT_FOUND).send("Order not found");
     }
 
     res.render("order-details", { order });
@@ -66,7 +68,7 @@ const updateOrderStatus = async (req, res, next) => {
   try {
     const order = await Order.findById(orderId);
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(statusCode.NOT_FOUND).json({ message: "Order not found" });
     }
 
     order.orderStatus = orderStatus;
@@ -107,7 +109,7 @@ const updateOrderStatus = async (req, res, next) => {
           order.paymentMethod === "razorpay" &&
           order.paymentStatus === false
         ) {
-          return res.status(400).json({
+          return res.status(statusCode.BAD_REQUEST).json({
             message: "Cannot confirm order: Razorpay payment is pending",
           });
         }
@@ -133,7 +135,7 @@ const updateOrderStatus = async (req, res, next) => {
     }
 
     await order.save();
-    res.status(200).json({
+    res.status(statusCode.OK).json({
       message: "Order status updated successfully",
       orderStatus: order.orderStatus,
     });
@@ -160,7 +162,7 @@ const updateProductStatus = async (req, res, next) => {
   try {
     const order = await Order.findById(orderId);
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(statusCode.NOT_FOUND).json({ message: "Order not found" });
     }
 
     const product = order.orderedItem.find(
@@ -168,7 +170,7 @@ const updateProductStatus = async (req, res, next) => {
     );
     if (!product) {
       return res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .json({ message: "Product not found in this order" });
     }
     product.status = productStatus;
@@ -187,7 +189,7 @@ const updateProductStatus = async (req, res, next) => {
     }
     await order.save();
 
-    res.status(200).json({ message: "Product status updated successfully" });
+    res.status(statusCode.OK).json({ message: "Product status updated successfully" });
   } catch (error) {
     return next(error);
   }
@@ -236,12 +238,12 @@ const acceptCompleteReturn = async (req, res, next) => {
       
       if (!order) {
           console.log('Order not found:', orderId);
-          return res.status(404).json({ error: "Order not found" });
+          return res.status(statusCode.NOT_FOUND).json({ error: "Order not found" });
       }
 
       if (order.orderStatus.toLowerCase() !== "returnrequested") {
           console.log('Invalid order status:', order.orderStatus);
-          return res.status(400).json({ error: "Order is not in return requested status" });
+          return res.status(statusCode.BAD_REQUEST).json({ error: "Order is not in return requested status" });
       }
 
       order.orderStatus = "Returned";
@@ -307,13 +309,13 @@ const acceptCompleteReturn = async (req, res, next) => {
           ...productUpdates
       ]);
 
-      res.status(200).json({
+      res.status(statusCode.OK).json({
           success: "Complete order return accepted successfully",
           refundAmount: totalRefundAmount,
       });
   } catch (error) {
       console.error("Error accepting complete return:", error);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
@@ -324,7 +326,7 @@ const acceptPartialReturn = async (req, res, next) => {
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res.status(404).json({ error: "Order not found" });
+      return res.status(statusCode.NOT_FOUND).json({ error: "Order not found" });
     }
 
     const orderedItem = order.orderedItem.find(
@@ -332,12 +334,12 @@ const acceptPartialReturn = async (req, res, next) => {
     );
 
     if (!orderedItem) {
-      return res.status(404).json({ error: "Product not found in order" });
+      return res.status(statusCode.NOT_FOUND).json({ error: "Product not found in order" });
     }
 
     if (orderedItem.status !== "returnRequested") {
       return res
-        .status(400)
+        .status(statusCode.BAD_REQUEST)
         .json({ error: "Product is not in return requested status" });
     }
 
@@ -375,7 +377,7 @@ const acceptPartialReturn = async (req, res, next) => {
 
     const userWallet = await Wallet.findOne({ userId: order.userId });
     if (!userWallet) {
-      return res.status(404).json({ error: "Wallet not found" });
+      return res.status(statusCode.NOT_FOUND).json({ error: "Wallet not found" });
     }
 
     userWallet.balance += refundAmount;
@@ -387,13 +389,13 @@ const acceptPartialReturn = async (req, res, next) => {
 
     await Promise.all([order.save(), userWallet.save()]);
 
-    res.status(200).json({
+    res.status(statusCode.OK).json({
       success: "Partial return accepted successfully",
       refundAmount,
     });
   } catch (error) {
     console.error("Error accepting partial return:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
@@ -405,7 +407,7 @@ const declineReturn = async (req, res, next) => {
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res.status(404).json({ error: "Order not found" });
+      return res.status(statusCode.NOT_FOUND).json({ error: "Order not found" });
     }
 
     if (productId) {
@@ -414,12 +416,12 @@ const declineReturn = async (req, res, next) => {
       );
 
       if (!orderedItem) {
-        return res.status(404).json({ error: "Product not found in order" });
+        return res.status(statusCode.NOT_FOUND).json({ error: "Product not found in order" });
       }
 
       if (orderedItem.status !== "returnRequested") {
         return res
-          .status(400)
+          .status(statusCode.BAD_REQUEST)
           .json({ error: "Product is not in return requested status" });
       }
 
@@ -427,7 +429,7 @@ const declineReturn = async (req, res, next) => {
     } else {
       if (order.orderStatus !== "returnRequested") {
         return res
-          .status(400)
+          .status(statusCode.BAD_REQUEST)
           .json({ error: "Order is not in return requested status" });
       }
 
@@ -441,14 +443,14 @@ const declineReturn = async (req, res, next) => {
 
     await order.save();
 
-    res.status(200).json({
+    res.status(statusCode.OK).json({
       success: `Return request ${
         productId ? "partially" : "completely"
       } declined successfully`,
     });
   } catch (error) {
     console.error("Error declining return:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 

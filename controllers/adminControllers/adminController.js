@@ -2,6 +2,7 @@ const User = require("../../models/userModel");
 const bcrypt = require("bcrypt");
 const Order = require ("../../models/orderModel");
 const Products = require ("../../models/product");
+const statusCode = require ("../../config/statusCode");
 
 const renderLogin = async (req, res, next) => {
   try {
@@ -102,7 +103,7 @@ const loadDashboard = async (req, res) => {
     });
   } catch (error) {
     console.log("Error loading dashboard:", error);
-    res.status(500).send("Error loading dashboard");
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send("Error loading dashboard");
   }
 };
 
@@ -115,7 +116,7 @@ const generateData = async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
-    res.status(500).send("Error fetching dashboard data");
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send("Error fetching dashboard data");
   }
 };
 

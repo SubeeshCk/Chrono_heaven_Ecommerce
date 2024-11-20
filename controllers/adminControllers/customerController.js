@@ -2,6 +2,7 @@ const User = require("../../models/userModel");
 const moment = require("moment");
 const API_ROUTES = require("../../config/apiRoutes");
 const Address = require("../../models/userAddress");
+const statusCode = require("../../config/statusCode");
 
 
 
@@ -86,7 +87,7 @@ const blockUser = async (req, res, next) => {
     );
     
     delete req.session.userId;
-    return res.status(200).send({
+    return res.status(statusCode.OK).send({
       message: "User blocked successfully",
       redirect: API_ROUTES.CUSTOMER.LIST,
     });
@@ -103,7 +104,7 @@ const unblockUser = async (req, res, next) => {
       { $set: { block: false } },
       { new: true }
     );
-    return res.status(200).send({
+    return res.status(statusCode.OK).send({
       message: "User unblocked successfully",
       redirect: API_ROUTES.CUSTOMER.LIST,
     });

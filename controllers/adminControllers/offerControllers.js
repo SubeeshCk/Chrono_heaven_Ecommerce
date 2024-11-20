@@ -4,6 +4,7 @@ const categoryModel = require("../../models/category");
 const productModel = require("../../models/product");
 const ProductOffer = require("../../models/productOffer");
 const User = require ("../../models/userModel");
+const statusCode = require("../../config/statusCode");
 
 
 const renderCoupons = async (req, res, next) => {
@@ -28,12 +29,12 @@ const addCoupons = async (req, res, next) => {
       !minPurchaseAmount ||
       !validity
     ) {
-      return res.status(400).json({ error: "All fields are required" });
+      return res.status(statusCode.BAD_REQUEST).json({ error: "All fields are required" });
     }
 
     const existingCoupon = await Coupon.findOne({ code });
     if (existingCoupon) {
-      return res.status(400).json({ error: "Coupon code already exists" });
+      return res.status(statusCode.BAD_REQUEST).json({ error: "Coupon code already exists" });
     }
 
     const currentDate = new Date();
@@ -42,12 +43,12 @@ const addCoupons = async (req, res, next) => {
     );
 
     if (isNaN(expiryDate.getTime())) {
-      return res.status(400).json({ error: "Invalid validity value" });
+      return res.status(statusCode.BAD_REQUEST).json({ error: "Invalid validity value" });
     }
 
     if (parseFloat(discountValue) > parseFloat(minPurchaseAmount)) {
       return res
-        .status(400)
+        .status(statusCode.BAD_REQUEST)
         .json({
           error: "Discount value cannot exceed minimum purchase amount",
         });
@@ -67,7 +68,7 @@ const addCoupons = async (req, res, next) => {
   } catch (error) {
     console.error("Error adding coupon:", error);
     res
-      .status(500)
+      .status(statusCode.INTERNAL_SERVER_ERROR)
       .json({ error: "An error occurred while adding the coupon" });
   }
 };
@@ -79,13 +80,13 @@ const getCoupon = async (req, res) => {
       const coupon = await Coupon.findById(couponId);
       
       if (!coupon) {
-          return res.status(404).json({ error: "Coupon not found" });
+          return res.status(statusCode.NOT_FOUND).json({ error: "Coupon not found" });
       }
 
       res.json(coupon);
   } catch (error) {
       console.error("Error fetching coupon:", error);
-      res.status(500).json({ error: "An error occurred while fetching the coupon" });
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching the coupon" });
   }
 };
 
@@ -96,12 +97,12 @@ const updateCoupon = async (req, res) => {
       const { code, discountType, discountValue, minPurchaseAmount, validity } = req.body;
 
       if (!code || !discountType || !discountValue || !minPurchaseAmount) {
-          return res.status(400).json({ error: "All fields are required" });
+          return res.status(statusCode.BAD_REQUEST).json({ error: "All fields are required" });
       }
 
       const coupon = await Coupon.findById(couponId);
       if (!coupon) {
-          return res.status(404).json({ error: "Coupon not found" });
+          return res.status(statusCode.NOT_FOUND).json({ error: "Coupon not found" });
       }
 
       const existingCoupon = await Coupon.findOne({ 
@@ -110,11 +111,11 @@ const updateCoupon = async (req, res) => {
       });
       
       if (existingCoupon) {
-          return res.status(400).json({ error: "Coupon code already exists" });
+          return res.status(statusCode.BAD_REQUEST).json({ error: "Coupon code already exists" });
       }
 
       if (parseFloat(discountValue) > parseFloat(minPurchaseAmount)) {
-          return res.status(400).json({ 
+          return res.status(statusCode.BAD_REQUEST).json({ 
               error: "Discount value cannot exceed minimum purchase amount" 
           });
       }
@@ -144,7 +145,7 @@ const updateCoupon = async (req, res) => {
       });
   } catch (error) {
       console.error("Error updating coupon:", error);
-      res.status(500).json({ 
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({ 
           error: "An error occurred while updating the coupon" 
       });
   }
@@ -166,10 +167,10 @@ const removeCoupon = async (req, res, next) => {
 
     await Coupon.findByIdAndDelete(couponId);
 
-    res.status(200).json({ message: "Coupon removed successfully" });
+    res.status(statusCode.OK).json({ message: "Coupon removed successfully" });
   } catch (error) {
     console.error("Error in removeCoupon:", error);
-    res.status(500).json({ error: "Failed to remove coupon" });
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Failed to remove coupon" });
   }
 };
 
@@ -189,7 +190,7 @@ const renderAddProductOffer = async (req, res, next) => {
     res.render("addProductOffer", { products });
   } catch (error) {
     console.error("Error adding offer:", error);
-    res.status(500).json({ error: "An error occurred while adding the offer" });
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while adding the offer" });
   }
 };
 
@@ -293,7 +294,7 @@ const removeProductOffer = async (req, res, next) => {
     const productWithId = await ProductOffer.findById(offerId);
 
     await productWithId.deleteOne();
-    res.json(200);
+    res.json(statusCode.OK);
   } catch (error) {
     next(error);
   }
@@ -411,7 +412,7 @@ const removeCategoryOffer = async (req, res, next) => {
     const categroyWithId = await CategoryOffer.findById(offerId);
 
     await categroyWithId.deleteOne();
-    res.json(200);
+    res.json(statusCode.OK);
   } catch (error) {
     next(error);
   }

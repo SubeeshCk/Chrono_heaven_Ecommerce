@@ -3,6 +3,7 @@ const Category = require("../../models/category");
 const Products = require("../../models/product");
 const WishlistItem = require("../../models/wishListModel");
 const { applyOffers,calculateDiscountedPrice } = require("../../config/offerUtils");
+const statusCode = require("../../config/statusCode");
 
 
 const renderHome = async (req, res, next) => {
@@ -194,7 +195,7 @@ const renderWomens = async (req, res, next) => {
     const womenCategory = await Category.findOne({ name: "women" });
 
     if (!womenCategory) {
-      return res.status(404).send("Women category not found");
+      return res.status(statusCode.NOT_FOUND).send("Women category not found");
     }
 
     const totalProducts = await Products.countDocuments({
@@ -281,7 +282,7 @@ const renderMens = async (req, res, next) => {
 
     const mensCategory = await Category.findOne({ name: "men" });
     if (!mensCategory) {
-      return res.status(404).send("Men category not found");
+      return res.status(statusCode.NOT_FOUND).send("Men category not found");
     }
 
     const totalProducts = await Products.countDocuments({
@@ -369,7 +370,7 @@ const sortProducts = async (req, res, next) => {
         is_listed: true,
       });
       if (!categoryDoc) {
-        return res.status(404).json({ error: "Category not found" });
+        return res.status(statusCode.NOT_FOUND).json({ error: "Category not found" });
       }
       matchCondition.category = categoryDoc._id;
     } else {
@@ -507,7 +508,7 @@ const addToWishlist = async (req, res, next) => {
   } catch (error) {
     if (req.xhr) {
       res
-        .status(500)
+        .status(statusCode.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal Server Error" });
     } else {
       return next(error);
@@ -550,20 +551,20 @@ const RemoveFromWishlist = async (req, res, next) => {
       });
 
       if (req.xhr) {
-        res.status(200).json({ message: "Item removed from wishlist" });
+        res.status(statusCode.OK).json({ message: "Item removed from wishlist" });
       } else {
         res.redirect("/wishlist");
       }
     } else {
       if (req.xhr) {
-        res.status(401).json({ message: "Unauthorized" });
+        res.status(statusCode.UNAUTHORIZED).json({ message: "Unauthorized" });
       } else {
         res.redirect("/login");
       }
     }
   } catch (error) {
     if (req.xhr) {
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
     } else {
       return next(error);
     }

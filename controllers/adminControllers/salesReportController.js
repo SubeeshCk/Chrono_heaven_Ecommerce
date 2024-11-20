@@ -5,6 +5,7 @@ const fs = require('fs');
 const fsPromises = require('fs').promises;
 const path = require('path');
 const ExcelJS = require('exceljs');
+const statusCode = require('../../config/statusCode');
 
 const ORDER_STATUS_GROUPS = {
   completed: ['delivered', 'returnRequestCancelled','returnRequested'],
@@ -124,7 +125,7 @@ const renderSalesReport = async (req, res) => {
       statusGroups: ORDER_STATUS_GROUPS 
     });
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -157,7 +158,7 @@ const sortReport = async (req, res) => {
       overallStats: overallStats
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
   }
 };
 
@@ -184,7 +185,7 @@ const downloadSalesReport = async (req, res) => {
     }
   } catch (error) {
     console.error("Error in downloadSalesReport:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -320,7 +321,7 @@ const generatePDFReport = async (ordersData, overallStats, res) => {
   });
 
   doc.fontSize(10)
-     .text("© 2024 Chrono Heaven. All rights reserved.", 50, 730, { align: "center", width: 500 });
+     .text("© 2024 Chrono Heaven. All rights reserved.", 50, 730, { align: "center", width: statusCode.INTERNAL_SERVER_ERROR });
 
   doc.end();
 
@@ -330,7 +331,7 @@ const generatePDFReport = async (ordersData, overallStats, res) => {
     res.sendFile(filePath, (err) => {
       if (err) {
         console.error("Error sending file:", err);
-        res.status(500).send("Error downloading PDF");
+        res.status(statusCode.INTERNAL_SERVER_ERROR).send("Error downloading PDF");
       }
       fs.unlinkSync(filePath);
     });

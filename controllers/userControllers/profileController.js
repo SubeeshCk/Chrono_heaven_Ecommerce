@@ -8,6 +8,7 @@ const PDFDocument = require("pdfkit");
 const crypto = require("crypto");
 
 const Razorpay = require("razorpay");
+const statusCode = require("../../config/statusCode");
 
 const { RAZOPAY_ID_KEY, RAZOPAY_SECRET_KEY } = process.env;
 
@@ -45,7 +46,7 @@ const renderEditProfile = async (req, res, next) => {
 
     if (!userData) {
       console.log("User not found");
-      return res.status(404).send("User not found");
+      return res.status(statusCode.NOT_FOUND).send("User not found");
     }
     res.render("edit-profile", { title: "Edit - Profile" });
   } catch (error) {
@@ -108,7 +109,7 @@ const renderAddress = async (req, res, next) => {
 
     if (!user) {
       console.log("User not found");
-      return res.status(404).send("User not found");
+      return res.status(statusCode.NOT_FOUND).send("User not found");
     }
 
     const addresses = await Address.find({ userId, is_deleted: false });
@@ -217,7 +218,7 @@ const renderEditAddress = async (req, res, next) => {
     const address = await Address.findById(addressId);
 
     if (!address || address.userId !== userId) {
-      return res.status(404).send("Address not found");
+      return res.status(statusCode.NOT_FOUND).send("Address not found");
     }
 
     res.render("edit-address", {
@@ -252,7 +253,7 @@ const updateAddress = async (req, res, next) => {
     if (!existingAddress) {
       req.flash("error", "Address not found or does not belong to the user");
       return res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .send("Address not found or does not belong to the user");
     }
 
@@ -267,7 +268,7 @@ const updateAddress = async (req, res, next) => {
       return res.redirect("/user-profile/address");
     } else {
       req.flash("error", "Failed to update address");
-      return res.status(500).send("Failed to update address");
+      return res.status(statusCode.INTERNAL_SERVER_ERROR).send("Failed to update address");
     }
   } catch (error) {
     console.log(error.message);
@@ -282,7 +283,7 @@ const deleteAddress = async (req, res, next) => {
     const addressId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(statusCode.UNAUTHORIZED).json({ error: "Unauthorized" });
     }
 
     const address = await Address.findOne({ _id: addressId, userId });
@@ -290,13 +291,13 @@ const deleteAddress = async (req, res, next) => {
     if (!address) {
       console.log("Address not found or does not belong to the user");
       return res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .json({ error: "Address not found or does not belong to the user" });
     }
 
     await Address.findByIdAndUpdate(addressId, { is_deleted: true });
 
-    res.status(200).json({ message: "Address deleted successfully" });
+    res.status(statusCode.OK).json({ message: "Address deleted successfully" });
   } catch (error) {
     return next(error);
   }
@@ -436,7 +437,7 @@ const cancelOrder = async (req, res, next) => {
 
     if (!userId) {
       console.log("Unauthorized: No user ID found in session");
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(statusCode.UNAUTHORIZED).json({ error: "Unauthorized" });
     }
 
     const order = await Order.findOne({
@@ -447,13 +448,13 @@ const cancelOrder = async (req, res, next) => {
     if (!order) {
       console.log("Order not found or does not belong to the user");
       return res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .json({ error: "Order not found or does not belong to the user" });
     }
 
     if (order.orderStatus.toLowerCase() === "cancelled") {
       console.log("Order is already cancelled");
-      return res.status(400).json({ error: "Order is already cancelled" });
+      return res.status(statusCode.BAD_REQUEST).json({ error: "Order is already cancelled" });
     }
 
     if (
@@ -463,7 +464,7 @@ const cancelOrder = async (req, res, next) => {
     ) {
       console.log("Order cannot be cancelled in current state");
       return res
-        .status(400)
+        .status(statusCode.BAD_REQUEST)
         .json({ error: "Order cannot be cancelled in current state" });
     }
 
@@ -520,7 +521,7 @@ const cancelOrder = async (req, res, next) => {
       const userWallet = await Wallet.findOne({ userId });
       if (!userWallet) {
         console.log("Wallet not found for user");
-        return res.status(404).json({ error: "Wallet not found" });
+        return res.status(statusCode.NOT_FOUND).json({ error: "Wallet not found" });
       }
 
       userWallet.balance += totalRefundAmount;
@@ -532,7 +533,7 @@ const cancelOrder = async (req, res, next) => {
       await userWallet.save();
     }
 
-    res.status(200).json({
+    res.status(statusCode.OK).json({
       success: true,
       message: "Order cancelled successfully",
       refundAmount: totalRefundAmount,
@@ -550,7 +551,7 @@ const cancelProduct = async (req, res, next) => {
 
     if (!userId) {
       console.log("Unauthorized: No user ID found in session");
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(statusCode.UNAUTHORIZED).json({ error: "Unauthorized" });
     }
 
     const order = await Order.findOne({
@@ -562,7 +563,7 @@ const cancelProduct = async (req, res, next) => {
     if (!order) {
       console.log("Order not found or does not belong to the user");
       return res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .json({ error: "Order not found or does not belong to the user" });
     }
 
@@ -572,12 +573,12 @@ const cancelProduct = async (req, res, next) => {
 
     if (!orderedItem) {
       console.log("Ordered item not found");
-      return res.status(404).json({ error: "Ordered item not found" });
+      return res.status(statusCode.NOT_FOUND).json({ error: "Ordered item not found" });
     }
 
     if (orderedItem.status === "Cancelled") {
       console.log("Product is already cancelled");
-      return res.status(400).json({ error: "Product is already cancelled" });
+      return res.status(statusCode.BAD_REQUEST).json({ error: "Product is already cancelled" });
     }
 
     let refundAmount = 0;
@@ -608,7 +609,7 @@ const cancelProduct = async (req, res, next) => {
     const product = await Products.findById(orderedItem.productId._id);
     if (!product) {
       console.log("Product not found");
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(statusCode.NOT_FOUND).json({ error: "Product not found" });
     }
 
     if (order.paymentMethod === "razorpay" && order.paymentStatus === false) {
@@ -622,7 +623,7 @@ const cancelProduct = async (req, res, next) => {
       const userWallet = await Wallet.findOne({ userId });
       if (!userWallet) {
         console.log("Wallet not found for user");
-        return res.status(404).json({ error: "Wallet not found" });
+        return res.status(statusCode.NOT_FOUND).json({ error: "Wallet not found" });
       }
 
       userWallet.balance += refundAmount;
@@ -634,7 +635,7 @@ const cancelProduct = async (req, res, next) => {
       await userWallet.save();
     }
 
-    res.status(200).json({ success: "Order cancelled successfully" });
+    res.status(statusCode.OK).json({ success: "Order cancelled successfully" });
   } catch (error) {
     return next(error);
   }
@@ -646,7 +647,7 @@ const returnOrder = async (req, res) => {
     const { orderId, returnReason } = req.body;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(statusCode.UNAUTHORIZED).json({ error: "Unauthorized" });
     }
 
     const order = await Order.findOne({
@@ -656,14 +657,14 @@ const returnOrder = async (req, res) => {
 
     if (!order) {
       return res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .json({ error: "Order not found or does not belong to the user" });
     }
 
     // Check if order status is delivered
     if (order.orderStatus !== "delivered") {
       return res
-        .status(400)
+        .status(statusCode.BAD_REQUEST)
         .json({ error: "Only delivered orders can be returned" });
     }
 
@@ -675,7 +676,7 @@ const returnOrder = async (req, res) => {
     );
 
     if (hasReturnedItems) {
-      return res.status(400).json({
+      return res.status(statusCode.BAD_REQUEST).json({
         error:
           "Some items in this order are already returned or have pending return requests",
       });
@@ -695,13 +696,13 @@ const returnOrder = async (req, res) => {
 
     await order.save();
 
-    res.status(200).json({
+    res.status(statusCode.OK).json({
       success: true,
       message: "Return request for complete order submitted successfully",
     });
   } catch (error) {
     console.error("Error returning complete order:", error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
@@ -711,7 +712,7 @@ const returnProduct = async (req, res) => {
     const { orderItemId, productId, returnReason } = req.body;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(statusCode.UNAUTHORIZED).json({ error: "Unauthorized" });
     }
 
     const order = await Order.findOne({
@@ -721,7 +722,7 @@ const returnProduct = async (req, res) => {
 
     if (!order) {
       return res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .json({ error: "Order not found or does not belong to the user" });
     }
 
@@ -733,7 +734,7 @@ const returnProduct = async (req, res) => {
     );
 
     if (hasReturnedOrRequested) {
-      return res.status(400).json({
+      return res.status(statusCode.BAD_REQUEST).json({
         error:
           "A product in this order has already been marked as Returned or returnrequested",
       });
@@ -746,11 +747,11 @@ const returnProduct = async (req, res) => {
     );
 
     if (!orderedItem) {
-      return res.status(404).json({ error: "Ordered item not found" });
+      return res.status(statusCode.NOT_FOUND).json({ error: "Ordered item not found" });
     }
 
     if (orderedItem.status === "Returned") {
-      return res.status(400).json({ error: "Product is already Returned" });
+      return res.status(statusCode.BAD_REQUEST).json({ error: "Product is already Returned" });
     }
 
     orderedItem.status = "returnRequested";
@@ -758,10 +759,10 @@ const returnProduct = async (req, res) => {
 
     await order.save();
 
-    res.status(200).json({ success: "Return request submitted successfully" });
+    res.status(statusCode.OK).json({ success: "Return request submitted successfully" });
   } catch (error) {
     console.error("Error returning order:", error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
 
@@ -780,12 +781,12 @@ const initiatePayment = async (req, res) => {
     const orderDetails = await Order.findById(orderId);
 
     if (!orderDetails) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(statusCode.NOT_FOUND).json({ message: "Order not found" });
     }
 
     if (orderDetails.paymentStatus) {
       return res
-        .status(400)
+        .status(statusCode.BAD_REQUEST)
         .json({ message: "This order has already been paid" });
     }
 
@@ -793,7 +794,7 @@ const initiatePayment = async (req, res) => {
 
     if (orderAmount < 1) {
       return res
-        .status(400)
+        .status(statusCode.BAD_REQUEST)
         .json({ message: "Order amount must be at least ₹1" });
     }
 
@@ -807,7 +808,7 @@ const initiatePayment = async (req, res) => {
       if (err) {
         console.error(err);
         return res
-          .status(500)
+          .status(statusCode.INTERNAL_SERVER_ERROR)
           .json({ message: "Failed to create Razorpay order" });
       }
 
@@ -823,7 +824,7 @@ const initiatePayment = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
   }
 };
 
@@ -850,7 +851,7 @@ const verifyPayment = async (req, res) => {
         { new: true }
       );
       if (!updatedOrder) {
-        return res.status(404).json({
+        return res.status(statusCode.NOT_FOUND).json({
           success: false,
           message: "Order not found.",
         });
@@ -880,16 +881,16 @@ const verifyPayment = async (req, res) => {
           message: "Payment verified and status updated",
         });
       } else {
-        res.status(404).json({ success: false, message: "Order not found" });
+        res.status(statusCode.NOT_FOUND).json({ success: false, message: "Order not found" });
       }
     } else {
       res
-        .status(400)
+        .status(statusCode.BAD_REQUEST)
         .json({ success: false, message: "Invalid payment verification" });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -900,7 +901,7 @@ const addReview = async (req, res) => {
     const product = await Products.findById(productId);
 
     if (!product) {
-      return res.status(404).send("Product not found");
+      return res.status(statusCode.NOT_FOUND).send("Product not found");
     }
 
     const newReview = {
@@ -912,7 +913,7 @@ const addReview = async (req, res) => {
     product.reviews.push(newReview);
     await product.save();
 
-    res.status(200).send("Review submitted successfully!");
+    res.status(statusCode.OK).send("Review submitted successfully!");
   } catch (error) {
     console.log(error.message);
   }
@@ -928,7 +929,7 @@ const generateInvoice = async (req, res) => {
       .populate("coupon");
 
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(statusCode.NOT_FOUND).send("Order not found");
     }
 
     const doc = new PDFDocument({ margin: 50 });
@@ -977,7 +978,7 @@ const generateInvoice = async (req, res) => {
 
     generateHr(185);
 
-    const customerInformationTop = 200;
+    const customerInformationTop = statusCode.OK;
     doc
       .fontSize(10)
       .text("Invoice Number:", 50, customerInformationTop)
@@ -1081,14 +1082,14 @@ const generateInvoice = async (req, res) => {
         "Thank you for your business. For any queries, please contact support@yourcompany.com",
         50,
         700,
-        { align: "center", width: 500 }
+        { align: "center", width: statusCode.INTERNAL_SERVER_ERROR }
       );
 
     doc.pipe(res);
     doc.end();
   } catch (error) {
     console.error("Error generating invoice:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
